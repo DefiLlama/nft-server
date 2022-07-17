@@ -65,11 +65,20 @@ interface PaintSwapCollectionStats {
 
 export class PaintSwap {
   public static async getAllCollections(): Promise<PaintSwapCollectionData[]> {
-    const url = `https://api.paintswap.finance/v2/collections?sortByRecentVolume=true`;
-    const response = await axios.get(url);
-    const { collections } = response.data;
 
-    return collections;
+    const collections: PaintSwapCollectionData[] = []
+    const numToFetch = 1000
+    let numToSkip = 0
+    let end = false
+    while (!end) {
+      const res = await axios.get(`https://api.paintswap.finance/v2/collections?simplified=false&numToFetch=${numToFetch}&numToSkip=${numToSkip}&orderBy=id`)
+      collections.push(...res.data.collections)
+      end = res.data.end
+      numToSkip += numToFetch
+    }
+
+    // Filter by verified (non-community) collections
+    return collections.filter((item) => item.verified === true)
   }
 
   public static async getCollection(
