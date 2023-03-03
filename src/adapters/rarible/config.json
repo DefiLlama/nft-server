@@ -1,0 +1,10 @@
+{
+  "exchangeName": "rarible",
+  "contract": "0x9757F2d2b135150BBeb65308D4a91804107cd8D6",
+  "events": [
+    {
+      "name": "Match",
+      "signatureHash": "0x956cd63ee4cdcd81fda5f0ec7c6c36dceda99e1b412f4a650a5d26055dc3c450"
+    }
+  ]
+}

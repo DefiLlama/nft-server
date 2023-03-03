@@ -1,0 +1,14 @@
+{
+  "exchangeName": "looksrare",
+  "contract": "0x59728544B08AB483533076417FbBB2fD0B17CE3a",
+  "events": [
+    {
+      "name": "TakerBid",
+      "signatureHash": "0x95fb6205e23ff6bda16a2d1dba56b9ad7c783f67c96fa149785052f47696f2be"
+    },
+    {
+      "name": "TakerAsk",
+      "signatureHash": "0x68cd251d4d267c6e2034ff0088b990352b97b2002c0476587d0c4da889c11330"
+    }
+  ]
+}

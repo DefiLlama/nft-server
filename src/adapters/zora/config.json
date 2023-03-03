@@ -1,0 +1,10 @@
+{
+  "exchangeName": "zora",
+  "contract": "0xE5BFAB544ecA83849c53464F85B7164375Bdaac1",
+  "events": [
+    {
+      "name": "BidFinalized",
+      "signatureHash": "0xb6ef177c7a6f32b283a49b5e0463a39240cdaa278028dfb219480d050e8ee54c"
+    }
+  ]
+}
