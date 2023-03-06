@@ -18,7 +18,10 @@ const { blockRangeTest } = require('../utils/params');
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
 
   const endBlock = await getMaxBlock('ethereum.event_logs');
-  const startBlock = endBlock - blockRangeTest;
+
+  const startBlock = !process.argv[3]
+    ? endBlock - blockRangeTest
+    : endBlock - process.argv[3];
 
   const trades = await parseEvent(
     startBlock,

@@ -1,10 +1,25 @@
 {
   "exchangeName": "zora",
-  "contract": "0xE5BFAB544ecA83849c53464F85B7164375Bdaac1",
   "events": [
     {
+      "contract": "0xE5BFAB544ecA83849c53464F85B7164375Bdaac1",
       "name": "BidFinalized",
       "signatureHash": "0xb6ef177c7a6f32b283a49b5e0463a39240cdaa278028dfb219480d050e8ee54c"
+    },
+    {
+      "contract": "0x34Aa9CBb80dc0b3d82D04900C02FB81468DafcAb",
+      "name": "AskFilled",
+      "signatureHash": "0xed509339c949cdfdb11c117315bb3f74aa98886204732c065edd38979d7ccf53"
+    },
+    {
+      "contract": "0x76744367AE5A056381868f716BDF0B13ae1aEaa3",
+      "name": "OfferFilled",
+      "signatureHash": "0x8d496f5c680daaaf5bdacfec3235619ed8eb52d6c31419098dfb83010f37ca22"
+    },
+    {
+      "contract": "0x5f7072E1fA7c01dfAc7Cf54289621AFAaD2184d0",
+      "name": "AuctionEnded",
+      "signatureHash": "0xde4690ca69ca2f9bab030a05a3072d626b0692c7020c1ef534aa3cc140fb1ff5"
     }
   ]
 }

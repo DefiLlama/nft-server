@@ -1,26 +1,64 @@
-const abi = require('./abi.json');
+const abiMarket = require('./abiMarket.json');
+const abiAsk = require('./abiAsk.json');
+const abiOffer = require('./abiOffer.json');
+const abiAuction = require('./abiAuction.json');
 const config = require('./config.json');
 
 const parse = (data, topics, interface, eventName, event) => {
-  const {
-    tokenId,
-    bid: { amount, currency, bidder, recipient },
-  } = interface.decodeEventLog(eventName, data, topics);
+  let tokenContract;
+  let tokenId;
+  let buyer;
+  let seller;
+  let paymentToken;
+  let price;
 
-  const ethSalePrice = amount.toString() / 1e18;
+  if (eventName === 'BidFinalized') {
+    ({
+      tokenId,
+      bid: {
+        amount: price,
+        currency: paymentToken,
+        bidder: buyer,
+        recipient: seller,
+      },
+    } = interface.decodeEventLog(eventName, data, topics));
+  } else if (eventName === 'AskFilled') {
+    // --- asks
+    ({ tokenContract, tokenId, buyer, seller, price } =
+      interface.decodeEventLog(eventName, data, topics));
+  } else if (eventName === 'OfferFilled') {
+    // --- offers
+    ({
+      tokenContract,
+      tokenId,
+      taker: seller,
+      offer: { maker: buyer, currency: paymentToken, amount: price },
+    } = interface.decodeEventLog(eventName, data, topics));
+  } else if (eventName === 'AuctionEnded') {
+    // --- auction
+    ({
+      tokenContract,
+      tokenId,
+      auction: { seller, highestBid: price, highestBidder: buyer },
+    } = interface.decodeEventLog(eventName, data, topics));
+  }
 
-  // note: missing events
+  const ethSalePrice = price.toString() / 1e18;
 
   return {
-    collection: recipient,
+    collection: tokenContract,
     tokenId,
-    amount,
+    amount: 1,
     ethSalePrice,
     usdSalePrice: ethSalePrice * event.price,
-    paymentToken: currency,
-    seller: recipient,
-    buyer: bidder,
+    paymentToken: paymentToken ?? '0x0000000000000000000000000000000000000000',
+    seller,
+    buyer,
   };
 };
 
-module.exports = { abi, config, parse };
+module.exports = {
+  abi: [...abiMarket, ...abiAsk, ...abiOffer, ...abiAuction],
+  config,
+  parse,
+};
