@@ -20,15 +20,14 @@ const parseEvent = async (
     startBlock,
     endBlock,
     eventSignatureHash,
+    config,
     test
   );
 
-  // 3. instantiate interfaces for each event defined in config.json
+  // 3. instantiate abi interface
+  const interface = new ethers.Interface(abi);
   for (const e of config.events) {
-    config[e.signatureHash] = {
-      name: e.name,
-      interface: new ethers.Interface([abi.find((m) => m.name === e.name)]),
-    };
+    config[e.signatureHash] = e.name;
   }
 
   // 4. parse event data
@@ -38,7 +37,7 @@ const parseEvent = async (
       .filter(Boolean)
       .map((t) => `0x${t}`);
 
-    const { interface, name } = config[topics[0]];
+    const name = config[topics[0]];
 
     const parsedEvent = parse(data, topics, interface, name, event);
 
@@ -49,6 +48,7 @@ const parseEvent = async (
       topic_3,
       data: dataEncoded,
       price,
+      tx_data,
       ...rest
     } = event;
 

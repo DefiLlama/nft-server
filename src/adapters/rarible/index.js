@@ -4,18 +4,29 @@ const config = require('./config.json');
 const parse = (data, topics, interface, eventName, event) => {
   const { newLeftFill } = interface.decodeEventLog(eventName, data, topics);
 
-  const ethSalePrice = newLeftFill.toString() / 1e18;
+  // decoding method input args cause event data only contains the sale price
+  const txData = `0x${event.tx_data}`;
+  const funcSigHash = txData.slice(0, 10);
+  const {
+    direct: {
+      sellOrderMaker,
+      sellOrderNftAmount,
+      nftData,
+      paymentToken,
+      sellOrderData,
+      buyOrderData,
+    },
+  } = interface.decodeFunctionData(funcSigHash, txData);
 
-  // note:missing collection, tokenId, seller and maker from event...
-  // need to read method args
+  const ethSalePrice = newLeftFill.toString() / 1e18;
 
   return {
     collection: 'test',
     tokenId: 'test',
-    amount: 1,
+    amount: sellOrderNftAmount,
     ethSalePrice,
     usdSalePrice: ethSalePrice * event.price,
-    paymentToken: '0x0000000000000000000000000000000000000000',
+    paymentToken,
     seller: 'test',
     buyer: 'test',
   };
