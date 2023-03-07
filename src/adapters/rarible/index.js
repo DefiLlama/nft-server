@@ -48,14 +48,14 @@ const parse = (decodedData, event, interface) => {
   const ethSalePrice = newLeftFill.toString() / 1e18;
 
   return {
-    collection: 'test',
-    tokenId: 'test',
-    amount: 'test',
+    collection,
+    tokenId,
+    amount,
     ethSalePrice,
     usdSalePrice: ethSalePrice * event.price,
     paymentToken,
-    seller: 'test',
-    buyer: 'test',
+    seller,
+    buyer,
   };
 };
 

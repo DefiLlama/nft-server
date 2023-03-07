@@ -7,7 +7,7 @@ const parse = (decodedData, event) => {
   const ethSalePrice = value.toString() / 1e18;
 
   return {
-    collection: config.events[0].contract,
+    collection: config.contracts[0],
     tokenId: punkIndex,
     amount: 1,
     ethSalePrice,

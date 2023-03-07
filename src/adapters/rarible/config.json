@@ -1,6 +1,6 @@
 {
   "exchangeName": "rarible",
-  "contract": "0x9757F2d2b135150BBeb65308D4a91804107cd8D6",
+  "contracts": ["0x9757F2d2b135150BBeb65308D4a91804107cd8D6"],
   "events": [
     {
       "name": "Match",

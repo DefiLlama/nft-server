@@ -1,6 +1,6 @@
 {
   "exchangeName": "looksrare",
-  "contract": "0x59728544B08AB483533076417FbBB2fD0B17CE3a",
+  "contracts": ["0x59728544B08AB483533076417FbBB2fD0B17CE3a"],
   "events": [
     {
       "name": "TakerBid",

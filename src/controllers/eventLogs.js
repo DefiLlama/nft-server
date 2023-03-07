@@ -20,7 +20,8 @@ FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
 WHERE
-  e.topic_0 in ($<topic0:csv>)
+  e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.contract_address in ($<contractAddresses:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 `;
@@ -46,7 +47,8 @@ FROM
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
 WHERE
-  e.topic_0 in ($<topic0:csv>)
+  e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.contract_address in ($<contractAddresses:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 `;
@@ -70,7 +72,8 @@ FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
 WHERE
-  e.topic_0 in ($<topic0:csv>)
+  e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.contract_address in ($<contractAddresses:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 ORDER BY
@@ -97,30 +100,36 @@ FROM
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
 WHERE
-  e.topic_0 in ($<topic0:csv>)
+  e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.contract_address in ($<contractAddresses:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 ORDER BY
   e.topic_0, e.block_number DESC;
 `;
 
-const getEvents = async (
-  startBlock,
-  endBlock,
-  eventsSignatureHash,
-  config,
-  test = false
-) => {
-  const conn = await connect();
+const getEvents = async (startBlock, endBlock, config, test = false) => {
+  const eventSignatureHashes = config.events.map(
+    (e) => `\\${e.signatureHash.slice(1)}`
+  );
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
   const isRarible = config.exchangeName === 'rarible';
   const q =
-    test && isRarible ? queryTestCaseRarible : test ? queryTestCase : query;
+    test && isRarible
+      ? queryTestCaseRarible
+      : test
+      ? queryTestCase
+      : isRarible
+      ? queryRarible
+      : query;
 
+  const conn = await connect();
   const response = await conn.query(minify(q, { compress: false }), {
     startBlock,
     endBlock,
-    topic0: eventsSignatureHash,
+    eventSignatureHashes,
+    contractAddresses,
   });
 
   if (!response) {

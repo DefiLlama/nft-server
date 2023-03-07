@@ -1,8 +1,8 @@
 {
   "exchangeName": "cryptopunks",
+  "contracts": ["0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB"],
   "events": [
     {
-      "contract": "0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB",
       "name": "PunkBought",
       "signatureHash": "0x58e5d5a525e3b40bc15abaa38b5882678db1ee68befd2f60bafe3a7fd06db9e3"
     }

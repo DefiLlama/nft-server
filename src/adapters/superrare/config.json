@@ -1,6 +1,6 @@
 {
   "exchangeName": "superrare",
-  "contract": "0x6D7c44773C52D396F43c2D511B81aa168E9a7a42",
+  "contracts": ["0x6D7c44773C52D396F43c2D511B81aa168E9a7a42"],
   "events": [
     {
       "name": "Sold",

@@ -1,5 +1,4 @@
 const abiSeaport = require('./abiSeaport.json');
-const abiWyvern = require('./abiWyvern.json');
 const config = require('./config.json');
 
 const parse = (decodedData, event) => {
@@ -75,25 +74,7 @@ const parse = (decodedData, event) => {
 };
 
 module.exports = {
-  // combing the relevant events
-  abi: [
-    ...abiWyvern.filter(
-      (e) =>
-        e.type === 'event' &&
-        config.events
-          .filter((c) => c.contractName === 'Wyvern')
-          .map((c) => c.name)
-          .includes(e.name)
-    ),
-    ...abiSeaport.filter(
-      (e) =>
-        e.type === 'event' &&
-        config.events
-          .filter((c) => c.contractName === 'Seaport')
-          .map((c) => c.name)
-          .includes(e.name)
-    ),
-  ],
+  abi: abiSeaport,
   config,
   parse,
 };

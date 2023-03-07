@@ -1,9 +1,11 @@
 {
   "exchangeName": "opensea",
+  "contracts": [
+    "0x00000000006c3852cbEf3e08E8dF289169EdE581",
+    "0x00000000000001ad428e4906aE43D8F9852d0dD6"
+  ],
   "events": [
     {
-      "contract": "0x00000000000001ad428e4906aE43D8F9852d0dD6",
-      "contractName": "Seaport",
       "name": "OrderFulfilled",
       "signatureHash": "0x9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31"
     }
