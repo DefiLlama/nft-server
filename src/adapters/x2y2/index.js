@@ -1,12 +1,8 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 
-const parse = (data, topics, interface, eventName, event) => {
-  const { maker, taker, item } = interface.decodeEventLog(
-    eventName,
-    data,
-    topics
-  );
+const parse = (decodedData, event) => {
+  const { maker, taker, item } = decodedData;
 
   const ethSalePrice = item[0].toString() / 1e18;
 

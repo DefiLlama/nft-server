@@ -38,8 +38,12 @@ const parseEvent = async (
       .map((t) => `0x${t}`);
 
     const name = config[topics[0]];
-
-    const parsedEvent = parse(data, topics, interface, name, event);
+    const eventDecoded = interface.decodeEventLog(name, data, topics);
+    // most adapters only require eventDecoded and event (for the eth price).
+    // interface and or eventName are only used in case event.tx_data needs to parsed
+    // and/or if `eventDecoded` fields are different for eventName (in case of
+    // more than 1 nft trade event)
+    const parsedEvent = parse(eventDecoded, event, interface, name);
 
     // keeping a bunch of fields from event_logs
     const {

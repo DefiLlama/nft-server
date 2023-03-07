@@ -1,9 +1,8 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 
-const parse = (data, topics, interface, eventName, event) => {
-  const { nftContract, tokenId, seller, buyer, creatorRev } =
-    interface.decodeEventLog(eventName, data, topics);
+const parse = (decodedData, event) => {
+  const { nftContract, tokenId, seller, buyer, creatorRev } = decodedData;
 
   const ethSalePrice = creatorRev.toString() / 1e18;
 

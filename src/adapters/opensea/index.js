@@ -2,7 +2,7 @@ const abiSeaport = require('./abiSeaport.json');
 const abiWyvern = require('./abiWyvern.json');
 const config = require('./config.json');
 
-const parse = (data, topics, interface, eventName, event) => {
+const parse = (decodedData, event) => {
   // https://docs.opensea.io/reference/create-an-order
   // https://docs.opensea.io/reference/seaport-enums
   // https://docs.opensea.io/reference/seaport-overview
@@ -28,7 +28,7 @@ const parse = (data, topics, interface, eventName, event) => {
     consideration: [
       { token: tokenC, identifier: identifierC, amount: amountC },
     ],
-  } = interface.decodeEventLog(eventName, data, topics);
+  } = decodedData;
 
   let collection;
   let tokenId;

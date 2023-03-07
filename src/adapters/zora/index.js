@@ -4,7 +4,7 @@ const abiOffer = require('./abiOffer.json');
 const abiAuction = require('./abiAuction.json');
 const config = require('./config.json');
 
-const parse = (data, topics, interface, eventName, event) => {
+const parse = (decodedData, event, interface, eventName) => {
   let tokenContract;
   let tokenId;
   let buyer;
@@ -21,11 +21,10 @@ const parse = (data, topics, interface, eventName, event) => {
         bidder: buyer,
         recipient: seller,
       },
-    } = interface.decodeEventLog(eventName, data, topics));
+    } = decodedData);
   } else if (eventName === 'AskFilled') {
     // --- asks
-    ({ tokenContract, tokenId, buyer, seller, price } =
-      interface.decodeEventLog(eventName, data, topics));
+    ({ tokenContract, tokenId, buyer, seller, price } = decodedData);
   } else if (eventName === 'OfferFilled') {
     // --- offers
     ({
@@ -33,14 +32,14 @@ const parse = (data, topics, interface, eventName, event) => {
       tokenId,
       taker: seller,
       offer: { maker: buyer, currency: paymentToken, amount: price },
-    } = interface.decodeEventLog(eventName, data, topics));
+    } = decodedData);
   } else if (eventName === 'AuctionEnded') {
     // --- auction
     ({
       tokenContract,
       tokenId,
       auction: { seller, highestBid: price, highestBidder: buyer },
-    } = interface.decodeEventLog(eventName, data, topics));
+    } = decodedData);
   }
 
   const ethSalePrice = price.toString() / 1e18;
