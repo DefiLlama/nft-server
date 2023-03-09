@@ -22,6 +22,13 @@
     "pg-promise": "^11.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.21.0",
+    "@babel/plugin-transform-runtime": "^7.21.0",
+    "@babel/preset-typescript": "^7.21.0",
+    "@babel/runtime": "^7.21.0",
+    "babel-loader": "^9.1.2",
+    "pg": "^8.10.0",
+    "pg-native": "^3.0.1",
     "serverless": "^3.28.1",
     "serverless-prune-plugin": "^2.0.2",
     "serverless-webpack": "^5.11.0",
