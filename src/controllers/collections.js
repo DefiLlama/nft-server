@@ -101,7 +101,7 @@ SELECT
     floor_price,
     floor_price_1_day,
     floor_price_7_day,
-    floor_price_30_day,
+    floor_price_30_day
 FROM
     filtered_records AS f
     INNER JOIN $<collectionTable:name> AS c ON c.collection_id = f.collection_id;

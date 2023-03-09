@@ -6,7 +6,7 @@ exports.up = (pgm) => {
   // collection table for static data
   pgm.sql(`
       CREATE TABLE collection (
-        collection_id VARCHAR(42) PRIMARY KEY,
+        collection_id TEXT PRIMARY KEY,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
         name TEXT NOT NULL,
         slug TEXT NOT NULL,
@@ -20,13 +20,13 @@ exports.up = (pgm) => {
   pgm.sql(`
       CREATE TABLE floor (
         floor_id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        collection_id VARCHAR(42) NOT NULL REFERENCES "collection" ON DELETE CASCADE,
+        collection_id TEXT NOT NULL REFERENCES "collection" ON DELETE CASCADE,
         timestamp TIMESTAMPTZ NOT NULL,
         on_sale_count NUMERIC,
         floor_price NUMERIC,
         floor_price_1_day NUMERIC,
         floor_price_7_day NUMERIC,
-        floor_price_30_day NUMERIC,
+        floor_price_30_day NUMERIC
       );
     `);
 
