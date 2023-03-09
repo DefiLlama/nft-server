@@ -50,7 +50,7 @@ functions:
   triggerCollections:
     handler: src/handlers/triggerCollections.handler
     description: save static and dynamic (eg floor) data for top N-collections
-    timeout: 60
+    timeout: 120
     # events:
     #   # every 5 min
     #   - schedule: cron(*/5 * * * ? *)
