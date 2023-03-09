@@ -7,7 +7,7 @@ const { pgp, connect } = require('../utils/dbConnection');
 // multi row insert (update on conflict) query generator
 const buildCollectionQ = (payload) => {
   const columns = [
-    'collectionID',
+    'collectionId',
     'name',
     'slug',
     'image',
@@ -27,7 +27,7 @@ const buildCollectionQ = (payload) => {
 // multi row insert query generator
 const buildFloorQ = (payload) => {
   const columns = [
-    'collectionID',
+    'collectionId',
     'timestamp',
     'onSaleCount',
     'floorPrice',
