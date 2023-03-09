@@ -27,7 +27,6 @@ exports.up = (pgm) => {
         floor_price_1_day NUMERIC,
         floor_price_7_day NUMERIC,
         floor_price_30_day NUMERIC,
-        owner_count NUMERIC
       );
     `);
 

@@ -3,6 +3,10 @@ const { convertKeysToSnakeCase } = require('../utils/keyConversion');
 
 const axios = require('axios');
 
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
 module.exports.handler = async () => {
   await main();
 };
@@ -16,15 +20,23 @@ const main = async () => {
   // get the collection addresses
   const collections = top1k.map((c) => c.collectionId.slice(0, 42));
 
-  const promises = collections.map((c) =>
-    axios.get(`${api}/collections/v5?id=${c}&includeOwnerCount=true`)
-  );
+  const batchSize = 20;
+  let collectionDetails = [];
+  for (let i = 0; i < collections.length; i += batchSize) {
+    console.log(`batch ${i}-${batchSize + i}`);
+    const batch = collections.slice(i, batchSize + i).join('&contract=');
 
-  const collectionDetails = (await Promise.allSettled(promises))
-    .filter((x) => x.status === 'fulfilled')
-    .map((x) => x.value.data.collections)
-    .flat();
-  console.log('nb of failed pulls:', 1000 - collectionDetails.length);
+    const X = await axios.get(`${api}/collections/v5?contract=${batch}`, {
+      headers: { 'x-api-key': process.env.RESERVOIR_API },
+    });
+    collectionDetails = [...collectionDetails, ...X.data.collections];
+    await sleep(1000);
+  }
+
+  console.log(
+    'nb of failed pulls:',
+    collections.length - collectionDetails.length
+  );
 
   const timestamp = new Date(Date.now());
   const seen = new Set();
@@ -46,11 +58,12 @@ const main = async () => {
         floorPrice1day: c.floorSale['1day'],
         floorPrice7day: c.floorSale['7day'],
         floorPrice30day: c.floorSale['30day'],
-        ownerCount: c.ownerCount,
       })
     );
     seen.add(c.id);
   }
+
+  console.log(payload[0]);
 
   // db insert
   console.log('insert collections...');

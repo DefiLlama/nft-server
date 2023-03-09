@@ -34,7 +34,6 @@ const buildFloorQ = (payload) => {
     'floorPrice1day',
     'floorPrice7day',
     'floorPrice30day',
-    'ownerCount',
   ].map((c) => _.snakeCase(c));
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'floor' });
@@ -103,7 +102,6 @@ SELECT
     floor_price_1_day,
     floor_price_7_day,
     floor_price_30_day,
-    owner_count
 FROM
     filtered_records AS f
     INNER JOIN $<collectionTable:name> AS c ON c.collection_id = f.collection_id;
