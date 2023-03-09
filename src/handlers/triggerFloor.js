@@ -9,7 +9,7 @@ module.exports.handler = async () => {
 const main = async () => {
   const api = 'https://api.reservoir.tools';
   // get top 1k collections based on all time volume
-  const top1k = (await axios.get(`${api}/search/collections/v1?limit=1000}`))
+  const top1k = (await axios.get(`${api}/search/collections/v1?limit=1000`))
     .data.collections;
   // get the collection addresses
   const collections = top1k.map((c) => c.collectionId.slice(0, 42));
@@ -20,8 +20,9 @@ const main = async () => {
 
   const collectionDetails = (await Promise.allSettled(promises))
     .filter((x) => x.status === 'fulfilled')
-    .map((x) => x.value.data.collections);
-  console.log('nb of failed pulls', 1000 - collectionDetails.length);
+    .map((x) => x.value.data.collections)
+    .flat();
+  console.log('nb of failed pulls:', 1000 - collectionDetails.length);
 
   const timestamp = new Date(Date.now());
 
@@ -36,11 +37,7 @@ const main = async () => {
       tokenCount,
       contractKind,
       onSaleCount,
-      floorAsk: {
-        price: {
-          amount: { native },
-        },
-      },
+      floorAsk,
       floorSale,
       ownerCount,
     } = c;
@@ -55,7 +52,7 @@ const main = async () => {
       totalSupply: tokenCount,
       contractKind,
       onSaleCount,
-      floorPrice: native,
+      floorPrice: floorAsk?.price?.amount?.native ?? null,
       floorPrice1d: floorSale['1day'],
       floorPrice7d: floorSale['7day'],
       floorPrice30d: floorSale['30day'],
