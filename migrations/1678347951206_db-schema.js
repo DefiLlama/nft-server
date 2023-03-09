@@ -1,5 +1,8 @@
 // migration file using node-pg-migrate
 exports.up = (pgm) => {
+  // add uuid extension
+  pgm.sql(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
+
   // collection table for static data
   pgm.sql(`
       CREATE TABLE collection (
@@ -49,8 +52,8 @@ exports.up = (pgm) => {
 
   // composite index on timeseries table
   pgm.sql(`
-      CREATE INDEX floor_collection_id_timestamp_idx 
-      ON yield (collection_id ASC, timestamp DESC);
+      CREATE INDEX collection_id_timestamp_idx
+      ON floor (collection_id ASC, timestamp DESC);
   `);
 
   // roles
