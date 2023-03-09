@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "node-pg-migrate"
+    "migrate": "node-pg-migrate",
+    "deploy:env": "sls deploy --stage $NODE_ENV",
+    "deploy:prod": "export AWS_PROFILE='defillama' && export NODE_ENV=prod && npm run deploy:env",
+    "deploy:dev": "export AWS_PROFILE='defillama' && export NODE_ENV=dev && npm run deploy:env",
+    "deploy": "export NODE_ENV=prod && npm run deploy:env"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +20,11 @@
     "lodash": "^4.17.21",
     "node-pg-migrate": "^6.2.2",
     "pg-promise": "^11.3.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.28.1",
+    "serverless-prune-plugin": "^2.0.2",
+    "serverless-webpack": "^5.11.0",
+    "webpack": "^5.76.0"
   }
 }

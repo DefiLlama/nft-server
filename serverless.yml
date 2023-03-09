@@ -1,0 +1,81 @@
+service: nft-server
+
+package:
+  individually: true
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  stage: dev
+  region: eu-central-1
+  tracing:
+    apiGateway: true
+    lambda: true
+  memorySize: 512
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - xray:PutTraceSegments
+            - xray:PutTelemetryRecords
+          Resource: '*'
+
+  environment:
+    # for api handlers
+    APIG_URL:
+      {
+        'Fn::Join':
+          [
+            '',
+            [
+              'https://',
+              { Ref: 'HttpApi' },
+              '.execute-api.',
+              { Ref: 'AWS::Region' },
+              '.',
+              { Ref: 'AWS::URLSuffix' },
+            ],
+          ],
+      }
+    DATABASE_URL: ${file(./env.js):DATABASE_URL}
+
+  httpApi:
+    metrics: true
+
+functions:
+  # ---------- TRIGGER HANDLERS
+  triggerCollections:
+    handler: src/handlers/triggerCollections.handler
+    description: save static and dynamic (eg floor) data for top N-collections
+    timeout: 60
+    events:
+      # every 5 min
+      - schedule: cron(*/5 * * * ? *)
+
+  # ---------- GET HANDLERS
+  getCollections:
+    handler: src/handlers/getCollections.handler
+    description: get latest data for each collection
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /collections
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true
+    packager: 'npm'
+    excludeFiles: src/**/*.test.js
+  prune:
+    automatic: true
+    number: 5
+
+plugins:
+  - serverless-webpack
+  - serverless-prune-plugin

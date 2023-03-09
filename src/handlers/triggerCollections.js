@@ -54,8 +54,8 @@ const main = async () => {
 
   // db insert
   console.log('insert collections...');
-  const response = await insertCollections(payload);
-  console.log(response);
+  // const response = await insertCollections(payload);
+  // console.log(response);
   console.log('done!');
   process.exit();
 };
