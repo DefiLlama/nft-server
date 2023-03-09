@@ -1,5 +1,5 @@
-const insert = require('../controllers/floor');
-const convertKeysToSnakeCase = require('../utils/snakeCase');
+const { insert } = require('../controllers/floor');
+const { convertKeysToSnakeCase } = require('../utils/keyConversion');
 
 const axios = require('axios');
 
@@ -35,13 +35,12 @@ const main = async () => {
     payload.push(
       convertKeysToSnakeCase({
         timestamp,
-        collectionID: c.id,
+        collectionId: c.id,
         name: c.name,
         slug: c.slug,
         image: c.image,
-        description: c.description,
-        totalSupply: Number(c.tokenCount),
         tokenStandard: c.contractKind,
+        totalSupply: Number(c.tokenCount),
         onSaleCount: Number(c.onSaleCount),
         floorPrice: c.floorAsk?.price?.amount?.native ?? null,
         floorPrice1day: c.floorSale['1day'],

@@ -1,5 +1,7 @@
 const _ = require('lodash');
+const minify = require('pg-minify');
 
+const { convertKeysToCamelCase } = require('../utils/keyConversion');
 const { pgp, connect } = require('../utils/dbConnection');
 
 // multi row insert (update on conflict) query generator
@@ -71,4 +73,55 @@ const insert = async (payload) => {
     });
 };
 
-module.exports = insert;
+// get most recent collection data
+const getCollections = async () => {
+  const conn = await connect();
+
+  const query = minify(
+    `
+WITH filtered_records AS (
+    SELECT
+        DISTINCT ON (collection_id) *
+    FROM
+        $<floorTable:name>
+    WHERE
+        timestamp >= NOW() - INTERVAL '$<age> DAY'
+    ORDER BY
+        collection_id,
+        timestamp DESC
+)
+SELECT
+    f.collection_id,
+    timestamp,
+    name,
+    slug,
+    image,
+    token_standard,
+    total_supply,
+    on_sale_count,
+    floor_price,
+    floor_price_1_day,
+    floor_price_7_day,
+    floor_price_30_day,
+    owner_count
+FROM
+    filtered_records AS f
+    INNER JOIN $<collectionTable:name> AS c ON c.collection_id = f.collection_id;
+  `,
+    { compress: true }
+  );
+
+  const response = await conn.query(query, {
+    age: 7,
+    floorTable: 'floor',
+    collectionTable: 'collection',
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get collection data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
+module.exports = { insert, getCollections };
