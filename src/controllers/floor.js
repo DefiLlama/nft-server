@@ -1,21 +1,23 @@
-const { connect } = require('../utils/dbConnection');
+const _ = require('lodash');
+
+const { pgp, connect } = require('../utils/dbConnection');
 
 // multi row insert (update on conflict) query generator
-const buildConfigQ = (payload) => {
+const buildCollectionQ = (payload) => {
   const columns = [
-    'collection',
+    'collectionID',
     'name',
     'slug',
     'image',
-    'description',
-    'totalSupply',
     'tokenStandard',
-  ];
-  const cs = new pgp.helpers.ColumnSet(columns, { table: 'config' });
+    'totalSupply',
+  ].map((c) => _.snakeCase(c));
+
+  const cs = new pgp.helpers.ColumnSet(columns, { table: 'collection' });
   const query =
     pgp.helpers.insert(payload, cs) +
-    ' ON CONFLICT(config_id) DO UPDATE SET ' +
-    cs.assignColumns({ from: 'EXCLUDED', skip: 'config_id' });
+    ' ON CONFLICT(collection_id) DO UPDATE SET ' +
+    cs.assignColumns({ from: 'EXCLUDED', skip: 'collection_id' });
 
   return query;
 };
@@ -23,15 +25,16 @@ const buildConfigQ = (payload) => {
 // multi row insert query generator
 const buildFloorQ = (payload) => {
   const columns = [
+    'collectionID',
     'timestamp',
-    'collection',
     'onSaleCount',
     'floorPrice',
-    'floorPrice1d',
-    'floorPrice7d',
-    'floorPrice30d',
+    'floorPrice1day',
+    'floorPrice7day',
+    'floorPrice30day',
     'ownerCount',
-  ];
+  ].map((c) => _.snakeCase(c));
+
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'floor' });
   return pgp.helpers.insert(payload, cs);
 };
@@ -41,14 +44,14 @@ const insert = async (payload) => {
   const conn = await connect();
 
   // build queries
-  const configQ = buildConfigQ(payload);
+  const collectionQ = buildCollectionQ(payload);
   const floorQ = buildFloorQ(payload);
 
   return conn
     .tx(async (t) => {
       // sequence of queries:
       // 1. config: insert/update
-      const q1 = await t.result(configQ);
+      const q1 = await t.result(collectionQ);
       // 2. floor: insert
       const q2 = await t.result(floorQ);
 
@@ -64,7 +67,7 @@ const insert = async (payload) => {
     .catch((err) => {
       // failure, ROLLBACK was executed
       console.log(err);
-      return new Error('ConfigFloor Transaction failed, rolling back', 404);
+      return new Error('Transaction failed, rolling back', 404);
     });
 };
 

@@ -1,4 +1,5 @@
 const insert = require('../controllers/floor');
+const convertKeysToSnakeCase = require('../utils/snakeCase');
 
 const axios = require('axios');
 
@@ -7,6 +8,7 @@ module.exports.handler = async () => {
 };
 
 const main = async () => {
+  console.log('trigger FloorPrice handler...\n');
   const api = 'https://api.reservoir.tools';
   // get top 1k collections based on all time volume
   const top1k = (await axios.get(`${api}/search/collections/v1?limit=1000`))
@@ -25,42 +27,36 @@ const main = async () => {
   console.log('nb of failed pulls:', 1000 - collectionDetails.length);
 
   const timestamp = new Date(Date.now());
+  const seen = new Set();
+  const payload = [];
+  for (const c of collectionDetails) {
+    if (seen.has(c.id)) continue;
 
-  //  map columNames
-  const payload = collectionDetails.map((c) => {
-    const {
-      id,
-      name,
-      slug,
-      image,
-      description,
-      tokenCount,
-      contractKind,
-      onSaleCount,
-      floorAsk,
-      floorSale,
-      ownerCount,
-    } = c;
-
-    return {
-      timestamp,
-      collection: id,
-      name,
-      slug,
-      image,
-      description,
-      totalSupply: tokenCount,
-      contractKind,
-      onSaleCount,
-      floorPrice: floorAsk?.price?.amount?.native ?? null,
-      floorPrice1d: floorSale['1day'],
-      floorPrice7d: floorSale['7day'],
-      floorPrice30d: floorSale['30day'],
-      ownerCount,
-    };
-  });
+    payload.push(
+      convertKeysToSnakeCase({
+        timestamp,
+        collectionID: c.id,
+        name: c.name,
+        slug: c.slug,
+        image: c.image,
+        description: c.description,
+        totalSupply: Number(c.tokenCount),
+        tokenStandard: c.contractKind,
+        onSaleCount: Number(c.onSaleCount),
+        floorPrice: c.floorAsk?.price?.amount?.native ?? null,
+        floorPrice1day: c.floorSale['1day'],
+        floorPrice7day: c.floorSale['7day'],
+        floorPrice30day: c.floorSale['30day'],
+        ownerCount: c.ownerCount,
+      })
+    );
+    seen.add(c.id);
+  }
 
   // db insert
+  console.log('db insert...');
   const response = await insert(payload);
   console.log(response);
+  console.log('done!');
+  process.exit();
 };
