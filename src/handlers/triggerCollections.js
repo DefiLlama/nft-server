@@ -1,4 +1,4 @@
-const { insert } = require('../controllers/floor');
+const { insertCollections } = require('../controllers/collections');
 const { convertKeysToSnakeCase } = require('../utils/keyConversion');
 
 const axios = require('axios');
@@ -8,7 +8,7 @@ module.exports.handler = async () => {
 };
 
 const main = async () => {
-  console.log('trigger FloorPrice handler...\n');
+  console.log('trigger Collections handler...\n');
   const api = 'https://api.reservoir.tools';
   // get top 1k collections based on all time volume
   const top1k = (await axios.get(`${api}/search/collections/v1?limit=1000`))
@@ -53,8 +53,8 @@ const main = async () => {
   }
 
   // db insert
-  console.log('db insert...');
-  const response = await insert(payload);
+  console.log('insert collections...');
+  const response = await insertCollections(payload);
   console.log(response);
   console.log('done!');
   process.exit();

@@ -42,7 +42,7 @@ const buildFloorQ = (payload) => {
 };
 
 // --------- transaction query
-const insert = async (payload) => {
+const insertCollections = async (payload) => {
   const conn = await connect();
 
   // build queries
@@ -124,4 +124,4 @@ FROM
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
-module.exports = { insert, getCollections };
+module.exports = { insertCollections, getCollections };
