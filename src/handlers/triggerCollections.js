@@ -57,5 +57,4 @@ const main = async () => {
   // const response = await insertCollections(payload);
   // console.log(response);
   console.log('done!');
-  process.exit();
 };

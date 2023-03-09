@@ -4,4 +4,5 @@ try {
 
 module.exports = {
   DATABASE_URL: process.env.DATABASE_URL,
+  RESERVOIR_API: process.env.RESERVOIR_API,
 };
