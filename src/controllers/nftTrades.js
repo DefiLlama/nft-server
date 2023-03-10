@@ -1,4 +1,4 @@
-const { connect } = require('../utils/dbConnection');
+const { pgp, connect } = require('../utils/dbConnection');
 
 const columns = [
   'transaction_hash',
@@ -18,7 +18,7 @@ const columns = [
   'buyer',
 ];
 
-const tableName = 'ethereum.nft_trades';
+const tableName = 'nft_trades';
 
 const insertTrades = async (payload) => {
   const conn = await connect();
