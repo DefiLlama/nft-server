@@ -34,9 +34,9 @@ functions:
     handler: src/handlers/triggerCollections.handler
     description: save static and dynamic (eg floor) data for top N-collections
     timeout: 120
-    # events:
-    #   # every 5 min
-    #   - schedule: cron(*/5 * * * ? *)
+    events:
+      # every 5 min
+      - schedule: cron(*/5 * * * ? *)
     environment:
       RESERVOIR_API: ${file(./env.js):RESERVOIR_API}
 
