@@ -15,3 +15,7 @@ CREATE TABLE IF NOT EXISTS nft_trades (
     seller bytea,
     buyer bytea
 );
+
+CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON nft_trades (block_number);
+
+CREATE INDEX IF NOT EXISTS ethereum_nft_trades_collection_idx ON nft_trades (collection);
