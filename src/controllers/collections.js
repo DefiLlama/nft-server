@@ -72,7 +72,7 @@ const insertCollections = async (payload) => {
     });
 };
 
-// get most recent collection data
+// get most recent data for all collections
 const getCollections = async () => {
   const conn = await connect();
 
@@ -119,31 +119,31 @@ FROM
   });
 
   if (!response) {
-    return new Error(`Couldn't get collection data`, 404);
+    return new Error(`Couldn't get data`, 404);
   }
 
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
+// get all sales for a given collectionId
 const getCollectionSales = async (collectionId) => {
   const conn = await connect();
 
   const query = minify(`
-  SELECT
-      encode(transaction_hash, 'hex') AS transaction_hash,
-      block_time,
-      block_number,
-      encode(exchange_name, 'escape') AS exchange_name,
-      encode(collection, 'hex') AS collection,
-      encode(token_id, 'hex') AS token_id,
-      eth_sale_price,
-      usd_sale_price,
-      encode(seller, 'hex') AS seller,
-      encode(buyer, 'hex') AS buyer
-  FROM
-      $<table:name>
-  WHERE
-      collection = $<collectionId>
+SELECT
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    block_time,
+    block_number,
+    encode(exchange_name, 'escape') AS exchange_name,
+    encode(token_id, 'hex') AS token_id,
+    eth_sale_price,
+    usd_sale_price,
+    encode(seller, 'hex') AS seller,
+    encode(buyer, 'hex') AS buyer
+FROM
+    $<table:name>
+WHERE
+    collection = $<collectionId>
   `);
 
   const response = await conn.query(query, {
@@ -152,10 +152,72 @@ const getCollectionSales = async (collectionId) => {
   });
 
   if (!response) {
-    return new Error(`Couldn't get collectionSales data`, 404);
+    return new Error(`Couldn't get data`, 404);
   }
 
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
-module.exports = { insertCollections, getCollections, getCollectionSales };
+// get daily aggregated statistics such as volume, sale count per day for a given collectionId
+const getCollectionStats = async (collectionId) => {
+  const conn = await connect();
+
+  const query = minify(`
+SELECT
+    block_time :: date AS day,
+    sum(eth_sale_price),
+    count(eth_sale_price)
+FROM
+    $<table:name>
+WHERE
+    collection = $<collectionId>
+GROUP BY
+    (block_time :: date)
+  `);
+
+  const response = await conn.query(query, {
+    table: 'nft_trades',
+    collectionId: `\\${collectionId.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
+// get 1day,7day,30day volumes per collection
+const getVolumeStats = async () => {
+  const conn = await connect();
+
+  const query = minify(`
+SELECT
+    encode(collection, 'hex') as collection,
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume"
+FROM
+    $<table:name>
+GROUP BY
+    collection;
+  `);
+
+  const response = await conn.query(query, {
+    table: 'nft_trades',
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
+module.exports = {
+  insertCollections,
+  getCollections,
+  getCollectionSales,
+  getCollectionStats,
+  getVolumeStats,
+};
