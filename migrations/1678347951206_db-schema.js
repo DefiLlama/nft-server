@@ -77,4 +77,20 @@ exports.up = (pgm) => {
       GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO readwrite;
       ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE ON SEQUENCES TO readwrite;
     `);
+
+  // pct-change func
+  pgm.sql(`
+    CREATE OR REPLACE FUNCTION calculate_percent_change(
+      current_price NUMERIC,
+      yesterday_price NUMERIC
+    ) RETURNS NUMERIC AS $$
+    BEGIN
+      IF yesterday_price IS NULL OR yesterday_price = 0 THEN
+        RETURN NULL;
+      ELSE
+        RETURN ROUND(((current_price - yesterday_price) / yesterday_price) * 100, 5);
+      END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+    `);
 };

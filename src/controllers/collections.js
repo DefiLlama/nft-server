@@ -102,36 +102,9 @@ SELECT
     floor_price_1_day,
     floor_price_7_day,
     floor_price_30_day,
-    CASE
-        WHEN floor_price_1_day IS NULL
-        OR floor_price_1_day = 0 THEN NULL
-        ELSE ROUND(
-            (
-                (floor_price - floor_price_1_day) / floor_price_1_day
-            ) * 100,
-            5
-        )
-    END AS floor_price_change_1_day,
-    CASE
-        WHEN floor_price_7_day IS NULL
-        OR floor_price_7_day = 0 THEN NULL
-        ELSE ROUND(
-            (
-                (floor_price - floor_price_7_day) / floor_price_7_day
-            ) * 100,
-            5
-        )
-    END AS floor_price_change_7_day,
-    CASE
-        WHEN floor_price_30_day IS NULL
-        OR floor_price_30_day = 0 THEN NULL
-        ELSE ROUND(
-            (
-                (floor_price - floor_price_30_day) / floor_price_30_day
-            ) * 100,
-            5
-        )
-    END AS floor_price_change_30_day
+    calculate_percent_change(floor_price, floor_price_1_day) as floor_price_pct_change_1_day,
+    calculate_percent_change(floor_price, floor_price_7_day) as floor_price_pct_change_7_day,
+    calculate_percent_change(floor_price, floor_price_30_day) as floor_price_pct_change_30_day
 FROM
     filtered_records AS f
     INNER JOIN $<collectionTable:name> AS c ON c.collection_id = f.collection_id;
