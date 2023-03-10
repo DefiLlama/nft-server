@@ -125,4 +125,37 @@ FROM
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
-module.exports = { insertCollections, getCollections };
+const getCollectionSales = async (collectionId) => {
+  const conn = await connect();
+
+  const query = minify(`
+  SELECT
+      encode(transaction_hash, 'hex') AS transaction_hash,
+      block_time,
+      block_number,
+      encode(exchange_name, 'escape') AS exchange_name,
+      encode(collection, 'hex') AS collection,
+      encode(token_id, 'hex') AS token_id,
+      eth_sale_price,
+      usd_sale_price,
+      encode(seller, 'hex') AS seller,
+      encode(buyer, 'hex') AS buyer
+  FROM
+      $<table:name>
+  WHERE
+      collection = $<collectionId>
+  `);
+
+  const response = await conn.query(query, {
+    table: 'nft_trades',
+    collectionId: `\\${collectionId.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get collectionSales data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
+module.exports = { insertCollections, getCollections, getCollectionSales };

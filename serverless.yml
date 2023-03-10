@@ -50,6 +50,15 @@ functions:
           method: get
           path: /collections
 
+  # getCollectionSales:
+  #   handler: src/handlers/getCollectionSales.handler
+  #   description: get detailed sales data for a collection
+  #   timeout: 30
+  #   events:
+  #     - httpApi:
+  #         method: get
+  #         path: /sales/{collectionId}
+
 custom:
   stage: ${opt:stage, self:provider.stage}
   webpack:
