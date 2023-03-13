@@ -21,7 +21,7 @@ const columns = [
 const tableName = 'nft_trades';
 
 const insertTrades = async (payload) => {
-  const conn = await connect();
+  const conn = await connect('nft');
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: tableName });
   const query = pgp.helpers.insert(payload, cs);

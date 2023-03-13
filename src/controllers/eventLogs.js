@@ -124,7 +124,7 @@ const getEvents = async (startBlock, endBlock, config, test = false) => {
       ? queryRarible
       : query;
 
-  const conn = await connect();
+  const conn = await connect('indexa');
   const response = await conn.query(minify(q, { compress: false }), {
     startBlock,
     endBlock,

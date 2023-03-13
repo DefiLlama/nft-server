@@ -3,7 +3,7 @@ const minify = require('pg-minify');
 const { connect } = require('../utils/dbConnection');
 
 const getMaxBlock = async (table) => {
-  const conn = await connect();
+  const conn = await connect('indexa');
 
   const query = minify(
     `
