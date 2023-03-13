@@ -36,17 +36,20 @@ let conn = null;
 // };
 
 const connect = async (db_env_name) => {
-  if (db_env_name !== 'indexa') {
-    if (conn !== null) {
-      console.log('killing current db connection');
-      await conn.$pool.end(); // kill the current connection
-      conn = null; // set connection to null
-    }
+  // console.log(db_env_name);
+  // if (db_env_name !== 'indexa') {
+  //   if (conn !== null) {
+  //     console.log('killing current db connection');
+  //     await conn.$pool.end(); // kill the current connection
+  //     conn = null; // set connection to null
+  //   }
+  // }
+  if (conn !== null) {
+    await conn.$pool.end(); // kill the current connection
+    conn = null; // set connection to null
   }
 
   if (conn === null) {
-    console.log('using new db connection');
-    // set connection
     conn = pgp({
       connectionString:
         db_env_name === 'indexa'
