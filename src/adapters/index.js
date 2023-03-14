@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const parseEvent = require('../utils/parseEvent');
-const { insertTrades } = require('../controllers/nftTrades');
-const getMaxBlock = require('../controllers/common');
+const { getMaxBlock, insertTrades } = require('../controllers/nftTrades');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 
@@ -24,8 +23,11 @@ const exe = async () => {
     });
 
   // get max blocks for each table
-  const blockEvents = await getMaxBlock('indexa', 'ethereum.event_logs');
-  let blockTrades = await getMaxBlock('nft', 'nft_trades');
+  let [blockEvents, blockTrades] = await Promise.all(
+    ['event_logs', 'nft_trades'].map((table) =>
+      getMaxBlock(`ethereum.${table}`)
+    )
+  );
   console.log(
     `nft_trades is ${blockEvents - blockTrades} blocks behind event_logs\n`
   );
@@ -46,7 +48,7 @@ const exe = async () => {
     console.log('parse events...');
     const trades = await Promise.all(
       modules
-        .filter((m) => m.config.exchangeName === 'blur')
+        .filter((m) => ['blur'].includes(m.config.exchangeName))
         .map((m) => parseEvent(startBlock, endBlock, m.abi, m.config, m.parse))
     );
     const payload = castTypes(trades.flat());

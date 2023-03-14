@@ -1,7 +1,7 @@
 const yargs = require('yargs');
 
 const parseEvent = require('../utils/parseEvent');
-const getMaxBlock = require('../controllers/common');
+const { getMaxBlock } = require('../controllers/nftTrades');
 const { blockRangeTest } = require('../utils/params');
 
 const argv = yargs.options({
@@ -21,7 +21,7 @@ const argv = yargs.options({
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
 
-  const endBlock = await getMaxBlock('indexa', 'ethereum.event_logs');
+  const endBlock = await getMaxBlock('ethereum.event_logs');
 
   const startBlock = !process.argv[3]
     ? endBlock - blockRangeTest

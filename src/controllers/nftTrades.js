@@ -1,41 +1,74 @@
+const minify = require('pg-minify');
+
 const { pgp, connect } = require('../utils/dbConnection');
 
-const columns = [
-  'transaction_hash',
-  'log_index',
-  'contract_address',
-  'topic_0',
-  'block_time',
-  'block_number',
-  'exchange_name',
-  'collection',
-  'token_id',
-  'amount',
-  'eth_sale_price',
-  'usd_sale_price',
-  'payment_token',
-  'seller',
-  'buyer',
-];
+const db = 'indexa';
+const schema = 'ethereum';
+const table = 'nft_trades';
 
-const tableName = 'nft_trades';
+const getMaxBlock = async (table) => {
+  const conn = await connect(db);
+
+  const query = minify(
+    `
+SELECT
+    MAX(block_number)
+FROM
+    $<table:raw>
+  `,
+    { compress: true }
+  );
+
+  const response = await conn.query(query, { table });
+
+  if (!response) {
+    return new Error('getMaxBlock failed', 404);
+  }
+
+  return response[0].max;
+};
 
 const buildInsertQ = (payload) => {
-  const cs = new pgp.helpers.ColumnSet(columns, { table: tableName });
+  const columns = [
+    'transaction_hash',
+    'log_index',
+    'contract_address',
+    'topic_0',
+    'block_time',
+    'block_number',
+    'exchange_name',
+    'collection',
+    'token_id',
+    'amount',
+    'eth_sale_price',
+    'usd_sale_price',
+    'payment_token',
+    'seller',
+    'buyer',
+  ];
+
+  const cs = new pgp.helpers.ColumnSet(columns, {
+    // column set requries tablename if schema is not undefined
+    table: new pgp.helpers.TableName({
+      schema,
+      table,
+    }),
+  });
+
   const query = pgp.helpers.insert(payload, cs);
 
   return query;
 };
 
 const insertTrades = async (payload) => {
-  const conn = await connect('nft');
+  const conn = await connect(db);
 
   const query = buildInsertQ(payload);
 
   const response = await conn.result(query);
 
   if (!response) {
-    return new Error(`Couldn't insert into ${tableName}`, 404);
+    return new Error(`Couldn't insert into ${schema}.${table}`, 404);
   }
 
   return response;
@@ -46,7 +79,7 @@ const insertTrades = async (payload) => {
 const buildDeleteQ = () => {
   const query = `
   DELETE FROM
-      $<tableName:name>
+      ethereum.nft_trades
   WHERE
       contract_address in ($<contractAddresses:csv>)
       AND topic_0 in ($<eventSignatureHashes:csv>)
@@ -59,7 +92,7 @@ const buildDeleteQ = () => {
 
 // --------- transaction query
 const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
-  const conn = await connect('nft');
+  const conn = await connect(db);
 
   // build queries
   const deleteQuery = buildDeleteQ();
@@ -76,7 +109,6 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
       // sequence of queries:
       // 1. delete trades
       const q1 = await t.result(deleteQuery, {
-        tableName,
         contractAddresses,
         eventSignatureHashes,
         startBlock,
@@ -102,4 +134,4 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
     });
 };
 
-module.exports = { insertTrades, deleteAndInsertTrades };
+module.exports = { getMaxBlock, insertTrades, deleteAndInsertTrades };

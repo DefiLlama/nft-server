@@ -4,6 +4,9 @@ const minify = require('pg-minify');
 const { convertKeysToCamelCase } = require('../utils/keyConversion');
 const { pgp, connect } = require('../utils/dbConnection');
 
+const dbIndexa = 'indexa';
+const dbNft = 'nft';
+
 // multi row insert (update on conflict) query generator
 const buildCollectionQ = (payload) => {
   const columns = [
@@ -42,7 +45,7 @@ const buildFloorQ = (payload) => {
 
 // --------- transaction query
 const insertCollections = async (payload) => {
-  const conn = await connect();
+  const conn = await connect(dbNft);
 
   // build queries
   const collectionQ = buildCollectionQ(payload);
@@ -74,7 +77,7 @@ const insertCollections = async (payload) => {
 
 // get most recent data for all collections
 const getCollections = async () => {
-  const conn = await connect();
+  const conn = await connect(dbNft);
 
   const query = minify(
     `
@@ -82,9 +85,9 @@ WITH filtered_records AS (
     SELECT
         DISTINCT ON (collection_id) *
     FROM
-        $<floorTable:name>
+        floor
     WHERE
-        timestamp >= NOW() - INTERVAL '$<age> DAY'
+        timestamp >= NOW() - INTERVAL '7 DAY'
     ORDER BY
         collection_id,
         timestamp DESC
@@ -107,16 +110,12 @@ SELECT
     calculate_percent_change(floor_price, floor_price_30_day) as floor_price_pct_change_30_day
 FROM
     filtered_records AS f
-    INNER JOIN $<collectionTable:name> AS c ON c.collection_id = f.collection_id;
+    INNER JOIN collection AS c ON c.collection_id = f.collection_id;
   `,
     { compress: true }
   );
 
-  const response = await conn.query(query, {
-    age: 7,
-    floorTable: 'floor',
-    collectionTable: 'collection',
-  });
+  const response = await conn.query(query);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
@@ -127,7 +126,7 @@ FROM
 
 // get all sales for a given collectionId
 const getCollectionSales = async (collectionId) => {
-  const conn = await connect();
+  const conn = await connect(dbIndexa);
 
   const query = minify(`
 SELECT
@@ -141,13 +140,12 @@ SELECT
     encode(seller, 'hex') AS seller,
     encode(buyer, 'hex') AS buyer
 FROM
-    $<table:name>
+    ethereum.nft_trades
 WHERE
     collection = $<collectionId>
   `);
 
   const response = await conn.query(query, {
-    table: 'nft_trades',
     collectionId: `\\${collectionId.slice(1)}`,
   });
 
@@ -160,7 +158,7 @@ WHERE
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
 const getCollectionStats = async (collectionId) => {
-  const conn = await connect();
+  const conn = await connect(dbIndexa);
 
   const query = minify(`
 SELECT
@@ -168,7 +166,7 @@ SELECT
     sum(eth_sale_price),
     count(eth_sale_price)
 FROM
-    $<table:name>
+    ethereum.nft_trades
 WHERE
     collection = $<collectionId>
 GROUP BY
@@ -176,7 +174,6 @@ GROUP BY
   `);
 
   const response = await conn.query(query, {
-    table: 'nft_trades',
     collectionId: `\\${collectionId.slice(1)}`,
   });
 
@@ -189,7 +186,7 @@ GROUP BY
 
 // get 1day,7day,30day volumes per collection
 const getVolumeStats = async () => {
-  const conn = await connect();
+  const conn = await connect(dbIndexa);
 
   const query = minify(`
 SELECT
@@ -198,14 +195,12 @@ SELECT
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume"
 FROM
-    $<table:name>
+    ethereum.nft_trades
 GROUP BY
     collection;
   `);
 
-  const response = await conn.query(query, {
-    table: 'nft_trades',
-  });
+  const response = await conn.query(query);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
