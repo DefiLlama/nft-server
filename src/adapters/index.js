@@ -7,9 +7,13 @@ const getMaxBlock = require('../controllers/common');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 
+const checkIfStale = (blockEvents, blockTrades) =>
+  blockEvents - blockTrades > blockRange ? true : false;
+
 // 300sec
 const duration = 3 * 1e5;
 const exe = async () => {
+  console.log('starting');
   // load modules
   const modulesDir = path.join(__dirname, '../adapters');
   const modules = [];
@@ -22,16 +26,23 @@ const exe = async () => {
   // get max blocks for each table
   const blockEvents = await getMaxBlock('indexa', 'ethereum.event_logs');
   let blockTrades = await getMaxBlock('nft', 'nft_trades');
+  console.log(
+    `nft_trades is ${blockEvents - blockTrades} blocks behind event_logs\n`
+  );
 
   // check if stale
-  let stale = blockEvents - blockTrades > blockRange ? true : false;
+  let stale = checkIfStale(blockEvents, blockTrades);
 
   // forward fill
   while (stale) {
     let startBlock = blockTrades + 1;
     let endBlock = startBlock + blockRange;
 
-    console.log(`ffill for ${startBlock}-${endBlock}`);
+    console.log(
+      `ffill for ${startBlock}-${endBlock} [${
+        blockEvents - endBlock
+      } blocks remaining to sync]`
+    );
     console.log('parse events...');
     const payload = await Promise.all(
       modules
@@ -42,7 +53,7 @@ const exe = async () => {
     console.log('insertTrades...\n');
     await insertTrades(castTypes(payload.flat()));
 
-    stale = blockEvents - endBlock > blockRange ? true : false;
+    stale = checkIfStale(blockEvents, endBlock);
     blockTrades = endBlock;
   }
   console.log('pausing exe...');

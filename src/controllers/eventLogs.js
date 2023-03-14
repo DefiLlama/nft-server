@@ -20,8 +20,8 @@ FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
 WHERE
-  e.topic_0 in ($<eventSignatureHashes:csv>)
-  AND e.contract_address in ($<contractAddresses:csv>)
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 `;
@@ -47,8 +47,8 @@ FROM
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
 WHERE
-  e.topic_0 in ($<eventSignatureHashes:csv>)
-  AND e.contract_address in ($<contractAddresses:csv>)
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 `;
@@ -72,8 +72,8 @@ FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
 WHERE
-  e.topic_0 in ($<eventSignatureHashes:csv>)
-  AND e.contract_address in ($<contractAddresses:csv>)
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 ORDER BY
@@ -100,8 +100,8 @@ FROM
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
 WHERE
-  e.topic_0 in ($<eventSignatureHashes:csv>)
-  AND e.contract_address in ($<contractAddresses:csv>)
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
   AND e.block_number >= $<startBlock>
   AND e.block_number <= $<endBlock>
 ORDER BY
