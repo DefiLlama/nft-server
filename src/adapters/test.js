@@ -6,14 +6,21 @@ const { blockRangeTest } = require('../utils/params');
 
 const argv = yargs.options({
   marketplace: {
+    alias: 'm',
     type: 'string',
     demandOption: true,
     describe: 'adapter name, eg blur',
+  },
+  block: {
+    alias: 'b',
+    type: 'number',
+    demandOption: false,
   },
 }).argv;
 
 (async () => {
   const marketplace = argv.marketplace;
+  const block = argv.block;
   console.log(`==== Testing ${marketplace} ====`);
 
   const time = () => Date.now() / 1000;
@@ -21,11 +28,9 @@ const argv = yargs.options({
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
 
-  const endBlock = await getMaxBlock('ethereum.event_logs');
+  const endBlock = !block ? await getMaxBlock('ethereum.event_logs') : block;
 
-  const startBlock = !process.argv[3]
-    ? endBlock - blockRangeTest
-    : endBlock - process.argv[3];
+  const startBlock = endBlock - blockRangeTest;
 
   const trades = await parseEvent(
     startBlock,

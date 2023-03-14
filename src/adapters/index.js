@@ -48,7 +48,7 @@ const exe = async () => {
     console.log('parse events...');
     const trades = await Promise.all(
       modules
-        .filter((m) => ['blur'].includes(m.config.exchangeName))
+        .filter((m) => !['zora'].includes(m.config.exchangeName))
         .map((m) => parseEvent(startBlock, endBlock, m.abi, m.config, m.parse))
     );
     const payload = castTypes(trades.flat());

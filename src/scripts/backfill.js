@@ -10,11 +10,13 @@ const { blockRange } = require('../utils/params');
 
 const argv = yargs.options({
   marketplace: {
+    alias: 'm',
     type: 'string',
     demandOption: true,
     describe: 'adapter name, eg blur',
   },
   block: {
+    alias: 'b',
     type: 'number',
     demandOption: true,
     describe:
@@ -43,22 +45,26 @@ const main = async () => {
     const trades = await parseEvent(startBlock, endBlock, abi, config, parse);
     const payload = castTypes(trades);
 
-    if (deletePriorInsert) {
-      const response = await deleteAndInsertTrades(
-        payload,
-        config,
-        startBlock,
-        endBlock
-      );
+    if (payload.length) {
+      if (deletePriorInsert) {
+        const response = await deleteAndInsertTrades(
+          payload,
+          config,
+          startBlock,
+          endBlock
+        );
 
-      console.log(
-        `filled ${startBlock}-${endBlock} [deleted: ${response.data[0].rowCount} inserted: ${response.data[1].rowCount}]`
-      );
+        console.log(
+          `filled ${startBlock}-${endBlock} [deleted: ${response.data[0].rowCount} inserted: ${response.data[1].rowCount}]`
+        );
+      } else {
+        const response = await insertTrades(payload);
+        console.log(
+          `filled ${startBlock}-${endBlock} [inserted: ${response.rowCount}]`
+        );
+      }
     } else {
-      const response = await insertTrades(payload);
-      console.log(
-        `filled ${startBlock}-${endBlock} [inserted: ${response.rowCount}]`
-      );
+      console.log(`no events in ${startBlock}-${endBlock}`);
     }
 
     // update blocks

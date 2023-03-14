@@ -12,6 +12,7 @@ const parse = (decodedData, event, interface, eventName) => {
   let paymentToken;
   let price;
 
+  // note: missing collection in BidFInalised
   if (eventName === 'BidFinalized') {
     ({
       tokenId,
