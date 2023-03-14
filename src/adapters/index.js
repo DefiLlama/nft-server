@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const parseEvent = require('../utils/parseEvent');
-const insertTrades = require('../controllers/nftTrades');
+const { insertTrades } = require('../controllers/nftTrades');
 const getMaxBlock = require('../controllers/common');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
@@ -44,14 +44,15 @@ const exe = async () => {
       } blocks remaining to sync]`
     );
     console.log('parse events...');
-    const payload = await Promise.all(
+    const trades = await Promise.all(
       modules
         .filter((m) => m.config.exchangeName === 'blur')
         .map((m) => parseEvent(startBlock, endBlock, m.abi, m.config, m.parse))
     );
+    const payload = castTypes(trades.flat());
 
     console.log('insertTrades...\n');
-    await insertTrades(castTypes(payload.flat()));
+    await insertTrades(payload);
 
     stale = checkIfStale(blockEvents, endBlock);
     blockTrades = endBlock;
