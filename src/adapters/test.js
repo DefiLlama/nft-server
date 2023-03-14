@@ -1,15 +1,19 @@
+const yargs = require('yargs');
+
 const parseEvent = require('../utils/parseEvent');
 const getMaxBlock = require('../controllers/common');
 const { blockRangeTest } = require('../utils/params');
 
-(async () => {
-  if (process.argv.length < 3) {
-    console.error(`Missing marketplace!
-    Use like: node src/adapters/test.js blur`);
-    process.exit(1);
-  }
+const argv = yargs.options({
+  marketplace: {
+    type: 'string',
+    demandOption: true,
+    describe: 'adapter name, eg blur',
+  },
+}).argv;
 
-  const marketplace = process.argv[2];
+(async () => {
+  const marketplace = argv.marketplace;
   console.log(`==== Testing ${marketplace} ====`);
 
   const time = () => Date.now() / 1000;

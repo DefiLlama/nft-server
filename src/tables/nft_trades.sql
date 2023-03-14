@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS nft_trades (
+CREATE TABLE IF NOT EXISTS ethereum.nft_trades (
     transaction_hash bytea,
     log_index numeric,
     contract_address bytea,
@@ -16,6 +16,6 @@ CREATE TABLE IF NOT EXISTS nft_trades (
     buyer bytea
 );
 
-CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON nft_trades (block_number);
+CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON ethereum.nft_trades (block_number);
 
-CREATE INDEX IF NOT EXISTS ethereum_nft_trades_collection_idx ON nft_trades (collection);
+CREATE INDEX IF NOT EXISTS ethereum_nft_trades_collection_idx ON ethereum.nft_trades (collection);
