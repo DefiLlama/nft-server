@@ -8,6 +8,14 @@ const parse = (decodedData, event, interface) => {
   const txData = `0x${event.tx_data}`;
   const funcSigHash = txData.slice(0, 10);
 
+  const functionSignaturesHashes = {
+    directAcceptBid: '0x67d49a3b',
+    directPurchase: '0x0d5f7d35',
+    matchOrders: '0xe99a3f80',
+  };
+
+  if (!Object.values(functionSignaturesHashes).includes(funcSigHash)) return {};
+
   const txDataDecoded = interface.decodeFunctionData(funcSigHash, txData);
 
   let collection;
@@ -18,7 +26,7 @@ const parse = (decodedData, event, interface) => {
   let paymentToken;
 
   // --- directAcceptBid
-  if (funcSigHash === '0x67d49a3b') {
+  if (funcSigHash === functionSignaturesHashes['directAcceptBid']) {
     const {
       direct: {
         bidMaker,
@@ -29,7 +37,7 @@ const parse = (decodedData, event, interface) => {
       },
     } = txDataDecoded;
     // --- directPurchase
-  } else if (funcSigHash === '0x0d5f7d35') {
+  } else if (funcSigHash === functionSignaturesHashes['directPurchase']) {
     const {
       direct: {
         sellOrderMaker,
@@ -39,7 +47,7 @@ const parse = (decodedData, event, interface) => {
       },
     } = txDataDecoded;
     // --- matchOrders
-  } else if (funcSigHash === '0xe99a3f80') {
+  } else if (funcSigHash === functionSignaturesHashes['matchOrders']) {
     const {
       orderLeft: { maker, taker, data },
     } = txDataDecoded;

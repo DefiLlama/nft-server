@@ -13,7 +13,7 @@ const getTokenPrice = async (event, token, amount) => {
   ];
 
   const usdSalePrice =
-    (amount.toString() / 10 ** response?.decimals) * response?.price;
+    (amount?.toString() / 10 ** response?.decimals) * response?.price;
   const ethSalePrice = usdSalePrice / event.price;
 
   return { usdSalePrice, ethSalePrice };

@@ -45,7 +45,6 @@ const exe = async () => {
         blockEvents - endBlock
       } blocks remaining to sync]`
     );
-    console.log('parse events...');
     const trades = await Promise.all(
       modules
         .filter((m) => !['zora'].includes(m.config.exchangeName))
@@ -53,7 +52,6 @@ const exe = async () => {
     );
     const payload = castTypes(trades.flat());
 
-    console.log('insertTrades...\n');
     await insertTrades(payload);
 
     stale = checkIfStale(blockEvents, endBlock);
