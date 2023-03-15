@@ -76,6 +76,11 @@ const parse = async (decodedData, event) => {
   const iType = Number(itemTypeO);
 
   if (iType === 1) {
+    // smol nb of weird samples for itemType 1
+    // eg 0x05b6a971ac5a41870d14926f1d8b368ad2123bd6927cad7703951dfabc01d979
+    // where amountC is identical to the sale price
+    if (amountC > 1e6) return {};
+
     const paymentInEth = ethPaymentTokens.includes(tokenO?.toLowerCase());
 
     if (paymentInEth) {
