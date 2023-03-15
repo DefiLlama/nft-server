@@ -58,7 +58,9 @@ const parse = (decodedData, event, interface, eventName) => {
 };
 
 module.exports = {
-  abi: [...abiMarket, ...abiAsk, ...abiOffer, ...abiAuction],
+  abi: [...abiMarket, ...abiAsk, ...abiOffer, ...abiAuction].filter(
+    (a) => a.type === 'event'
+  ),
   config,
   parse,
 };
