@@ -4,7 +4,7 @@ const {
   deleteAndInsertTrades,
   insertTrades,
 } = require('../controllers/nftTrades');
-const parseEvent = require('../utils/parseEvent');
+const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 

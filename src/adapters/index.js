@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const parseEvent = require('../utils/parseEvent');
+const parseEvent = require('./parseEvent');
 const { getMaxBlock, insertTrades } = require('../controllers/nftTrades');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');

@@ -1,6 +1,6 @@
 const yargs = require('yargs');
 
-const parseEvent = require('../utils/parseEvent');
+const parseEvent = require('./parseEvent');
 const { getMaxBlock } = require('../controllers/nftTrades');
 const { blockRangeTest } = require('../utils/params');
 
