@@ -12,22 +12,25 @@ const parse = (decodedData, event) => {
   // second = opensea fee,
   // third = optional collection fee
 
-  // note: still missing examples of itemType 4 & 5
+  const { offerer, recipient, offer, consideration } = decodedData;
+
+  // there are instances where required fields from offer and consideration are undefined
+  // -> destructure based on condition
   const {
-    offerer,
-    recipient,
-    offer: [
-      {
-        itemType: itemTypeO,
-        token: tokenO,
-        identifier: identifierO,
-        amount: amountO,
-      },
-    ],
-    consideration: [
-      { token: tokenC, identifier: identifierC, amount: amountC },
-    ],
-  } = decodedData;
+    itemType: itemTypeO,
+    token: tokenO,
+    identifier: identifierO,
+    amount: amountO,
+  } = offer.length > 0 ? offer[0] : {};
+
+  // we require the itemtype to parse the event accordingly
+  if (!itemTypeO) return {};
+
+  const {
+    token: tokenC,
+    identifier: identifierC,
+    amount: amountC,
+  } = consideration.length > 0 ? consideration[0] : {};
 
   let collection;
   let tokenId;
@@ -36,11 +39,12 @@ const parse = (decodedData, event) => {
   let nftAmount;
   let seller;
   let buyer;
+
   const iType = Number(itemTypeO);
 
-  // itemType 0 = native (eth): doesn't contain `consideration` data
-  // however, seems like tx which have that itemType also emit an additional
+  // itemType 0 = native (eth): seems like tx which have that itemType also emit an additional
   // itemType 2/3 event which has all details
+  // note: still missing examples of itemType 4 & 5
   // --- erc20
   if (iType === 1) {
     collection = tokenC;

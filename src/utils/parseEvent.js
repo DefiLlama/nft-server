@@ -33,6 +33,8 @@ const parseEvent = async (
     // and/or if `decodedEvent` fields are different for eventName (in case of
     // more than 1 nft trade event)
     const parsedEvent = parse(decodedEvent, event, interface, name);
+    // only keep parsed events with full information
+    if (Object.values(parsedEvent).some((i) => i === undefined)) return {};
 
     // keeping a bunch of fields from event_logs
     const {
@@ -49,6 +51,7 @@ const parseEvent = async (
     return { ...rest, ...parsedEvent, exchangeName: config.exchangeName };
   });
 
+  // remove empty objects
   return parsedEvents.filter((event) => event.collection);
 };
 
