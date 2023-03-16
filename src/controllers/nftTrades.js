@@ -40,6 +40,7 @@ const buildInsertQ = (payload) => {
     'collection',
     'token_id',
     'amount',
+    'sale_price',
     'eth_sale_price',
     'usd_sale_price',
     'payment_token',

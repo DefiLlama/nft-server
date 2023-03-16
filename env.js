@@ -3,6 +3,6 @@ try {
 } catch (e) {}
 
 module.exports = {
-  DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_URL_NFT: process.env.DATABASE_URL_NFT,
   RESERVOIR_API: process.env.RESERVOIR_API,
 };

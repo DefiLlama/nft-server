@@ -4,7 +4,7 @@ const config = require('./config.json');
 const parse = (decodedData, event) => {
   const { maker, taker, item } = decodedData;
 
-  const ethSalePrice = item[0].toString() / 1e18;
+  const salePrice = item[0].toString() / 1e18;
 
   const itemData = item.getValue('data');
 
@@ -20,8 +20,9 @@ const parse = (decodedData, event) => {
     collection,
     tokenId,
     amount: 1,
-    ethSalePrice,
-    usdSalePrice: ethSalePrice * event.price,
+    salePrice,
+    ethSalePrice: salePrice,
+    usdSalePrice: salePrice * event.price,
     paymentToken: '0x0000000000000000000000000000000000000000',
     seller: maker,
     buyer: taker,

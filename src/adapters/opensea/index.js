@@ -12,11 +12,11 @@ const getTokenPrice = async (event, token, amount) => {
     key
   ];
 
-  const usdSalePrice =
-    (amount?.toString() / 10 ** response?.decimals) * response?.price;
+  const salePrice = amount?.toString() / 10 ** response?.decimals;
+  const usdSalePrice = salePrice * response?.price;
   const ethSalePrice = usdSalePrice / event.price;
 
-  return { usdSalePrice, ethSalePrice };
+  return { salePrice, ethSalePrice, usdSalePrice };
 };
 
 const parse = async (decodedData, event) => {
@@ -67,6 +67,7 @@ const parse = async (decodedData, event) => {
   let collection;
   let tokenId;
   let paymentToken;
+  let salePrice;
   let ethSalePrice;
   let usdSalePrice;
   let nftAmount;
@@ -84,10 +85,10 @@ const parse = async (decodedData, event) => {
     const paymentInEth = ethPaymentTokens.includes(tokenO?.toLowerCase());
 
     if (paymentInEth) {
-      ethSalePrice = amountO.toString() / 1e18;
+      salePrice = ethSalePrice = amountO.toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ usdSalePrice, ethSalePrice } = await getTokenPrice(
+      ({ salePrice, ethSalePrice, usdSalePrice } = await getTokenPrice(
         event,
         tokenO,
         amountO
@@ -104,10 +105,10 @@ const parse = async (decodedData, event) => {
     const paymentInEth = ethPaymentTokens.includes(tokenC?.toLowerCase());
 
     if (paymentInEth) {
-      ethSalePrice = amountC.toString() / 1e18;
+      salePrice = ethSalePrice = amountC.toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ usdSalePrice, ethSalePrice } = await getTokenPrice(
+      ({ salePrice, ethSalePrice, usdSalePrice } = await getTokenPrice(
         event,
         tokenC,
         amountC
@@ -126,6 +127,7 @@ const parse = async (decodedData, event) => {
     collection,
     tokenId,
     amount: nftAmount,
+    salePrice,
     ethSalePrice,
     usdSalePrice,
     paymentToken,

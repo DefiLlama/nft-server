@@ -135,6 +135,7 @@ SELECT
     block_number,
     encode(exchange_name, 'escape') AS exchange_name,
     encode(token_id, 'hex') AS token_id,
+    sale_price,
     eth_sale_price,
     usd_sale_price,
     encode(seller, 'hex') AS seller,

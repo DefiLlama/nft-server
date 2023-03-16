@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS ethereum.nft_trades (
     collection bytea,
     token_id bytea,
     amount numeric,
+    sale_price numeric,
     eth_sale_price numeric,
     usd_sale_price numeric,
     payment_token bytea,

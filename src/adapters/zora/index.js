@@ -43,14 +43,15 @@ const parse = (decodedData, event, interface, eventName) => {
     } = decodedData);
   }
 
-  const ethSalePrice = price.toString() / 1e18;
+  const salePrice = price.toString() / 1e18;
 
   return {
     collection: tokenContract,
     tokenId,
     amount: 1,
-    ethSalePrice,
-    usdSalePrice: ethSalePrice * event.price,
+    salePrice,
+    ethSalePrice: salePrice,
+    usdSalePrice: salePrice * event.price,
     paymentToken: paymentToken ?? '0x0000000000000000000000000000000000000000',
     seller,
     buyer,

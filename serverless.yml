@@ -24,7 +24,7 @@ provider:
           Resource: '*'
 
   environment:
-    DATABASE_URL: ${file(./env.js):DATABASE_URL}
+    DATABASE_URL_NFT: ${file(./env.js):DATABASE_URL_NFT}
   httpApi:
     metrics: true
 

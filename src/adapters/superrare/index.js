@@ -12,14 +12,15 @@ const parse = (decodedData, event) => {
     _bidder,
   } = decodedData;
 
-  const ethSalePrice = _amount.toString() / 1e18;
+  const salePrice = _amount.toString() / 1e18;
 
   return {
     collection: _originContract,
     tokenId: _tokenId,
     amount: 1,
-    ethSalePrice,
-    usdSalePrice: ethSalePrice * event.price,
+    salePrice,
+    ethSalePrice: salePrice,
+    usdSalePrice: salePrice * event.price,
     paymentToken: _currencyAddress,
     seller: _seller,
     buyer: _buyer ?? _bidder,

@@ -10,6 +10,7 @@ const castTypes = (nftTrades) => {
     collection: Buffer.from(nft.collection.replace('0x', ''), 'hex'),
     token_id: Buffer.from(nft.tokenId.toString(), 'hex'),
     amount: Number(nft.amount),
+    sale_price: Number(nft.salePrice),
     eth_sale_price: Number(nft.ethSalePrice),
     usd_sale_price: Number(nft.usdSalePrice.toFixed(5)),
     payment_token: Buffer.from(nft.paymentToken.replace('0x', ''), 'hex'),

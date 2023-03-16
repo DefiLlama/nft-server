@@ -2,24 +2,18 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 
 const parse = (decodedData, event) => {
-  const {
-    taker,
-    maker,
-    currency,
-    collection,
-    tokenId,
-    amount,
-    price: ethPrice,
-  } = decodedData;
+  const { taker, maker, currency, collection, tokenId, amount, price } =
+    decodedData;
 
-  const ethSalePrice = ethPrice.toString() / 1e18;
+  const salePrice = price.toString() / 1e18;
 
   return {
     collection,
     tokenId,
     amount,
-    ethSalePrice,
-    usdSalePrice: ethSalePrice * event.price,
+    salePrice,
+    ethSalePrice: salePrice,
+    usdSalePrice: salePrice * event.price,
     paymentToken: currency,
     seller: maker,
     buyer: taker,

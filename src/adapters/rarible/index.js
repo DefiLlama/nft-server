@@ -53,14 +53,15 @@ const parse = (decodedData, event, interface) => {
     } = txDataDecoded;
   }
 
-  const ethSalePrice = newLeftFill.toString() / 1e18;
+  const salePrice = newLeftFill.toString() / 1e18;
 
   return {
     collection,
     tokenId,
     amount,
-    ethSalePrice,
-    usdSalePrice: ethSalePrice * event.price,
+    salePrice,
+    ethSalePrice: salePrice,
+    usdSalePrice: salePrice * event.price,
     paymentToken,
     seller,
     buyer,
