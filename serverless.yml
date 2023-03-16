@@ -25,6 +25,7 @@ provider:
 
   environment:
     DATABASE_URL_NFT: ${file(./env.js):DATABASE_URL_NFT}
+    DATABASE_URL_INDEXA: ${file(./env.js):DATABASE_URL_INDEXA}
   httpApi:
     metrics: true
 
@@ -50,14 +51,32 @@ functions:
           method: get
           path: /collections
 
-  # getCollectionSales:
-  #   handler: src/handlers/getCollectionSales.handler
-  #   description: get detailed sales data for a collection
-  #   timeout: 30
-  #   events:
-  #     - httpApi:
-  #         method: get
-  #         path: /sales/{collectionId}
+  getCollectionSales:
+    handler: src/handlers/getCollectionSales.handler
+    description: get detailed sales data for a collectionId
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /sales/{collectionId}
+
+  getCollectionStats:
+    handler: src/handlers/getCollectionStats.handler
+    description: get daily aggregated statistics for a given collectionId
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /stats/{collectionId}
+
+  getVolumeStats:
+    handler: src/handlers/getVolumeStats.handler
+    description: get volume stats per collection
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /volume
 
 custom:
   stage: ${opt:stage, self:provider.stage}
