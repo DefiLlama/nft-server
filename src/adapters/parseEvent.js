@@ -45,7 +45,9 @@ const parseEvent = async (
 
       // check if aggregator tx
       const aggregator = aggregators.find((agg) =>
-        topics.includes(agg.address)
+        topics.some((t) =>
+          agg.contracts.map((c) => ethers.zeroPadValue(c, 32)).includes(t)
+        )
       );
 
       // keeping a bunch of fields from event_logs

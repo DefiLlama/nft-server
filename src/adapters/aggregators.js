@@ -1,7 +1,20 @@
 module.exports = [
   {
     name: 'Gem',
-    address:
-      '0x00000000000000000000000083c8f28c26bf6aaca652df1dbbe0e1b56f8baba2',
+    contracts: [
+      '0x83c8f28c26bf6aaca652df1dbbe0e1b56f8baba2',
+      '0x0000000031f7382a812c64b604da4fc520afef4b',
+      '0xf24629fbb477e10f2cf331c2b7452d8596b5c7a5',
+      '0x29ab6d8f7e3d815168d6b40ebb12625b4fe13998',
+      '0xf22007700b8c443bcb36a39580f7804bffdb1169',
+      '0x241b8e59e81455e66b9cd0e2ffb2506be1838144',
+      '0x539ea5d6ec0093ff6401dbcd14d049c37a77151b',
+      '0x00000000a50bb64b4bbeceb18715748dface08af',
+      '0x9e97195f937c9372fe5fda5e3b86e9b88cbefed7',
+      '0x4326275317acc0fae4aa5c68fce4c54c74dc08d3',
+      '0xae9c73fd0fd237c1c6f66fe009d24ce969e98704',
+      '0x39da41747a83aee658334415666f3ef92dd0d541',
+      '0x0000000035634b55f3d99b071b5a354f48e10bef',
+    ],
   },
 ];
