@@ -20,7 +20,7 @@ const castTypes = (nftTrades) => {
       ? Buffer.from(nft.aggregatorName)
       : null,
     aggregator_address: nft.aggregatorAddress
-      ? Buffer.from(nft.aggregatorAddress, 'hex')
+      ? Buffer.from(nft.aggregatorAddress.replace('0x', ''), 'hex')
       : null,
   }));
 };

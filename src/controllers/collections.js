@@ -139,7 +139,9 @@ SELECT
     eth_sale_price,
     usd_sale_price,
     encode(seller, 'hex') AS seller,
-    encode(buyer, 'hex') AS buyer
+    encode(buyer, 'hex') AS buyer,
+    encode(aggregator_name, 'escape') AS aggregator_name,
+    encode(aggregator_address, 'hex') AS aggregator_address
 FROM
     ethereum.nft_trades
 WHERE

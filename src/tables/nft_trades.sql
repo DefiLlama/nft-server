@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS ethereum.nft_trades (
     usd_sale_price numeric,
     payment_token bytea,
     seller bytea,
-    buyer bytea
+    buyer bytea,
+    aggregator_name bytea,
+    aggregator_address bytea
 );
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON ethereum.nft_trades (block_number);

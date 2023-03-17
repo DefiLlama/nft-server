@@ -46,6 +46,8 @@ const buildInsertQ = (payload) => {
     'payment_token',
     'seller',
     'buyer',
+    'aggregator_name',
+    'aggregator_address',
   ];
 
   const cs = new pgp.helpers.ColumnSet(columns, {
