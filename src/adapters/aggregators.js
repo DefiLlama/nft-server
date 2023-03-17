@@ -1,5 +1,9 @@
 module.exports = [
   {
+    name: 'Blur',
+    contracts: ['0x39da41747a83aeE658334415666f3EF92DD0D541'],
+  },
+  {
     name: 'Gem',
     contracts: [
       '0x83c8f28c26bf6aaca652df1dbbe0e1b56f8baba2',

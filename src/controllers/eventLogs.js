@@ -15,10 +15,12 @@ SELECT
   e.block_time,
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
-  b.price
+  b.price,
+  encode(t.to_address, 'hex') as to_address
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+  LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
 WHERE
   e.contract_address in ($<contractAddresses:csv>)
   AND e.topic_0 in ($<eventSignatureHashes:csv>)
@@ -41,7 +43,7 @@ SELECT
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
   b.price,
-  encode(t.data, 'hex') as tx_data
+  encode(t.to_address, 'hex') as to_address
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
@@ -67,10 +69,12 @@ SELECT DISTINCT ON (e.topic_0)
   e.block_time,
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
-  b.price
+  b.price,
+  encode(t.to_address, 'hex') as to_address
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+  LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
 WHERE
   e.contract_address in ($<contractAddresses:csv>)
   AND e.topic_0 in ($<eventSignatureHashes:csv>)
@@ -94,6 +98,7 @@ SELECT DISTINCT ON (e.topic_0)
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
   b.price,
+  encode(t.to_address, 'hex') as to_address,
   encode(t.data, 'hex') as tx_data
 FROM
   ethereum.event_logs e
