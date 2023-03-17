@@ -51,8 +51,8 @@ functions:
           method: get
           path: /collections
 
-  getCollectionSales:
-    handler: src/handlers/getCollectionSales.handler
+  getSales:
+    handler: src/handlers/getSales.handler
     description: get detailed sales data for a collectionId
     timeout: 30
     events:
@@ -60,8 +60,8 @@ functions:
           method: get
           path: /sales/{collectionId}
 
-  getCollectionStats:
-    handler: src/handlers/getCollectionStats.handler
+  getStats:
+    handler: src/handlers/getStats.handler
     description: get daily aggregated statistics for a given collectionId
     timeout: 30
     events:
@@ -69,9 +69,9 @@ functions:
           method: get
           path: /stats/{collectionId}
 
-  getVolumeStats:
-    handler: src/handlers/getVolumeStats.handler
-    description: get volume stats per collection
+  getVolume:
+    handler: src/handlers/getVolume.handler
+    description: get volume per collection
     timeout: 30
     events:
       - httpApi:

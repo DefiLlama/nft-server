@@ -1,6 +1,6 @@
-const { getVolumeStats } = require('../controllers/collections');
+const { getVolume } = require('../controllers/nftTrades');
 
 module.exports.handler = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
-  return await getVolumeStats();
+  return await getVolume();
 };
