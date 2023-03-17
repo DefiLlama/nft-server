@@ -16,6 +16,12 @@ const castTypes = (nftTrades) => {
     payment_token: Buffer.from(nft.paymentToken.replace('0x', ''), 'hex'),
     seller: Buffer.from(nft.seller.replace('0x', ''), 'hex'),
     buyer: Buffer.from(nft.buyer.replace('0x', ''), 'hex'),
+    aggregator_name: nft.aggregatorName
+      ? Buffer.from(nft.aggregatorName)
+      : null,
+    aggregator_address: nft.aggregatorAddress
+      ? Buffer.from(nft.aggregatorAddress, 'hex')
+      : null,
   }));
 };
 

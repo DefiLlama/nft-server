@@ -1,6 +1,7 @@
 const ethers = require('ethers');
 
 const getEvents = require('../controllers/eventLogs');
+const aggregators = require('./aggregators');
 
 const parseEvent = async (
   startBlock,
@@ -42,6 +43,11 @@ const parseEvent = async (
       // only keep parsed events with full information
       if (Object.values(parsedEvent).some((i) => i === undefined)) return {};
 
+      // check if aggregator tx
+      const aggregator = aggregators.find((agg) =>
+        topics.includes(agg.address)
+      );
+
       // keeping a bunch of fields from event_logs
       const {
         topic_1,
@@ -54,7 +60,13 @@ const parseEvent = async (
         ...rest
       } = event;
 
-      return { ...rest, ...parsedEvent, exchangeName: config.exchangeName };
+      return {
+        ...rest,
+        ...parsedEvent,
+        exchangeName: config.exchangeName,
+        aggregatorName: aggregator?.name ?? null,
+        aggregatorAddress: aggregator?.address ?? null,
+      };
     })
   );
 
