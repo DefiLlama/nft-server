@@ -1,1 +1,1 @@
-module.exports = { blockRange: 25, blockRangeTest: 7200 };
+module.exports = { blockRange: 25, blockRangeTest: 25 };

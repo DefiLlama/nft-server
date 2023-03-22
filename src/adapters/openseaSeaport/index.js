@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const abiSeaport = require('./abiSeaport.json');
+const abi = require('./abi.json');
 const config = require('./config.json');
 
 const getTokenPrice = async (event, token, amount) => {
@@ -137,7 +137,7 @@ const parse = async (decodedData, event) => {
 };
 
 module.exports = {
-  abi: abiSeaport,
+  abi,
   config,
   parse,
 };

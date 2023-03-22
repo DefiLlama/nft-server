@@ -18,6 +18,7 @@ const exe = async () => {
   const modules = [];
   fs.readdirSync(modulesDir)
     .filter((mplace) => !mplace.endsWith('.js'))
+    .filter((mplace) => !['zora', 'openseaWyvern'].includes(mplace))
     .forEach((mplace) => {
       modules.push(require(path.join(modulesDir, mplace)));
     });
@@ -46,9 +47,9 @@ const exe = async () => {
       } blocks remaining to sync]`
     );
     const trades = await Promise.all(
-      modules
-        .filter((m) => !['zora'].includes(m.config.exchangeName))
-        .map((m) => parseEvent(startBlock, endBlock, m.abi, m.config, m.parse))
+      modules.map((m) =>
+        parseEvent(startBlock, endBlock, m.abi, m.config, m.parse)
+      )
     );
     const payload = castTypes(trades.flat());
 

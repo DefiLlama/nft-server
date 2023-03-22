@@ -1,0 +1,15 @@
+{
+  "exchangeName": "opensea",
+  "contracts": [
+    "0x7be8076f4ea4a4ad08075c2508e481d6c946d12b",
+    "0x7f268357a8c2552623316e2562d90e642bb538e5",
+    "0xf14f06e227c015b398b8069314f4b8d1d7022c9e"
+  ],
+  "events": [
+    {
+      "name": "OrdersMatched",
+      "signatureHash": "0xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9"
+    }
+  ],
+  "version": "wyvern"
+}

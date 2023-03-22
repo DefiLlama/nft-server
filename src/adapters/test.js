@@ -16,11 +16,18 @@ const argv = yargs.options({
     type: 'number',
     demandOption: false,
   },
+  blockRange: {
+    alias: 'r',
+    type: 'number',
+    demandOption: false,
+  },
 }).argv;
 
 (async () => {
   const marketplace = argv.marketplace;
   const block = argv.block;
+  const blockRange = argv.blockRange;
+
   console.log(`==== Testing ${marketplace} ====`);
 
   const time = () => Date.now() / 1000;
@@ -30,19 +37,13 @@ const argv = yargs.options({
 
   const endBlock = !block ? await getMaxBlock('ethereum.event_logs') : block;
 
-  const startBlock = endBlock - blockRangeTest;
+  const startBlock = endBlock - (blockRange ?? blockRangeTest);
 
-  const trades = await parseEvent(
-    startBlock,
-    endBlock,
-    abi,
-    config,
-    parse,
-    true
-  );
+  const trades = await parseEvent(startBlock, endBlock, abi, config, parse);
 
-  console.log(`\nRuntime: ${(time() - start).toFixed(2)} sec`);
   console.log(trades);
+  console.log(`\nRuntime: ${(time() - start).toFixed(2)} sec`);
+  console.log(`${trades.length} trades in blocks ${startBlock}-${endBlock}`);
 
   process.exit(0);
 })();

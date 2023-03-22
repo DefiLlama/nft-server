@@ -3,16 +3,9 @@ const ethers = require('ethers');
 const getEvents = require('../controllers/eventLogs');
 const aggregators = require('./aggregators');
 
-const parseEvent = async (
-  startBlock,
-  endBlock,
-  abi,
-  config,
-  parse,
-  test = false
-) => {
+const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
   // read events from db
-  const events = await getEvents(startBlock, endBlock, config, test);
+  const events = await getEvents(startBlock, endBlock, config);
 
   // instantiate abi interface
   const interface = new ethers.Interface(abi);
@@ -20,9 +13,16 @@ const parseEvent = async (
     config[e.signatureHash] = e.name;
   }
 
+  const marketplaceEvents =
+    config.version === 'wyvern'
+      ? events.filter(
+          (e) => `0x${e.topic_0}` === config.events[0].signatureHash
+        )
+      : events;
+
   // parse event data
   const parsedEvents = await Promise.all(
-    events.map(async (event) => {
+    marketplaceEvents.map(async (event) => {
       const data = `0x${event.data}`;
       const topics = [
         event.topic_0,
@@ -39,7 +39,13 @@ const parseEvent = async (
       // interface and or eventName are only used in case event.tx_data needs to parsed
       // and/or if `decodedEvent` fields are different for eventName (in case of
       // more than 1 nft trade event)
-      const parsedEvent = await parse(decodedEvent, event, interface, name);
+      const parsedEvent = await parse(
+        decodedEvent,
+        event,
+        interface,
+        name,
+        events
+      );
       // only keep parsed events with full information
       if (Object.values(parsedEvent).some((i) => i === undefined)) return {};
 
