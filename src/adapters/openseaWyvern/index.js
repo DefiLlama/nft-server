@@ -1,7 +1,8 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nftTransferEvents } = require('../../utils/params');
 
-const parse = async (decodedData, event, _, __, events) => {
+const parse = async (decodedData, event, _, events) => {
   // find the corresponding transfer event which contains collection and tokenId info
   const transferEvent = events.find(
     (e) =>
@@ -12,11 +13,9 @@ const parse = async (decodedData, event, _, __, events) => {
   if (!transferEvent?.contract_address) return {};
 
   const tokenId =
-    transferEvent.topic_0 ===
-    'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' // erc721 Transfer: tokenId = topic3
+    transferEvent.topic_0 === nftTransferEvents['erc721_Transfer']
       ? BigInt(`0x${transferEvent.topic_3}`)
-      : transferEvent.topic_0 ===
-        'c3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62' // erc1155 TransferSingle: tokenId in data field
+      : transferEvent.topic_0 === nftTransferEvents['erc1155_TransferSingle']
       ? BigInt(`0x${transferEvent.data.slice(0, 64)}`)
       : undefined;
 

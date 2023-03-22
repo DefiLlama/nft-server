@@ -28,9 +28,9 @@ WHERE
   AND e.block_number <= $<endBlock>
 `;
 
-// wyvern OrdersMatched event do not contain collection and tokenId, hence we need to also
+// opensea-wyvern & rarible events do not contain collection and tokenId, hence we need to also
 // query nft transfer events
-const queryOpenSeaWyvern = `
+const queryExtensive = `
 SELECT
     encode(e.transaction_hash, 'hex') AS transaction_hash,
     e.log_index,
@@ -44,6 +44,7 @@ SELECT
     e.block_number,
     encode(e.block_hash, 'hex') AS block_hash,
     b.price,
+    encode(t.from_address, 'hex') AS from_address,
     encode(t.to_address, 'hex') AS to_address
 FROM
     ethereum.event_logs e
@@ -67,34 +68,6 @@ WHERE
     AND e.block_number <= $<endBlock>
 `;
 
-// rarible requires data field from ethereum.transactions
-const queryRarible = `
-SELECT
-  encode(e.transaction_hash, 'hex') AS transaction_hash,
-  e.log_index,
-  encode(e.contract_address, 'hex') AS contract_address,
-  encode(e.topic_0, 'hex') AS topic_0,
-  encode(e.topic_1, 'hex') AS topic_1,
-  encode(e.topic_2, 'hex') AS topic_2,
-  encode(e.topic_3, 'hex') AS topic_3,
-  encode(e.data, 'hex') AS data,
-  e.block_time,
-  e.block_number,
-  encode(e.block_hash, 'hex') AS block_hash,
-  b.price,
-  encode(t.to_address, 'hex') as to_address,
-  encode(t.data, 'hex') as tx_data
-FROM
-  ethereum.event_logs e
-  LEFT JOIN ethereum.blocks b ON e.block_time = b.time
-  LEFT JOIN ethereum.transactions t on e.transaction_hash = t.hash
-WHERE
-  e.contract_address in ($<contractAddresses:csv>)
-  AND e.topic_0 in ($<eventSignatureHashes:csv>)
-  AND e.block_number >= $<startBlock>
-  AND e.block_number <= $<endBlock>
-`;
-
 const getEvents = async (startBlock, endBlock, config) => {
   const eventSignatureHashes = config.events.map(
     (e) => `\\${e.signatureHash.slice(1)}`
@@ -102,10 +75,8 @@ const getEvents = async (startBlock, endBlock, config) => {
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
   const q =
-    config.exchangeName === 'rariable'
-      ? queryRarible
-      : config.version === 'wyvern'
-      ? queryOpenSeaWyvern
+    config.exchangeName === 'rarible' || config.version === 'wyvern'
+      ? queryExtensive
       : query;
 
   const conn = await connect('indexa');

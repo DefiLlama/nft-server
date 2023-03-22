@@ -4,7 +4,7 @@ const abiOffer = require('./abiOffer.json');
 const abiAuction = require('./abiAuction.json');
 const config = require('./config.json');
 
-const parse = (decodedData, event, interface, eventName) => {
+const parse = (decodedData, event, eventName) => {
   let tokenContract;
   let tokenId;
   let buyer;
