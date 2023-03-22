@@ -2,6 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nftTransferEvents } = require('../../utils/params');
 
 const parse = (decodedData, event, _, events) => {
   // remove potential lazy mint and match on transaction_hash
@@ -26,18 +27,12 @@ const parse = (decodedData, event, _, events) => {
   let tokenId;
   let buyer;
   let seller;
-  // erc721
-  if (
-    transferEvent.topic_0 ===
-    'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
-  ) {
+  if (transferEvent.topic_0 === nftTransferEvents['erc721_Transfer']) {
     seller = stripZerosLeft(`0x${transferEvent.topic_1}`);
     buyer = stripZerosLeft(`0x${transferEvent.topic_2}`);
     tokenId = BigInt(`0x${transferEvent.topic_3}`);
-    // erc1155 (TransferSingle)
   } else if (
-    transferEvent.topic_0 ===
-    'c3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
+    transferEvent.topic_0 === nftTransferEvents['erc1155_TransferSingle']
   ) {
     tokenId = BigInt(`0x${transferEvent.data.slice(0, 64)}`);
     seller = stripZerosLeft(`0x${transferEvent.topic_2}`);
