@@ -4,7 +4,7 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
 
-const parse = (decodedData, event, _, events) => {
+const parse = (decodedData, event, events) => {
   // remove potential lazy mint and match on transaction_hash
   const transfers = events.filter(
     (e) =>

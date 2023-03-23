@@ -75,7 +75,9 @@ const getEvents = async (startBlock, endBlock, config) => {
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
   const q =
-    config.exchangeName === 'rarible' || config.version === 'wyvern'
+    config.exchangeName === 'rarible' ||
+    config.exchangeName === 'zora' ||
+    config.version === 'wyvern'
       ? queryExtensive
       : query;
 
