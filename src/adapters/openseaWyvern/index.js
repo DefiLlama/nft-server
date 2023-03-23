@@ -3,21 +3,33 @@ const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
 
 const parse = async (decodedData, event, _, events) => {
-  // find the corresponding transfer event which contains collection and tokenId info
-  const transferEvent = events.find(
+  // remove potential lazy mint and match on transaction_hash
+  const transfers = events.filter(
     (e) =>
-      e.transaction_hash === event.transaction_hash &&
-      e.log_index === event.log_index - 1
+      e.topic_1 !==
+        '0000000000000000000000000000000000000000000000000000000000000000' &&
+      e.transaction_hash === event.transaction_hash
   );
 
-  if (!transferEvent?.contract_address) return {};
+  // find the first transfer event which has the from address in either topic_1 - topic_3
+  // so we catch both cases of erc721 transfer and erc1155 TransferSingle
+  const transferEvent = transfers.find(
+    (tf) =>
+      tf.topic_1.includes(event.from_address) ||
+      tf.topic_2.includes(event.from_address) ||
+      tf.topic_3.includes(event.from_address)
+  );
 
-  const tokenId =
-    transferEvent.topic_0 === nftTransferEvents['erc721_Transfer']
-      ? BigInt(`0x${transferEvent.topic_3}`)
-      : transferEvent.topic_0 === nftTransferEvents['erc1155_TransferSingle']
-      ? BigInt(`0x${transferEvent.data.slice(0, 64)}`)
-      : undefined;
+  if (!transferEvent) return {};
+
+  let tokenId;
+  if (transferEvent.topic_0 === nftTransferEvents['erc721_Transfer']) {
+    tokenId = BigInt(`0x${transferEvent.topic_3}`);
+  } else if (
+    transferEvent.topic_0 === nftTransferEvents['erc1155_TransferSingle']
+  ) {
+    tokenId = BigInt(`0x${transferEvent.data.slice(0, 64)}`);
+  }
 
   const { maker, taker, price } = decodedData;
 
