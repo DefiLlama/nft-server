@@ -67,7 +67,7 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
         ...parsedEvent,
         exchangeName: config.exchangeName,
         aggregatorName: aggregator?.name ?? null,
-        aggregatorAddress: event.to_address ?? null,
+        aggregatorAddress: aggregator !== undefined ? event.to_address : null,
       };
     })
   );
