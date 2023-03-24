@@ -14,14 +14,9 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
     config[e.signatureHash] = e.name;
   }
 
-  const marketplaceEvents =
-    config.version === 'wyvern' ||
-    config.exchangeName === 'rarible' ||
-    config.exchangeName === 'zora'
-      ? events.filter((e) =>
-          config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
-        )
-      : events;
+  const marketplaceEvents = events.filter((e) =>
+    config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
+  );
   // will be empty for all marketplace for which we don't read nft transfer events
   const transferEvents = events.filter((e) =>
     Object.values(nftTransferEvents).includes(e.topic_0)
@@ -41,7 +36,12 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
         .map((t) => `0x${t}`);
 
       const decodedEvent = interface.decodeEventLog(topics[0], data, topics);
-      const parsedEvent = await parse(decodedEvent, event, transferEvents);
+      const parsedEvent = await parse(
+        decodedEvent,
+        event,
+        transferEvents,
+        interface
+      );
       // only keep parsed events with full information
       if (Object.values(parsedEvent).some((i) => i === undefined)) return {};
 
