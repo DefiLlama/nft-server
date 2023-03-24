@@ -93,6 +93,7 @@ const main = async () => {
         floorPrice1day: c.floorSale['1day'],
         floorPrice7day: c.floorSale['7day'],
         floorPrice30day: c.floorSale['30day'],
+        rank: c.rank['1day'],
       })
     );
     seen.add(c.id);

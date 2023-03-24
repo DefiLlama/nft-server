@@ -12,7 +12,8 @@ exports.up = (pgm) => {
         slug TEXT NOT NULL,
         image TEXT,
         total_supply NUMERIC NOT NULL,
-        token_standard TEXT NOT NULL
+        token_standard TEXT NOT NULL,
+        rank NUMERIC NOT NULL
       );
     `);
 

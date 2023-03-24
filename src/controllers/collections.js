@@ -15,6 +15,7 @@ const buildCollectionQ = (payload) => {
     'image',
     'tokenStandard',
     'totalSupply',
+    'rank',
   ].map((c) => _.snakeCase(c));
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'collection' });
@@ -93,6 +94,7 @@ WITH filtered_records AS (
 )
 SELECT
     f.collection_id,
+    rank,
     timestamp,
     name,
     slug,
