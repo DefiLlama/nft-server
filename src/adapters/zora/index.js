@@ -1,3 +1,5 @@
+const { stripZerosLeft } = require('ethers');
+
 const abiMarket = require('./abiMarket.json');
 const abiAsk = require('./abiAsk.json');
 const abiOffer = require('./abiOffer.json');
@@ -7,6 +9,7 @@ const abiReserveAcutionFindersETH = require('./abiReserveAuctionFindersETH.json'
 const abiAsksPrivateETH = require('./abiAsksPrivateETH.json');
 const abiAsksV1_1 = require('./abiAsksV1.1.json');
 const config = require('./config.json');
+const { nftTransferEvents } = require('../../utils/params');
 
 const parse = (decodedData, event, events) => {
   let tokenContract;
@@ -39,8 +42,6 @@ const parse = (decodedData, event, events) => {
 
     if (!transferEvent) return {};
 
-    let buyer;
-    let seller;
     if (transferEvent.topic_0 === nftTransferEvents['erc721_Transfer']) {
       seller = stripZerosLeft(`0x${transferEvent.topic_1}`);
       buyer = stripZerosLeft(`0x${transferEvent.topic_2}`);
