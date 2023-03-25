@@ -16,7 +16,8 @@ SELECT
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
   b.price,
-  encode(t.to_address, 'hex') as to_address
+  encode(t.to_address, 'hex') AS to_address,
+  encode(t.from_address, 'hex') AS from_address
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
@@ -117,8 +118,7 @@ const getEvents = async (startBlock, endBlock, config) => {
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
   const q =
-    config.exchangeName === 'rarible' ||
-    config.exchangeName === 'zora' ||
+    ['rarible', 'zora'].includes(config.exchangeName) ||
     config.version === 'wyvern'
       ? queryExtensive
       : config.exchangeName === 'cryptopunks'

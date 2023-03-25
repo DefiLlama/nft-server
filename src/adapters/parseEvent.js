@@ -47,7 +47,9 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
 
       // check if aggregator tx
       const aggregator = aggregators.find((agg) =>
-        agg.contracts.includes(`0x${event.to_address}`)
+        agg.contracts
+          .map((i) => i.toLowerCase())
+          .includes(`0x${event.to_address}`)
       );
 
       // keeping a bunch of fields from event_logs
