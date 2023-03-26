@@ -18,12 +18,18 @@ const parse = (decodedData, event, events, interface) => {
   // tx input data contains sale price
   const txData = `0x${event.tx_data}`;
   const funcSigHash = txData.slice(0, 10);
-  const { minPrice } = interface.decodeFunctionData(funcSigHash, txData);
+  let minPrice;
+  try {
+    ({ minPrice } = interface.decodeFunctionData(funcSigHash, txData));
+  } catch (err) {
+    console.log(err);
+    return {};
+  }
 
   // tokenId and seller
   const { punkIndex, fromAddress } = decodedData;
 
-  const salePrice = minPrice.toString() / 1e18;
+  const salePrice = minPrice?.toString() / 1e18;
 
   return {
     collection: config.contracts[0],
