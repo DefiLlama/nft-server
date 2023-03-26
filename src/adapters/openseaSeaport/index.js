@@ -44,7 +44,7 @@ const parse = async (decodedData, event) => {
     '0000000000a39bb272e79075ade125fd351887ac', // blur bidding pool of eth
   ].map((i) => `0x${i}`);
 
-  const { offerer, recipient, offer, consideration } = decodedData;
+  const { zone, offerer, recipient, offer, consideration } = decodedData;
 
   // there are instances where required fields from offer and consideration are undefined
   // -> destructure based on condition
@@ -102,10 +102,16 @@ const parse = async (decodedData, event) => {
     seller = recipient;
     buyer = offerer;
   } else if (iType === 2 || iType === 3) {
+    // some cases have zone = null address. dropping these cause there is a "duplicated" event
+    // which contains all relevant data
+    if (zone === '0x0000000000000000000000000000000000000000') return {};
     const paymentInEth = ethPaymentTokens.includes(tokenC?.toLowerCase());
 
     if (paymentInEth) {
-      salePrice = ethSalePrice = amountC.toString() / 1e18;
+      salePrice = ethSalePrice =
+        consideration
+          .reduce((total, c) => c.amount + total, BigInt(0))
+          .toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
       ({ salePrice, ethSalePrice, usdSalePrice } = await getTokenPrice(
@@ -117,7 +123,7 @@ const parse = async (decodedData, event) => {
 
     collection = tokenO;
     tokenId = identifierO;
-    nftAmount = 1; // if multiple -> each in separate event
+    nftAmount = amountO;
     paymentToken = tokenC;
     seller = offerer;
     buyer = recipient;
