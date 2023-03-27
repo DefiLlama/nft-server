@@ -41,6 +41,16 @@ functions:
     environment:
       RESERVOIR_API: ${file(./env.js):RESERVOIR_API}
 
+  triggerMonitor:
+    handler: src/handlers/triggerMonitor.handler
+    description: check if nft_trades is outdated
+    timeout: 120
+    events:
+      # every 15 min
+      - schedule: cron(*/15 * * * ? *)
+    environment:
+      NFT_TRADES_WEBHOOK: ${file(./env.js):NFT_TRADES_WEBHOOK}
+
   # ---------- GET HANDLERS
   getCollections:
     handler: src/handlers/getCollections.handler
