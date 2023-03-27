@@ -15,7 +15,6 @@ const buildCollectionQ = (payload) => {
     'image',
     'tokenStandard',
     'totalSupply',
-    'rank',
   ].map((c) => _.snakeCase(c));
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'collection' });
@@ -37,6 +36,7 @@ const buildFloorQ = (payload) => {
     'floorPrice1day',
     'floorPrice7day',
     'floorPrice30day',
+    'rank',
   ].map((c) => _.snakeCase(c));
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'floor' });
