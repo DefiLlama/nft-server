@@ -124,6 +124,7 @@ FROM
 
   return response
     .map((c) => convertKeysToCamelCase(c))
+    .filter((c) => c.rank > 0 || c.rank === null)
     .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
 };
 
