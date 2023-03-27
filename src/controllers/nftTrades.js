@@ -1,6 +1,7 @@
 const minify = require('pg-minify');
 
 const { pgp, connect } = require('../utils/dbConnection');
+const { convertKeysToCamelCase } = require('../utils/keyConversion');
 
 const db = 'indexa';
 const schema = 'ethereum';
@@ -139,7 +140,7 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
 
 // get all sales for a given collectionId
 const getSales = async (collectionId) => {
-  const conn = await connect(dbIndexa);
+  const conn = await connect(db);
 
   const query = minify(`
 SELECT
@@ -174,7 +175,7 @@ WHERE
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
 const getStats = async (collectionId) => {
-  const conn = await connect(dbIndexa);
+  const conn = await connect(db);
 
   const query = minify(`
 SELECT
@@ -202,7 +203,7 @@ GROUP BY
 
 // get 1day,7day,30day volumes per collection
 const getVolume = async () => {
-  const conn = await connect(dbIndexa);
+  const conn = await connect(db);
 
   const query = minify(`
 SELECT
