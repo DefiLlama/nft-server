@@ -87,6 +87,24 @@ functions:
           method: get
           path: /volume
 
+  getExchangeStats:
+    handler: src/handlers/getExchangeStats.handler
+    description: get volume and trade count per marketplace for 1day,7day,30day
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /exchangeStats
+
+  getExchangeVolume:
+    handler: src/handlers/getExchangeVolume.handler
+    description: get daily volume history per marketplace
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /exchangeVolume
+
 custom:
   stage: ${opt:stage, self:provider.stage}
   webpack:

@@ -228,6 +228,54 @@ GROUP BY
     .map((c) => ({ ...c, collection: `0x${c.collection}` }));
 };
 
+const getExchangeStats = async () => {
+  const conn = await connect(db);
+
+  const query = minify(`
+SELECT
+    encode(exchange_name, 'escape') as exchange_name,
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume",
+    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_nb_trades",
+    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades",
+    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_nb_trades"
+FROM
+    ethereum.nft_trades
+GROUP BY
+    exchange_name
+`);
+
+  const response = await conn.query(query);
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
+const getExchangeVolume = async () => {
+  const conn = await connect(db);
+
+  const query = minify(`
+SELECT
+  block_time :: date AS day,
+  encode(exchange_name, 'escape') as exchange_name,
+  sum(eth_sale_price)
+FROM
+  ethereum.nft_trades
+GROUP BY
+  (block_time :: date), exchange_name
+`);
+
+  const response = await conn.query(query);
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
 module.exports = {
   getMaxBlock,
   insertTrades,
@@ -235,4 +283,6 @@ module.exports = {
   getSales,
   getStats,
   getVolume,
+  getExchangeStats,
+  getExchangeVolume,
 };
