@@ -223,7 +223,9 @@ GROUP BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return response
+    .map((c) => convertKeysToCamelCase(c))
+    .map((c) => ({ ...c, collection: `0x${c.collection}` }));
 };
 
 module.exports = {
