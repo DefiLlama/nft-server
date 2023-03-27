@@ -125,7 +125,47 @@ FROM
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
+const getFloorHistory = async (collectionId) => {
+  const conn = await connect(db);
+
+  const query = minify(
+    `
+SELECT
+    timestamp,
+    floor_price
+FROM
+    floor
+WHERE
+    timestamp IN (
+        SELECT
+            max(timestamp)
+        FROM
+            floor
+        WHERE
+            collection_id = $<collectionId>
+        GROUP BY
+            (timestamp :: date)
+    )
+    AND collection_id = $<collectionId>
+ORDER BY
+    timestamp ASC
+  `,
+    { compress: true }
+  );
+
+  const response = await conn.query(query, {
+    collectionId,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
 module.exports = {
   insertCollections,
   getCollections,
+  getFloorHistory,
 };
