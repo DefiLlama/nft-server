@@ -45,9 +45,9 @@ functions:
     handler: src/handlers/triggerMonitor.handler
     description: check if nft_trades is outdated
     timeout: 120
-    events:
-      # every 15 min
-      - schedule: cron(*/15 * * * ? *)
+    # events:
+    #   # every 15 min
+    #   - schedule: cron(*/15 * * * ? *)
     environment:
       NFT_TRADES_WEBHOOK: ${file(./env.js):NFT_TRADES_WEBHOOK}
 
