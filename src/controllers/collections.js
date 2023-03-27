@@ -122,7 +122,9 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return response
+    .map((c) => convertKeysToCamelCase(c))
+    .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
 };
 
 const getFloorHistory = async (collectionId) => {
