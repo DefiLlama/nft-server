@@ -13,7 +13,6 @@ exports.up = (pgm) => {
         image TEXT,
         total_supply NUMERIC NOT NULL,
         token_standard TEXT NOT NULL,
-        rank NUMERIC NOT NULL
       );
     `);
 
@@ -27,7 +26,8 @@ exports.up = (pgm) => {
         floor_price NUMERIC,
         floor_price_1_day NUMERIC,
         floor_price_7_day NUMERIC,
-        floor_price_30_day NUMERIC
+        floor_price_30_day NUMERIC,
+        rank NUMERIC
       );
     `);
 
