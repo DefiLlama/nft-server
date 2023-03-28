@@ -13,6 +13,8 @@ exports.up = (pgm) => {
         image TEXT,
         total_supply NUMERIC NOT NULL,
         token_standard TEXT NOT NULL,
+        external_url TEXT,
+        twitter_username TEXT
       );
     `);
 

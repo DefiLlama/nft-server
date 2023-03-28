@@ -12,7 +12,7 @@ const checkIfStale = (blockEvents, blockTrades) =>
 // 300sec
 const duration = 3 * 1e5;
 const exe = async () => {
-  console.log('starting');
+  console.log('syncing');
   // load modules
   const modulesDir = path.join(__dirname, '../adapters');
   const modules = [];
@@ -30,7 +30,7 @@ const exe = async () => {
     )
   );
   console.log(
-    `nft_trades is ${blockEvents - blockTrades} blocks behind event_logs\n`
+    `nft_trades is ${blockEvents - blockTrades} blocks behind event_logs`
   );
 
   // check if stale
@@ -42,9 +42,9 @@ const exe = async () => {
     let endBlock = startBlock + blockRange;
 
     console.log(
-      `ffill for ${startBlock}-${endBlock} [${
+      `ffill blockrange ${startBlock}-${endBlock} [${
         blockEvents - endBlock
-      } blocks remaining to sync]`
+      } blocks remaining]`
     );
     const trades = await Promise.all(
       modules.map((m) =>
@@ -58,7 +58,7 @@ const exe = async () => {
     stale = checkIfStale(blockEvents, endBlock);
     blockTrades = endBlock;
   }
-  console.log('pausing exe...');
+  console.log(`synced, pausing exe for ${duration / 1e3}sec...\n`);
   await new Promise((resolve) => setTimeout(resolve, duration));
   await exe();
 };

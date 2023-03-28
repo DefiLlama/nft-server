@@ -15,6 +15,8 @@ const buildCollectionQ = (payload) => {
     'image',
     'tokenStandard',
     'totalSupply',
+    'externalUrl',
+    'twitterUsername',
   ].map((c) => _.snakeCase(c));
 
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'collection' });
@@ -84,7 +86,9 @@ SELECT
     name,
     image,
     total_supply,
-    token_standard
+    token_standard,
+    external_url,
+    twitter_username
 FROM
     collection
 WHERE
@@ -129,6 +133,8 @@ SELECT
     image,
     token_standard,
     total_supply,
+    external_url,
+    twitter_username,
     on_sale_count,
     floor_price,
     floor_price_1_day,
