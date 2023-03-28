@@ -8,7 +8,7 @@ const castTypes = (nftTrades) => {
     block_number: Number(nft.block_number),
     exchange_name: Buffer.from(nft.exchangeName),
     collection: Buffer.from(nft.collection.replace('0x', ''), 'hex'),
-    token_id: Buffer.from(nft.tokenId.toString(), 'hex'),
+    token_id: Buffer.from(nft.tokenId.toString()),
     amount: Number(nft.amount),
     sale_price: Number(nft.salePrice),
     eth_sale_price: Number(nft.ethSalePrice),
