@@ -75,6 +75,34 @@ const insertCollections = async (payload) => {
     });
 };
 
+const getCollection = async (collectionId) => {
+  const conn = await connect(db);
+
+  const query = minify(
+    `
+SELECT
+    name,
+    image,
+    total_supply,
+    token_standard
+FROM
+    collection
+WHERE
+    collection_id = $<collectionId>
+    `
+  );
+
+  const response = await conn.query(query, {
+    collectionId,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return response.map((c) => convertKeysToCamelCase(c));
+};
+
 // get most recent data for all collections
 const getCollections = async () => {
   const conn = await connect(db);
@@ -170,5 +198,6 @@ ORDER BY
 module.exports = {
   insertCollections,
   getCollections,
+  getCollection,
   getFloorHistory,
 };

@@ -61,6 +61,15 @@ functions:
           method: get
           path: /collections
 
+  getCollection:
+    handler: src/handlers/getCollection.handler
+    description: get static collection info
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /collection/{collectionId}
+
   getFloorHistory:
     handler: src/handlers/getFloorHistory.handler
     description: get floor price history for collectionId
