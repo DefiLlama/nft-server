@@ -142,28 +142,39 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
 const getSales = async (collectionId) => {
   const conn = await connect(db);
 
+  let lb, ub;
+  // artblocks
+  if (collectionId.includes(':')) {
+    [collectionId, lb, ub] = collectionId.split(':');
+  } else {
+    collectionId = `\\${collectionId.slice(1)}`;
+  }
+
   const query = minify(`
-SELECT
-    encode(transaction_hash, 'hex') AS transaction_hash,
-    block_time,
-    block_number,
-    encode(exchange_name, 'escape') AS exchange_name,
-    encode(token_id, 'escape') AS token_id,
-    sale_price,
-    eth_sale_price,
-    usd_sale_price,
-    encode(seller, 'hex') AS seller,
-    encode(buyer, 'hex') AS buyer,
-    encode(aggregator_name, 'escape') AS aggregator_name,
-    encode(aggregator_address, 'hex') AS aggregator_address
-FROM
-    ethereum.nft_trades
-WHERE
-    collection = $<collectionId>
+    SELECT
+        encode(transaction_hash, 'hex') AS transaction_hash,
+        block_time,
+        block_number,
+        encode(exchange_name, 'escape') AS exchange_name,
+        encode(token_id, 'escape') AS token_id,
+        sale_price,
+        eth_sale_price,
+        usd_sale_price,
+        encode(seller, 'hex') AS seller,
+        encode(buyer, 'hex') AS buyer,
+        encode(aggregator_name, 'escape') AS aggregator_name,
+        encode(aggregator_address, 'hex') AS aggregator_address
+    FROM
+        ethereum.nft_trades
+    WHERE
+        collection = $<collectionId>
+        ${lb ? 'AND token_id BETWEEN $<lb> AND $<ub>' : ''}
   `);
 
   const response = await conn.query(query, {
-    collectionId: `\\${collectionId.slice(1)}`,
+    collectionId,
+    lb,
+    ub,
   });
 
   if (!response) {
