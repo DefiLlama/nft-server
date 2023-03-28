@@ -146,8 +146,6 @@ const getSales = async (collectionId) => {
   // artblocks
   if (collectionId.includes(':')) {
     [collectionId, lb, ub] = collectionId.split(':');
-  } else {
-    collectionId = `\\${collectionId.slice(1)}`;
   }
 
   const query = minify(`
@@ -172,7 +170,7 @@ const getSales = async (collectionId) => {
   `);
 
   const response = await conn.query(query, {
-    collectionId,
+    collectionId: `\\${collectionId.slice(1)}`,
     lb,
     ub,
   });
@@ -188,6 +186,12 @@ const getSales = async (collectionId) => {
 const getStats = async (collectionId) => {
   const conn = await connect(db);
 
+  let lb, ub;
+  // artblocks
+  if (collectionId.includes(':')) {
+    [collectionId, lb, ub] = collectionId.split(':');
+  }
+
   const query = minify(`
 SELECT
     block_time :: date AS day,
@@ -197,12 +201,15 @@ FROM
     ethereum.nft_trades
 WHERE
     collection = $<collectionId>
+    ${lb ? 'AND token_id BETWEEN $<lb> AND $<ub>' : ''}
 GROUP BY
     (block_time :: date)
   `);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
+    lb,
+    ub,
   });
 
   if (!response) {
