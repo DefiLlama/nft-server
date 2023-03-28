@@ -15,7 +15,7 @@ const buildCollectionQ = (payload) => {
     'image',
     'tokenStandard',
     'totalSupply',
-    'externalUrl',
+    'projectUrl',
     'twitterUsername',
   ].map((c) => _.snakeCase(c));
 
@@ -87,7 +87,7 @@ SELECT
     image,
     total_supply,
     token_standard,
-    external_url,
+    project_url,
     twitter_username
 FROM
     collection
@@ -133,7 +133,7 @@ SELECT
     image,
     token_standard,
     total_supply,
-    external_url,
+    project_url,
     twitter_username,
     on_sale_count,
     floor_price,

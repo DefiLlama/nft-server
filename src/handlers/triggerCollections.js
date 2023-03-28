@@ -94,6 +94,8 @@ const main = async () => {
         floorPrice7day: c.floorSale['7day'],
         floorPrice30day: c.floorSale['30day'],
         rank: c.rank['1day'],
+        projectUrl: c.externalUrl,
+        twitterUsername: c.twitterUsername,
       })
     );
     seen.add(c.id);
