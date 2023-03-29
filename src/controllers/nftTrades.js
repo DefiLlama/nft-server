@@ -166,13 +166,17 @@ const getSales = async (collectionId) => {
         ethereum.nft_trades
     WHERE
         collection = $<collectionId>
-        ${lb ? 'AND token_id BETWEEN $<lb> AND $<ub>' : ''}
+        ${
+          lb
+            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+            : ''
+        }
   `);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
-    lb,
-    ub,
+    lb: Number(lb),
+    ub: Number(ub),
   });
 
   if (!response) {
@@ -201,15 +205,19 @@ FROM
     ethereum.nft_trades
 WHERE
     collection = $<collectionId>
-    ${lb ? 'AND token_id BETWEEN $<lb> AND $<ub>' : ''}
+    ${
+      lb
+        ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+        : ''
+    }
 GROUP BY
     (block_time :: date)
   `);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
-    lb,
-    ub,
+    lb: Number(lb),
+    ub: Number(ub),
   });
 
   if (!response) {
