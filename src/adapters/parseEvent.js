@@ -7,6 +7,7 @@ const { nftTransferEvents } = require('../utils/params');
 const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
   // read events from db
   const events = await getEvents(startBlock, endBlock, config);
+  if (!events.length) return [];
 
   // instantiate abi interface
   const interface = new ethers.Interface(abi);

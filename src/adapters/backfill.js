@@ -6,7 +6,6 @@ const {
 } = require('../controllers/nftTrades');
 const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
-const { blockRange } = require('../utils/params');
 
 const argv = yargs.options({
   marketplace: {
@@ -22,6 +21,12 @@ const argv = yargs.options({
     describe:
       'min(block_number) - 1 from nft_trades; we go backwards from that block',
   },
+  blockRange: {
+    alias: 'r',
+    type: 'number',
+    demandOption: true,
+    describe: 'block window size used for querying events from event_logs',
+  },
   deletePriorInsert: {
     type: 'boolean',
     demandOption: false,
@@ -33,6 +38,7 @@ const argv = yargs.options({
 const marketplace = argv.marketplace;
 let endBlock = argv.block;
 const deletePriorInsert = argv.deletePriorInsert;
+const blockRange = argv.blockRange;
 
 const main = async () => {
   console.log(`==== Refill ${marketplace} ====`);
@@ -43,9 +49,9 @@ const main = async () => {
   console.log(`starting refill from ${endBlock}...`);
   while (true) {
     const trades = await parseEvent(startBlock, endBlock, abi, config, parse);
-    const payload = castTypes(trades);
 
-    if (payload.length) {
+    if (trades.length) {
+      const payload = castTypes(trades);
       if (deletePriorInsert) {
         const response = await deleteAndInsertTrades(
           payload,
