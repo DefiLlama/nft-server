@@ -26,9 +26,6 @@ exports.up = (pgm) => {
         timestamp TIMESTAMPTZ NOT NULL,
         on_sale_count NUMERIC,
         floor_price NUMERIC,
-        floor_price_1_day NUMERIC,
-        floor_price_7_day NUMERIC,
-        floor_price_30_day NUMERIC,
         rank NUMERIC
       );
     `);
