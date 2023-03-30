@@ -27,9 +27,10 @@ const parse = (decodedData, event, events, interface) => {
   }
 
   // tokenId and seller
-  const { punkIndex, fromAddress } = decodedData;
+  const { punkIndex, fromAddress, value } = decodedData;
 
-  const salePrice = minPrice?.toString() / 1e18;
+  const price = minPrice ?? value;
+  const salePrice = price?.toString() / 1e18;
 
   return {
     collection: config.contracts[0],
