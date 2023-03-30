@@ -113,39 +113,63 @@ const getCollections = async () => {
 
   const query = minify(
     `
-WITH filtered_records AS (
+WITH NOW AS (
     SELECT
         DISTINCT ON (collection_id) *
     FROM
         floor
     WHERE
-        timestamp >= NOW() - INTERVAL '7 DAY'
+        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '1 day')
+    ORDER BY
+        collection_id,
+        timestamp DESC
+),
+yesterday AS (
+    SELECT
+        DISTINCT ON (collection_id) *
+    FROM
+        floor
+    WHERE
+        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '1 day')
+        AND timestamp < DATE_TRUNC('day', NOW())
+    ORDER BY
+        collection_id,
+        timestamp DESC
+),
+week AS (
+    SELECT
+        DISTINCT ON (collection_id) *
+    FROM
+        floor
+    WHERE
+        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '7 day')
+        AND timestamp < DATE_TRUNC('day', NOW() - INTERVAL '6 day')
     ORDER BY
         collection_id,
         timestamp DESC
 )
 SELECT
-    f.collection_id,
-    rank,
-    timestamp,
-    name,
-    slug,
-    image,
-    token_standard,
-    total_supply,
-    project_url,
-    twitter_username,
-    on_sale_count,
-    floor_price,
-    floor_price_1_day,
-    floor_price_7_day,
-    floor_price_30_day,
-    calculate_percent_change(floor_price, floor_price_1_day) as floor_price_pct_change_1_day,
-    calculate_percent_change(floor_price, floor_price_7_day) as floor_price_pct_change_7_day,
-    calculate_percent_change(floor_price, floor_price_30_day) as floor_price_pct_change_30_day
+    NOW.collection_id,
+    NOW.timestamp AS timestamp,
+    NOW.rank,
+    NOW.on_sale_count,
+    NOW.floor_price,
+    yesterday.floor_price AS floor_price_1_day,
+    week.floor_price AS floor_price_7_day,
+    calculate_percent_change(NOW.floor_price, yesterday.floor_price) AS floor_price_pct_change_1_day,
+    calculate_percent_change(NOW.floor_price, week.floor_price) AS floor_price_pct_change_7_day,
+    c.name,
+    c.slug,
+    c.image,
+    c.token_standard,
+    c.total_supply,
+    c.project_url,
+    c.twitter_username
 FROM
-    filtered_records AS f
-    INNER JOIN collection AS c ON c.collection_id = f.collection_id;
+    NOW
+    JOIN yesterday ON NOW.collection_id = yesterday.collection_id
+    JOIN week ON NOW.collection_id = week.collection_id
+    JOIN collection AS c ON c.collection_id = NOW.collection_id;
   `,
     { compress: true }
   );
