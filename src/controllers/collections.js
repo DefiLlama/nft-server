@@ -108,15 +108,17 @@ WHERE
 const getCollections = async () => {
   const conn = await connect(db);
 
+  // latest = timestamp DESC
+  // yesterday and week = timestamp ASC -> first value the oldest one (closest to the required offset)
   const query = minify(
     `
-WITH NOW AS (
+WITH latest AS (
     SELECT
         DISTINCT ON (collection_id) *
     FROM
         floor
     WHERE
-        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '1 day')
+        timestamp >= CURRENT_DATE
     ORDER BY
         collection_id,
         timestamp DESC
@@ -127,11 +129,11 @@ yesterday AS (
     FROM
         floor
     WHERE
-        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '1 day')
-        AND timestamp < DATE_TRUNC('day', NOW())
+        timestamp >= NOW() - INTERVAL '1 day'
+        AND timestamp < CURRENT_DATE
     ORDER BY
         collection_id,
-        timestamp DESC
+        timestamp ASC
 ),
 week AS (
     SELECT
@@ -139,22 +141,22 @@ week AS (
     FROM
         floor
     WHERE
-        timestamp >= DATE_TRUNC('day', NOW() - INTERVAL '7 day')
+        timestamp >= NOW() - INTERVAL '7 day'
         AND timestamp < DATE_TRUNC('day', NOW() - INTERVAL '6 day')
     ORDER BY
         collection_id,
-        timestamp DESC
+        timestamp ASC
 )
 SELECT
-    NOW.collection_id,
-    NOW.timestamp AS timestamp,
-    NOW.rank,
-    NOW.on_sale_count,
-    NOW.floor_price,
+    latest.collection_id,
+    latest.timestamp AS timestamp,
+    latest.rank,
+    latest.on_sale_count,
+    latest.floor_price,
     yesterday.floor_price AS floor_price_1_day,
     week.floor_price AS floor_price_7_day,
-    calculate_percent_change(NOW.floor_price, yesterday.floor_price) AS floor_price_pct_change_1_day,
-    calculate_percent_change(NOW.floor_price, week.floor_price) AS floor_price_pct_change_7_day,
+    calculate_percent_change(latest.floor_price, yesterday.floor_price) AS floor_price_pct_change_1_day,
+    calculate_percent_change(latest.floor_price, week.floor_price) AS floor_price_pct_change_7_day,
     c.name,
     c.slug,
     c.image,
@@ -163,10 +165,10 @@ SELECT
     c.project_url,
     c.twitter_username
 FROM
-    NOW
-    JOIN yesterday ON NOW.collection_id = yesterday.collection_id
-    JOIN week ON NOW.collection_id = week.collection_id
-    JOIN collection AS c ON c.collection_id = NOW.collection_id;
+    latest
+    JOIN yesterday ON latest.collection_id = yesterday.collection_id
+    JOIN week ON latest.collection_id = week.collection_id
+    JOIN collection AS c ON c.collection_id = latest.collection_id;
   `,
     { compress: true }
   );
