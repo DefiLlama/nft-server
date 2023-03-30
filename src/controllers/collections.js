@@ -35,9 +35,6 @@ const buildFloorQ = (payload) => {
     'timestamp',
     'onSaleCount',
     'floorPrice',
-    'floorPrice1day',
-    'floorPrice7day',
-    'floorPrice30day',
     'rank',
   ].map((c) => _.snakeCase(c));
 
