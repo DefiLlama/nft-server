@@ -5,3 +5,4 @@ testing
 .serverless
 .webpack
 test.json
+reservoir.json
