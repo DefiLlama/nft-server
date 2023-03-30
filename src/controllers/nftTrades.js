@@ -305,6 +305,7 @@ SELECT
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_nb_trades"
 FROM
     ethereum.nft_trades
+WHERE eth_sale_price IS DISTINCT FROM 'NaN'
 GROUP BY
     exchange_name
 `);
