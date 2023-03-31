@@ -352,14 +352,23 @@ const getExchangeVolume = async () => {
   const conn = await connect(db);
 
   const query = minify(`
-SELECT
-  block_time :: date AS day,
-  encode(exchange_name, 'escape') as exchange_name,
-  sum(eth_sale_price)
-FROM
-  ethereum.nft_trades
-GROUP BY
-  (block_time :: date), exchange_name
+WITH trades AS (
+    SELECT
+      block_time,
+      LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS exchange_name,
+      eth_sale_price
+    FROM
+      ethereum.nft_trades
+  )
+  SELECT
+    DATE(block_time) AS day,
+    exchange_name,
+    SUM(eth_sale_price)
+  FROM
+    trades
+  GROUP BY
+    DATE(block_time),
+    exchange_name;
 `);
 
   const response = await conn.query(query);
