@@ -23,6 +23,10 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
     Object.values(nftTransferEvents).includes(e.topic_0)
   );
 
+  const aggregatorContracts = aggregators.flatMap((agg) =>
+    agg.contracts.map((c) => c.toLowerCase())
+  );
+
   // parse event data
   const parsedEvents = await Promise.all(
     marketplaceEvents.map(async (event) => {
@@ -68,6 +72,9 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
       return {
         ...rest,
         ...parsedEvent,
+        buyer: aggregatorContracts.includes(parsedEvent.buyer.toLowerCase())
+          ? event.from_address
+          : parsedEvent.buyer,
         exchangeName: config.exchangeName,
         aggregatorName: aggregator?.name ?? null,
         aggregatorAddress: aggregator !== undefined ? event.to_address : null,
