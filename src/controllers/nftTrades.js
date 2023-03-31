@@ -297,7 +297,7 @@ const getExchangeStats = async () => {
   const query = minify(`
 WITH nft_trades_processed AS (
   SELECT
-    LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS source,
+    LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS exchange_name,
     block_time,
     eth_sale_price
   FROM
@@ -305,7 +305,7 @@ WITH nft_trades_processed AS (
 ),
 grouped AS (
   SELECT
-    source,
+    exchange_name,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume",
@@ -316,7 +316,7 @@ grouped AS (
   FROM
     nft_trades_processed
   GROUP BY
-    source
+    exchange_name
 ),
 total_daily_volume AS (
   SELECT
@@ -325,7 +325,7 @@ total_daily_volume AS (
     grouped
 )
 SELECT
-  g.source,
+  g.exchange_name,
   g."1day_volume",
   g."7day_volume",
   g."30day_volume",
