@@ -235,21 +235,23 @@ const getStats = async (collectionId) => {
 
   const query = minify(`
 SELECT
-    block_time :: date AS day,
-    sum(eth_sale_price),
-    count(eth_sale_price)
+    DATE(block_time) AS day,
+    SUM(eth_sale_price),
+    COUNT(eth_sale_price)
 FROM
     ethereum.nft_trades
 WHERE
     collection = $<collectionId>
-    ${
-      lb
-        ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-        : ''
-    }
+        ${
+          lb
+            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+            : ''
+        }
 GROUP BY
-    (block_time :: date)
-  `);
+    DATE(block_time)
+ORDER BY
+    DATE(block_time) ASC;
+`);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
