@@ -295,40 +295,49 @@ const getExchangeStats = async () => {
   const conn = await connect(db);
 
   const query = minify(`
-WITH stats as (SELECT
-    encode(exchange_name, 'escape') as exchange_name,
+WITH nft_trades_processed AS (
+  SELECT
+    LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS source,
+    block_time,
+    eth_sale_price
+  FROM
+    ethereum.nft_trades
+),
+grouped AS (
+  SELECT
+    source,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '14 DAY') and block_time < (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume_prior",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '14 DAY') AND block_time < (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume_prior",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_nb_trades",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_nb_trades"
-FROM
-    ethereum.nft_trades
-GROUP BY
-    exchange_name
+  FROM
+    nft_trades_processed
+  GROUP BY
+    source
 ),
 total_daily_volume AS (
-    SELECT
-        SUM("1day_volume") AS total_1day_volume
-    FROM
-        stats
+  SELECT
+    SUM("1day_volume") AS total_1day_volume
+  FROM
+    grouped
 )
 SELECT
-    s.exchange_name,
-    s."1day_volume",
-    s."7day_volume",
-    s."30day_volume",
-    s."1day_nb_trades",
-    s."7day_nb_trades",
-    s."30day_nb_trades",
-    (s."1day_volume" / tdv.total_1day_volume) * 100 AS pct_of_total,
-     s."7day_volume_prior",
-    (s."7day_volume" - s."7day_volume_prior") / s."7day_volume_prior" * 100 AS weekly_change
+  g.source,
+  g."1day_volume",
+  g."7day_volume",
+  g."30day_volume",
+  g."1day_nb_trades",
+  g."7day_nb_trades",
+  g."30day_nb_trades",
+  (g."1day_volume" / tdv.total_1day_volume) * 100 AS pct_of_total,
+  g."7day_volume_prior",
+  (g."7day_volume" - g."7day_volume_prior") / g."7day_volume_prior" * 100 AS weekly_change
 FROM
-    stats s,
-    total_daily_volume tdv;
+  grouped g,
+  total_daily_volume tdv;
 `);
 
   const response = await conn.query(query);
