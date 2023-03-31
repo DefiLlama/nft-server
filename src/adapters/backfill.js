@@ -66,7 +66,7 @@ const main = async () => {
       } else {
         const response = await insertTrades(payload);
         console.log(
-          `filled ${startBlock}-${endBlock} [inserted: ${response.rowCount}]`
+          `filled blocks: ${startBlock}-${endBlock} [inserted: ${response.rowCount}]`
         );
       }
     } else {

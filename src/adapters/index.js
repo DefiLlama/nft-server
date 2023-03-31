@@ -41,11 +41,6 @@ const exe = async () => {
     let startBlock = blockTrades + 1;
     let endBlock = startBlock + blockRange;
 
-    console.log(
-      `ffill blockrange ${startBlock}-${endBlock} [${
-        blockEvents - endBlock
-      } blocks remaining]`
-    );
     const trades = await Promise.all(
       modules.map((m) =>
         parseEvent(startBlock, endBlock, m.abi, m.config, m.parse)
@@ -53,7 +48,13 @@ const exe = async () => {
     );
     const payload = castTypes(trades.flat());
 
-    await insertTrades(payload);
+    const response = await insertTrades(payload);
+
+    console.log(
+      `filled blocks: ${startBlock}-${endBlock} [inserted: ${
+        response.rowCount
+      } trades | blocks remaining: ${blockEvents - endBlock} ]`
+    );
 
     stale = checkIfStale(blockEvents, endBlock);
     blockTrades = endBlock;

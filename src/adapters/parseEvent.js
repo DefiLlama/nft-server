@@ -48,7 +48,12 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
         interface
       );
       // only keep parsed events with full information
-      if (Object.values(parsedEvent).some((i) => i === undefined)) return {};
+      if (
+        Object.values(parsedEvent).some((i) => i === undefined) ||
+        Object.keys(parsedEvent).length === 0
+      ) {
+        return {};
+      }
 
       // check if aggregator tx
       const aggregator = aggregators.find((agg) =>
