@@ -18,6 +18,9 @@ module.exports = [
       '0x4326275317acc0fae4aa5c68fce4c54c74dc08d3',
       '0xae9c73fd0fd237c1c6f66fe009d24ce969e98704',
       '0x0000000035634b55f3d99b071b5a354f48e10bef',
+      '0x9c049c5a973e9637cdf5f7c31b93ec074161d2fe',
+      '0xf2458bd228d8a39b64bd3b9f84890e957cac3bbc',
+      '0x094e654351cf152112e136923ad21508401d64d3',
     ],
   },
   {
@@ -32,7 +35,10 @@ module.exports = [
   },
   {
     name: 'Uniswap',
-    contracts: ['0xef1c6e67703c7bd7107eed8303fbe6ec2554bf6b'],
+    contracts: [
+      '0xef1c6e67703c7bd7107eed8303fbe6ec2554bf6b',
+      '0x4c60051384bd2d3c01bfc845cf5f4b44bcbe9de5',
+    ],
   },
   {
     name: 'Reservoir',
