@@ -166,9 +166,9 @@ SELECT
     c.twitter_username
 FROM
     latest
-    JOIN yesterday ON latest.collection_id = yesterday.collection_id
-    JOIN week ON latest.collection_id = week.collection_id
-    JOIN collection AS c ON c.collection_id = latest.collection_id;
+    LEFT JOIN yesterday ON latest.collection_id = yesterday.collection_id
+    LEFT JOIN week ON latest.collection_id = week.collection_id
+    LEFT JOIN collection AS c ON c.collection_id = latest.collection_id;
   `,
     { compress: true }
   );
