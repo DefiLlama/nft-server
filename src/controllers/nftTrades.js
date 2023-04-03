@@ -381,6 +381,37 @@ WITH trades AS (
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
+const queryWashTrade = minify(`
+WITH counted_trades AS (
+  SELECT
+      *,
+      COUNT(*) OVER (PARTITION BY seller, collection, token_id) AS seller_count,
+      COUNT(*) OVER (PARTITION BY buyer, collection, token_id) AS buyer_count
+  FROM
+      ethereum.nft_trades
+)
+SELECT
+  *
+FROM
+  counted_trades
+WHERE
+  NOT EXISTS (
+      SELECT
+          1
+      FROM
+          ethereum.nft_trades t
+      WHERE
+          t.seller = counted_trades.buyer
+          AND t.buyer = counted_trades.seller
+          AND t.collection = counted_trades.collection
+          AND t.token_id = counted_trades.token_id
+          AND t.transaction_hash <> counted_trades.transaction_hash
+  )
+  AND buyer != seller
+  AND seller_count < 3
+  AND buyer_count < 3
+`);
+
 module.exports = {
   getMaxBlock,
   insertTrades,
