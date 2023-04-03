@@ -129,6 +129,8 @@ const parse = async (decodedData, event) => {
     buyer = recipient;
   }
 
+  const nullAddress = '0x0000000000000000000000000000000000000000';
+
   return {
     collection,
     tokenId,
@@ -137,8 +139,8 @@ const parse = async (decodedData, event) => {
     ethSalePrice,
     usdSalePrice,
     paymentToken,
-    seller,
-    buyer,
+    seller: seller === nullAddress ? event.from_address : seller,
+    buyer: buyer === nullAddress ? event.from_address : buyer,
   };
 };
 
