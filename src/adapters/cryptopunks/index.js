@@ -22,7 +22,6 @@ const parse = (decodedData, event, events, interface) => {
   try {
     ({ minPrice } = interface.decodeFunctionData(funcSigHash, txData));
   } catch (err) {
-    console.log(err);
     return {};
   }
 
