@@ -22,3 +22,6 @@ CREATE TABLE IF NOT EXISTS ethereum.nft_trades (
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON ethereum.nft_trades (block_number);
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_collection_idx ON ethereum.nft_trades (collection);
+
+-- testing
+CREATE INDEX IF NOT EXISTS ethereum_nft_trades_seller_buyer_token_id_transaction_hash ON ethereum.nft_trades (seller, buyer, token_id, transaction_hash);

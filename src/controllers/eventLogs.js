@@ -17,7 +17,8 @@ SELECT
   encode(e.block_hash, 'hex') AS block_hash,
   b.price,
   encode(t.to_address, 'hex') AS to_address,
-  encode(t.from_address, 'hex') AS from_address
+  encode(t.from_address, 'hex') AS from_address,
+  encode(t.data, 'hex') AS tx_data
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
@@ -46,7 +47,8 @@ SELECT
     encode(e.block_hash, 'hex') AS block_hash,
     b.price,
     encode(t.from_address, 'hex') AS from_address,
-    encode(t.to_address, 'hex') AS to_address
+    encode(t.to_address, 'hex') AS to_address,
+    encode(t.data, 'hex') AS tx_data
 FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time

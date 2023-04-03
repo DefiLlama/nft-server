@@ -2,6 +2,7 @@ module.exports = [
   {
     name: 'Blur',
     contracts: ['0x39da41747a83aee658334415666f3ef92dd0d541'],
+    appendage: '332d1229',
   },
   {
     name: 'Gem',
@@ -22,6 +23,7 @@ module.exports = [
       '0xf2458bd228d8a39b64bd3b9f84890e957cac3bbc',
       '0x094e654351cf152112e136923ad21508401d64d3',
     ],
+    appendage: '72db8c0b',
   },
   {
     name: 'Genie',
@@ -60,6 +62,7 @@ module.exports = [
       '0x04898894a0b6c094a920eafd180ef4ac30f00a43',
       '0x1ed3d33b41e392014e0c9d8125369aba4e09798f',
     ],
+    appendage: 'a8a9c101',
   },
   { name: 'X2Y2', contracts: ['0x56dd5bbede9bfdb10a2845c4d70d4a2950163044'] },
   {
@@ -86,6 +89,7 @@ module.exports = [
       '0x36ab1c395b3711d3d5ed2af8ac8371cc991aa06c',
       '0x7db11e30ae8ad7495668701c3f2c1b6d60587eda',
     ],
+    appendage: '61598d6d',
   },
   {
     name: 'Rarible',
@@ -93,6 +97,7 @@ module.exports = [
       '0x2a7251d1e7d708c507b1b0d3ff328007beecce5d',
       '0x2c45af926d5f62c5935278106800a03eb565778e',
     ],
+    appendage: '9616c6c64617461',
   },
   {
     name: 'Magic Eden',
