@@ -303,7 +303,7 @@ WITH nft_trades_processed AS (
     block_time,
     eth_sale_price
   FROM
-    ethereum.nft_trades_clean
+    $<tableName:raw>
 ),
 grouped AS (
   SELECT
@@ -342,7 +342,24 @@ FROM
   total_daily_volume tdv;
 `);
 
-  const response = await conn.query(query);
+  const trades = await conn.query(query, {
+    tableName: '"ethereum"."nft_trades"',
+  });
+
+  const trades_clean = await conn.query(query, {
+    tableName: '"ethereum"."nft_trades_clean"',
+  });
+
+  const response = trades_clean.map((m_clean) => ({
+    ...m_clean,
+    wash_volume7d_pct:
+      (1 -
+        m_clean['7day_volume'] /
+          trades.find((m) => m.exchange_name === m_clean.exchange_name)?.[
+            '7day_volume'
+          ]) *
+      100,
+  }));
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
