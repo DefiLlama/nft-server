@@ -61,9 +61,10 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
           .map((i) => i.toLowerCase())
           .includes(`0x${event.to_address}`)
       );
-      const aggregatorAppendage = aggregators.find(
-        (agg) => agg?.appendage === event.tx_data.slice(-agg?.appendage?.length)
-      );
+      const aggregatorName =
+        (event?.aggregator_name || aggregator?.name) ?? null;
+      const aggregatorAddress =
+        aggregator !== undefined ? event.to_address : null;
 
       // keeping a bunch of fields from event_logs
       const {
@@ -74,6 +75,7 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
         price,
         tx_data,
         block_hash,
+        aggregator_name,
         ...rest
       } = event;
 
@@ -84,8 +86,8 @@ const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
           ? event.from_address
           : parsedEvent.buyer,
         exchangeName: config.exchangeName,
-        aggregatorName: (aggregator?.name || aggregatorAppendage?.name) ?? null,
-        aggregatorAddress: aggregator !== undefined ? event.to_address : null,
+        aggregatorName,
+        aggregatorAddress,
       };
     })
   );
