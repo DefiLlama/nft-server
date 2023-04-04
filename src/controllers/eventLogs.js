@@ -18,11 +18,12 @@ SELECT
   b.price,
   encode(t.to_address, 'hex') AS to_address,
   encode(t.from_address, 'hex') AS from_address,
-  encode(t.data, 'hex') AS tx_data
+  a.name AS aggregator_name
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+  LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
 WHERE
   e.contract_address in ($<contractAddresses:csv>)
   AND e.topic_0 in ($<eventSignatureHashes:csv>)
@@ -48,11 +49,12 @@ SELECT
     b.price,
     encode(t.from_address, 'hex') AS from_address,
     encode(t.to_address, 'hex') AS to_address,
-    encode(t.data, 'hex') AS tx_data
+    a.name AS aggregator_name
 FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time
     LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
 WHERE
     (
         (
@@ -91,11 +93,13 @@ SELECT
     b.price,
     encode(t.from_address, 'hex') AS from_address,
     encode(t.to_address, 'hex') AS to_address,
-    encode(t.data, 'hex') AS tx_data
+    encode(t.data, 'hex') AS tx_data,
+    a.name AS aggregator_name
 FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time
     LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
 WHERE
     (
         (
