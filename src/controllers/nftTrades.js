@@ -163,7 +163,7 @@ const getSales = async (collectionId) => {
         encode(aggregator_name, 'escape') AS aggregator_name,
         encode(aggregator_address, 'hex') AS aggregator_address
     FROM
-        ethereum.nft_trades
+        ethereum.nft_trades_clean
     WHERE
         collection = $<collectionId>
         ${
@@ -200,7 +200,7 @@ const getSalesLite = async (collectionId) => {
         block_time,
         eth_sale_price
     FROM
-        ethereum.nft_trades
+        ethereum.nft_trades_clean
     WHERE
         collection = $<collectionId>
         ${
@@ -239,7 +239,7 @@ SELECT
     SUM(eth_sale_price),
     COUNT(eth_sale_price)
 FROM
-    ethereum.nft_trades
+    ethereum.nft_trades_clean
 WHERE
     collection = $<collectionId>
         ${
@@ -277,7 +277,7 @@ SELECT
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume"
 FROM
-    ethereum.nft_trades
+    ethereum.nft_trades_clean
 GROUP BY
     collection;
   `);
@@ -303,7 +303,7 @@ WITH nft_trades_processed AS (
     block_time,
     eth_sale_price
   FROM
-    ethereum.nft_trades
+    ethereum.nft_trades_clean
 ),
 grouped AS (
   SELECT
@@ -360,7 +360,7 @@ WITH trades AS (
       LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS exchange_name,
       eth_sale_price
     FROM
-      ethereum.nft_trades
+      ethereum.nft_trades_clean
   )
   SELECT
     DATE(block_time) AS day,
@@ -380,37 +380,6 @@ WITH trades AS (
   }
   return response.map((c) => convertKeysToCamelCase(c));
 };
-
-const queryWashTrade = minify(`
-WITH counted_trades AS (
-  SELECT
-      *,
-      COUNT(*) OVER (PARTITION BY seller, collection, token_id) AS seller_count,
-      COUNT(*) OVER (PARTITION BY buyer, collection, token_id) AS buyer_count
-  FROM
-      ethereum.nft_trades
-)
-SELECT
-  *
-FROM
-  counted_trades
-WHERE
-  NOT EXISTS (
-      SELECT
-          1
-      FROM
-          ethereum.nft_trades t
-      WHERE
-          t.seller = counted_trades.buyer
-          AND t.buyer = counted_trades.seller
-          AND t.collection = counted_trades.collection
-          AND t.token_id = counted_trades.token_id
-          AND t.transaction_hash <> counted_trades.transaction_hash
-  )
-  AND buyer != seller
-  AND seller_count < 3
-  AND buyer_count < 3
-`);
 
 module.exports = {
   getMaxBlock,
