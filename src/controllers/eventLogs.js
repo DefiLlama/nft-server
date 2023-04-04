@@ -23,7 +23,7 @@ FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
   LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
-  LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
+  LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
 WHERE
   e.contract_address in ($<contractAddresses:csv>)
   AND e.topic_0 in ($<eventSignatureHashes:csv>)
@@ -54,7 +54,7 @@ FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time
     LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
-    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
 WHERE
     (
         (
@@ -99,7 +99,7 @@ FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time
     LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
-    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), LENGTH(a.appendage)) = encode(a.appendage, 'escape')
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
 WHERE
     (
         (
