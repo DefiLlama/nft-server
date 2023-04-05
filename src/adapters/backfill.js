@@ -33,12 +33,19 @@ const argv = yargs.options({
     describe:
       'set to true if we already have old data for this adapter. this will delete any rows in the table prior to insertion. leave empty if not (no need to run a delete statement)',
   },
+  blockStop: {
+    alias: 's',
+    type: 'number',
+    demandOption: false,
+    describe: 'block at which backfill will stop',
+  },
 }).argv;
 
 const marketplace = argv.marketplace;
 let endBlock = argv.block;
 const deletePriorInsert = argv.deletePriorInsert;
 const blockRange = argv.blockRange;
+const blockStop = argv.blockStop;
 
 const main = async () => {
   console.log(`==== Refill ${marketplace} ====`);
@@ -76,6 +83,11 @@ const main = async () => {
     // update blocks
     endBlock = startBlock - 1; // query is inclusive
     startBlock = endBlock - blockRange;
+
+    if (startBlock < blockStop) {
+      console.log('reached blockStop, exiting!');
+      process.exit();
+    }
   }
 };
 
