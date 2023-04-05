@@ -6,3 +6,5 @@ testing
 .webpack
 test.json
 reservoir.json
+.ipynb_checkpoints
+Untitled.ipynb
