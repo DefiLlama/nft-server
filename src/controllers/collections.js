@@ -149,26 +149,20 @@ week AS (
 )
 SELECT
     latest.collection_id,
-    latest.timestamp AS timestamp,
-    latest.rank,
+    c.name,
+    c.image,
+    c.total_supply,
     latest.on_sale_count,
     latest.floor_price,
-    yesterday.floor_price AS floor_price_1_day,
-    week.floor_price AS floor_price_7_day,
     calculate_percent_change(latest.floor_price, yesterday.floor_price) AS floor_price_pct_change_1_day,
-    calculate_percent_change(latest.floor_price, week.floor_price) AS floor_price_pct_change_7_day,
-    c.name,
-    c.slug,
-    c.image,
-    c.token_standard,
-    c.total_supply,
-    c.project_url,
-    c.twitter_username
+    calculate_percent_change(latest.floor_price, week.floor_price) AS floor_price_pct_change_7_day
 FROM
     latest
     LEFT JOIN yesterday ON latest.collection_id = yesterday.collection_id
     LEFT JOIN week ON latest.collection_id = week.collection_id
-    LEFT JOIN collection AS c ON c.collection_id = latest.collection_id;
+    LEFT JOIN collection AS c ON c.collection_id = latest.collection_id
+WHERE latest.rank > 0 OR latest.rank IS NULL
+ORDER BY COALESCE(latest.rank, CAST('Infinity' AS NUMERIC));
   `,
     { compress: true }
   );
@@ -179,10 +173,7 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response
-    .map((c) => convertKeysToCamelCase(c))
-    .filter((c) => c.rank > 0 || c.rank === null)
-    .sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
+  return response.map((c) => convertKeysToCamelCase(c));
 };
 
 const getFloorHistory = async (collectionId) => {
