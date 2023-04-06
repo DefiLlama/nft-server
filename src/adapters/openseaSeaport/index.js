@@ -1,23 +1,6 @@
-const axios = require('axios');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
-
-const getTokenPrice = async (event, token, amount) => {
-  // ping our price api
-  const timestamp = Math.round(Number(event.block_time) / 1000);
-  const key = `ethereum:${token}`;
-  const url = 'https://coins.llama.fi/prices/historical';
-  const response = (await axios.get(`${url}/${timestamp}/${key}`)).data?.coins[
-    key
-  ];
-
-  const salePrice = amount?.toString() / 10 ** response?.decimals;
-  const usdSalePrice = salePrice * response?.price;
-  const ethSalePrice = usdSalePrice / event.price;
-
-  return { salePrice, ethSalePrice, usdSalePrice };
-};
+const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event) => {
   // https://docs.opensea.io/reference/create-an-order
@@ -88,11 +71,8 @@ const parse = async (decodedData, event) => {
       salePrice = ethSalePrice = amountO.toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ salePrice, ethSalePrice, usdSalePrice } = await getTokenPrice(
-        event,
-        tokenO,
-        amountO
-      ));
+      ({ salePrice, ethSalePrice, usdSalePrice } =
+        await getHistoricalTokenPrice(event, tokenO, amountO));
     }
 
     collection = tokenC;
@@ -114,11 +94,8 @@ const parse = async (decodedData, event) => {
           .toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ salePrice, ethSalePrice, usdSalePrice } = await getTokenPrice(
-        event,
-        tokenC,
-        amountC
-      ));
+      ({ salePrice, ethSalePrice, usdSalePrice } =
+        await getHistoricalTokenPrice(event, tokenC, amountC));
     }
 
     collection = tokenO;
