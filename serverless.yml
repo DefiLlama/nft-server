@@ -97,15 +97,6 @@ functions:
           method: get
           path: /salesLite/{collectionId}
 
-  getSalesLiteX:
-    handler: src/handlers/getSalesLiteX.handler
-    description: get detailed sales data for a collectionId
-    timeout: 30
-    events:
-      - httpApi:
-          method: get
-          path: /salesLiteX/{collectionId}
-
   getStats:
     handler: src/handlers/getStats.handler
     description: get daily aggregated statistics for a given collectionId

@@ -196,43 +196,6 @@ const getSalesLite = async (collectionId) => {
   }
 
   const query = minify(`
-    SELECT
-        EXTRACT(EPOCH FROM block_time) AS block_time,
-        eth_sale_price
-    FROM
-        ethereum.nft_trades_clean
-    WHERE
-        collection = $<collectionId>
-        ${
-          lb
-            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-            : ''
-        }
-  `);
-
-  const response = await conn.query(query, {
-    collectionId: `\\${collectionId.slice(1)}`,
-    lb: Number(lb),
-    ub: Number(ub),
-  });
-
-  if (!response) {
-    return new Error(`Couldn't get data`, 404);
-  }
-
-  return response.map((c) => [c.block_time, c.eth_sale_price]);
-};
-
-const getSalesLiteX = async (collectionId) => {
-  const conn = await connect(db);
-
-  let lb, ub;
-  // artblocks
-  if (collectionId.includes(':')) {
-    [collectionId, lb, ub] = collectionId.split(':');
-  }
-
-  const query = minify(`
   WITH sales AS (SELECT
       EXTRACT(EPOCH FROM block_time) AS block_time,
       eth_sale_price
@@ -441,7 +404,6 @@ module.exports = {
   deleteAndInsertTrades,
   getSales,
   getSalesLite,
-  getSalesLiteX,
   getStats,
   getVolume,
   getExchangeStats,
