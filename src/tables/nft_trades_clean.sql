@@ -27,7 +27,10 @@ WHERE
     AND seller_count < 3
     AND buyer_count < 3
     AND transaction_hash NOT IN (
-        '\xc3af5b478d1580272e4881eafd2495ec4a3367a570370013a9d44c3e7ef50845'
+        SELECT
+            *
+        FROM
+            ethereum.nft_trades_blacklist
     );
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_clean_block_number_idx ON ethereum.nft_trades_clean (block_number);

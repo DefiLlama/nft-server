@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS ethereum.nft_trades_blacklist (transaction_hash bytea NOT NULL UNIQUE);
