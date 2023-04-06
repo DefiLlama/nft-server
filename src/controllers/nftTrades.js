@@ -266,20 +266,20 @@ ORDER BY
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
-// get 1day,7day,30day volumes per collection
+// get 1day,7day volumes per collection
 const getVolume = async () => {
   const conn = await connect(db);
 
   const query = minify(`
-SELECT
-    encode(collection, 'hex') as collection,
+WITH volumes AS (SELECT
+    CONCAT('0x', encode(collection, 'hex')) as collection,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume"
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume"
 FROM
-    ethereum.nft_trades_clean
+    ethereum.nft_trades
 GROUP BY
-    collection;
+    collection)
+SELECT * FROM volumes WHERE "7day_volume" > 0
   `);
 
   const response = await conn.query(query);
@@ -288,9 +288,7 @@ GROUP BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response
-    .map((c) => convertKeysToCamelCase(c))
-    .map((c) => ({ ...c, collection: `0x${c.collection}` }));
+  return response.map((c) => convertKeysToCamelCase(c));
 };
 
 const getExchangeStats = async () => {
