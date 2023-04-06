@@ -120,6 +120,7 @@ WITH latest AS (
         floor
     WHERE
         timestamp >= CURRENT_DATE
+        AND floor_price IS NOT NULL
     ORDER BY
         collection_id,
         timestamp DESC
