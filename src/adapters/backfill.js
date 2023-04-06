@@ -28,10 +28,12 @@ const argv = yargs.options({
     describe: 'block window size used for querying events from event_logs',
   },
   deletePriorInsert: {
-    type: 'boolean',
+    type: 'string',
     demandOption: false,
+    default: 'true',
+    choices: ['true', 'false'],
     describe:
-      'set to true if we already have old data for this adapter. this will delete any rows in the table prior to insertion. leave empty if not (no need to run a delete statement)',
+      'will delete any rows in the table prior to insertion by default. set to false to disable (eg useful for new adapter or older blockrange for which we dont have any data yet)',
   },
   blockStop: {
     alias: 's',
@@ -43,7 +45,7 @@ const argv = yargs.options({
 
 const marketplace = argv.marketplace;
 let endBlock = argv.block;
-const deletePriorInsert = argv.deletePriorInsert;
+const deletePriorInsert = argv.deletePriorInsert === 'false' ? false : true;
 const blockRange = argv.blockRange;
 const blockStop = argv.blockStop;
 
