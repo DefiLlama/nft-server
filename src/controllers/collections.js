@@ -3,6 +3,7 @@ const minify = require('pg-minify');
 
 const { convertKeysToCamelCase } = require('../utils/keyConversion');
 const { pgp, connect } = require('../utils/dbConnection');
+const lambdaResponse = require('../utils/lambda');
 
 const db = 'nft';
 
@@ -101,7 +102,7 @@ WHERE
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 // get most recent data for all collections
