@@ -276,7 +276,7 @@ WITH volumes AS (SELECT
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume"
 FROM
-    ethereum.nft_trades
+    ethereum.nft_trades_clean
 GROUP BY
     collection)
 SELECT * FROM volumes WHERE "7day_volume" > 0
