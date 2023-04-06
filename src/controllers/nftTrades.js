@@ -197,7 +197,7 @@ const getSalesLite = async (collectionId) => {
 
   const query = minify(`
     SELECT
-        block_time,
+        EXTRACT(EPOCH FROM block_time) AS block_time,
         eth_sale_price
     FROM
         ethereum.nft_trades_clean
