@@ -17,13 +17,10 @@ const insertAggregatorAppendage = async (payload) => {
     }),
   });
 
-  // upsert (Note use this, need modify schema)
-  // const query =
-  //   pgp.helpers.insert(payload, cs) +
-  //   ' ON CONFLICT(appendage) DO UPDATE SET ' +
-  //   cs.assignColumns({ from: 'EXCLUDED', skip: 'appendage' });
-
-  const query = pgp.helpers.insert(payload, cs);
+  const query =
+    pgp.helpers.insert(payload, cs) +
+    ' ON CONFLICT(appendage) DO UPDATE SET ' +
+    cs.assignColumns({ from: 'EXCLUDED', skip: 'appendage' });
 
   const response = await conn.result(query);
 
