@@ -302,7 +302,7 @@ const getExchangeStats = async () => {
   const query = minify(`
 WITH nft_trades_processed AS (
   SELECT
-    LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS exchange_name,
+    LOWER(encode(COALESCE(aggregator_name || '-aggregator', exchange_name), 'escape')) AS exchange_name,
     block_time,
     eth_sale_price
   FROM
@@ -374,7 +374,7 @@ const getExchangeVolume = async () => {
 WITH trades AS (
     SELECT
       block_time,
-      LOWER(encode(COALESCE(aggregator_name, exchange_name), 'escape')) AS exchange_name,
+      LOWER(encode(COALESCE(aggregator_name || '-aggregator', exchange_name), 'escape')) AS exchange_name,
       eth_sale_price
     FROM
       ethereum.nft_trades_clean
