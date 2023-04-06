@@ -236,8 +236,7 @@ const getStats = async (collectionId) => {
   const query = minify(`
 SELECT
     DATE(block_time) AS day,
-    SUM(eth_sale_price),
-    COUNT(eth_sale_price)
+    SUM(eth_sale_price)
 FROM
     ethereum.nft_trades_clean
 WHERE
@@ -302,17 +301,16 @@ WITH nft_trades_processed AS (
     eth_sale_price
   FROM
     $<tableName:raw>
+  WHERE block_time >= NOW() - INTERVAL '14 DAY'
 ),
 grouped AS (
   SELECT
     exchange_name,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '14 DAY') AND block_time < (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume_prior",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_nb_trades",
-    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades",
-    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN eth_sale_price END) AS "30day_nb_trades"
+    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades"
   FROM
     nft_trades_processed
   GROUP BY
@@ -328,10 +326,8 @@ SELECT
   g.exchange_name,
   g."1day_volume",
   g."7day_volume",
-  g."30day_volume",
   g."1day_nb_trades",
   g."7day_nb_trades",
-  g."30day_nb_trades",
   (g."1day_volume" / tdv.total_1day_volume) * 100 AS pct_of_total,
   g."7day_volume_prior",
   (g."7day_volume" - g."7day_volume_prior") / g."7day_volume_prior" * 100 AS weekly_change
