@@ -25,18 +25,11 @@ WHERE
     )
     AND buyer != seller
     AND seller_count < 3
-    AND buyer_count < 3;
+    AND buyer_count < 3
+    AND transaction_hash NOT IN (
+        '\xc3af5b478d1580272e4881eafd2495ec4a3367a570370013a9d44c3e7ef50845'
+    );
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_clean_block_number_idx ON ethereum.nft_trades_clean (block_number);
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_clean_collection_idx ON ethereum.nft_trades_clean (collection);
-
-CREATE OR REPLACE FUNCTION refresh_ethereum_nft_trades_clean_view() RETURNS void AS $$ 
-BEGIN 
-    REFRESH MATERIALIZED VIEW ethereum.nft_trades_clean;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE SCHEDULED JOB refresh_ethereum_nft_trades_clean_view_job 
-    EVERY '1 hour' 
-    DO $$ SELECT refresh_ethereum_nft_trades_clean_view(); $$;
