@@ -232,22 +232,38 @@ const getSalesLiteX = async (collectionId) => {
     [collectionId, lb, ub] = collectionId.split(':');
   }
 
+  // const query = minify(`
+  //   SELECT
+  //       DISTINCT ON (date_trunc('min', block_time))
+  //       EXTRACT(EPOCH FROM block_time) AS block_time,
+  //       eth_sale_price
+  //   FROM
+  //       ethereum.nft_trades_clean
+  //   WHERE
+  //       collection = $<collectionId>
+  //       ${
+  //         lb
+  //           ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+  //           : ''
+  //       }
+  //   ORDER BY date_trunc('min', block_time)
+  // `);
+
   const query = minify(`
-    SELECT
-        DISTINCT ON (date_trunc('min', block_time))
-        EXTRACT(EPOCH FROM block_time) AS block_time,
-        eth_sale_price
-    FROM
-        ethereum.nft_trades_clean
-    WHERE
-        collection = $<collectionId>
-        ${
-          lb
-            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-            : ''
-        }
-    ORDER BY date_trunc('min', block_time)
-  `);
+  SELECT
+      EXTRACT(EPOCH FROM block_time) AS block_time,
+      eth_sale_price
+  FROM
+      ethereum.nft_trades_clean
+  WHERE
+      collection = $<collectionId>
+      ${
+        lb
+          ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+          : ''
+      }
+      AND RANDOM() <= 0.5;
+`);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
