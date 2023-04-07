@@ -296,19 +296,48 @@ SELECT * FROM volumes WHERE "7day_volume" > 0
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
+// Name mapping plus marketplace urls -> should go into new table
+const mapping = {
+  blur: 'Blur',
+  'alpha sharks': 'AlphaSharks',
+  'magic eden': 'Magic Eden',
+  x2y2: 'X2Y2',
+  okx: 'OKX',
+  'tiny astro': 'Tiny Astro',
+};
+
+const formatName = (exchange_name) => {
+  let [n, agg] = exchange_name.split('-');
+  n = mapping[n] ?? n.charAt(0).toUpperCase() + n.slice(1);
+  return agg ? n + ' Aggregator' : n;
+};
+
 const getExchangeStats = async () => {
   const conn = await connect(db);
 
   const query = minify(`
 WITH nft_trades_processed AS (
   SELECT
-    LOWER(encode(COALESCE(aggregator_name || '-aggregator', exchange_name), 'escape')) AS exchange_name,
+    LOWER(encode(exchange_name, 'escape')) AS exchange_name,
+    LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
     block_time,
     eth_sale_price
   FROM
-    $<tableName:raw>
+    ethereum.nft_trades_clean
   WHERE block_time >= NOW() - INTERVAL '14 DAY'
 ),
+  trades_ AS (
+    SELECT
+      CASE
+        WHEN exchange_name = aggregator_name THEN exchange_name || '-aggregator'
+        WHEN aggregator_name IS NULL THEN exchange_name
+        ELSE aggregator_name
+      END AS exchange_name,
+        block_time,
+        eth_sale_price
+    FROM
+      nft_trades_processed
+  ),
 grouped AS (
   SELECT
     exchange_name,
@@ -318,7 +347,7 @@ grouped AS (
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_nb_trades",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades"
   FROM
-    nft_trades_processed
+    trades_
   GROUP BY
     exchange_name
 ),
@@ -364,7 +393,10 @@ FROM
   if (!response) {
     return new Error(`Couldn't get data`, 404);
   }
-  return response.map((c) => convertKeysToCamelCase(c));
+
+  return response
+    .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+    .map((c) => convertKeysToCamelCase(c));
 };
 
 const getExchangeVolume = async () => {
@@ -374,17 +406,30 @@ const getExchangeVolume = async () => {
 WITH trades AS (
     SELECT
       block_time,
-      LOWER(encode(COALESCE(aggregator_name || '-aggregator', exchange_name), 'escape')) AS exchange_name,
+      LOWER(encode(exchange_name, 'escape')) AS exchange_name,
+      LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
       eth_sale_price
     FROM
       ethereum.nft_trades_clean
+  ),
+  trades_ AS (
+    SELECT
+      CASE
+        WHEN exchange_name = aggregator_name THEN exchange_name || '-aggregator'
+        WHEN aggregator_name IS NULL THEN exchange_name
+        ELSE aggregator_name
+      END AS exchange_name,
+        block_time,
+        eth_sale_price
+    FROM
+      trades
   )
   SELECT
     DATE(block_time) AS day,
     exchange_name,
     SUM(eth_sale_price)
   FROM
-    trades
+    trades_
   GROUP BY
     DATE(block_time),
     exchange_name;
@@ -395,7 +440,10 @@ WITH trades AS (
   if (!response) {
     return new Error(`Couldn't get data`, 404);
   }
-  return response.map((c) => convertKeysToCamelCase(c));
+
+  return response
+    .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+    .map((c) => convertKeysToCamelCase(c));
 };
 
 module.exports = {
