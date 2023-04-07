@@ -323,7 +323,7 @@ WITH nft_trades_processed AS (
     block_time,
     eth_sale_price
   FROM
-    ethereum.nft_trades_clean
+    $<tableName:raw>
   WHERE block_time >= NOW() - INTERVAL '14 DAY'
 ),
   trades_ AS (
