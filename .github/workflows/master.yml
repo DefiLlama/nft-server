@@ -20,6 +20,8 @@ jobs:
       - name: Deploy infrastructure stack
         run: npm run deploy
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DATABASE_URL_INDEXA: ${{ secrets.DATABASE_URL_INDEXA }}
           DATABASE_URL_NFT: ${{ secrets.DATABASE_URL_NFT }}
           RESERVOIR_API: ${{ secrets.RESERVOIR_API }}
