@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    strategy:
+      matrix:
+        node-version: [16.x]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - name: Deploy infrastructure stack
+        run: npm run deploy
+        env:
+          DATABASE_URL_INDEXA: ${{ secrets.DATABASE_URL_INDEXA }}
+          DATABASE_URL_NFT: ${{ secrets.DATABASE_URL_NFT }}
+          RESERVOIR_API: ${{ secrets.RESERVOIR_API }}
+          NFT_TRADES_WEBHOOK: ${{ secrets.NFT_TRADES_WEBHOOK }}
