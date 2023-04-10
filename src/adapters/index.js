@@ -6,13 +6,9 @@ const { getMaxBlock, insertTrades } = require('../controllers/nftTrades');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 
-const checkIfStale = (blockEvents, blockTrades) =>
-  blockEvents - blockTrades > blockRange ? true : false;
+const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
 
-// 300sec
-const duration = 3 * 1e5;
 const exe = async () => {
-  console.log('syncing');
   // load modules
   const modulesDir = path.join(__dirname, '../adapters');
   const modules = [];
@@ -30,7 +26,7 @@ const exe = async () => {
     )
   );
   console.log(
-    `nft_trades is ${blockEvents - blockTrades} blocks behind event_logs`
+    `syncing nft_trades, ${blockEvents - blockTrades} blocks behind event_logs`
   );
 
   // check if stale
@@ -48,19 +44,32 @@ const exe = async () => {
     );
     const payload = castTypes(trades.flat());
 
-    const response = await insertTrades(payload);
-
-    console.log(
-      `filled blocks: ${startBlock}-${endBlock} [inserted: ${
-        response.rowCount
-      } trades | blocks remaining: ${blockEvents - endBlock} ]`
-    );
+    let response;
+    if (payload.length) {
+      response = await insertTrades(payload);
+    }
 
     stale = checkIfStale(blockEvents, endBlock);
-    blockTrades = endBlock;
+    blockTrades = await getMaxBlock('ethereum.nft_trades');
+
+    if (response) {
+      console.log(
+        `synced blocks: ${startBlock}-${blockTrades} [inserted: ${
+          response.rowCount
+        } trades | blocks remaining: ${Math.max(
+          blockEvents - blockTrades,
+          0
+        )} ]`
+      );
+    } else {
+      console.log(`empty payload for: ${startBlock}-${blockTrades}`);
+    }
   }
-  console.log(`synced, pausing exe for ${duration / 1e3}sec...\n`);
-  await new Promise((resolve) => setTimeout(resolve, duration));
+
+  // once synced with event_logs, pausing for 12 sec (1block) before next sync starts
+  const pause = 12 * 1e3;
+  console.log(`pausing exe for ${pause / 1e3}sec...\n`);
+  await new Promise((resolve) => setTimeout(resolve, pause));
   await exe();
 };
 
