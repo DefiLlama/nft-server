@@ -51,6 +51,14 @@ functions:
     environment:
       NFT_TRADES_WEBHOOK: ${file(./env.js):NFT_TRADES_WEBHOOK}
 
+  triggerWashTrades:
+    handler: src/handlers/triggerWashTrades.handler
+    description: flag wash trades
+    timeout: 120
+    # events:
+    #   # every 5 min
+    #   - schedule: cron(*/5 * * * ? *)
+
   # ---------- GET HANDLERS
   getCollections:
     handler: src/handlers/getCollections.handler
