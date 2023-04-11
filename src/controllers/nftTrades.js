@@ -197,7 +197,6 @@ WHERE
   return response;
 };
 
-// get all sales for a given collectionId
 const getSales = async (collectionId) => {
   const conn = await connect(db);
 
@@ -208,29 +207,25 @@ const getSales = async (collectionId) => {
   }
 
   const query = minify(`
-    SELECT
-        encode(transaction_hash, 'hex') AS transaction_hash,
-        block_time,
-        block_number,
-        encode(exchange_name, 'escape') AS exchange_name,
-        encode(token_id, 'escape') AS token_id,
-        sale_price,
-        eth_sale_price,
-        usd_sale_price,
-        encode(seller, 'hex') AS seller,
-        encode(buyer, 'hex') AS buyer,
-        encode(aggregator_name, 'escape') AS aggregator_name,
-        encode(aggregator_address, 'hex') AS aggregator_address
-    FROM
-        ethereum.nft_trades_clean
-    WHERE
-        collection = $<collectionId>
-        ${
-          lb
-            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-            : ''
-        }
-  `);
+  WITH sales AS (SELECT
+      EXTRACT(EPOCH FROM block_time) AS block_time,
+      eth_sale_price
+  FROM
+      ethereum.nft_trades_clean
+  WHERE
+      collection = $<collectionId>
+      ${
+        lb
+          ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+          : ''
+      }
+  )
+  SELECT *
+  FROM
+      sales
+  WHERE
+      (SELECT COUNT(*) FROM sales) <= 30000 OR RANDOM() <= 0.5;
+`);
 
   const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
@@ -242,7 +237,7 @@ const getSales = async (collectionId) => {
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return response.map((c) => [c.block_time, c.eth_sale_price]);
 };
 
 const getSalesLite = async (collectionId) => {
