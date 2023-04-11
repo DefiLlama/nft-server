@@ -20,11 +20,8 @@ const exe = async () => {
     });
 
   // get max blocks for each table
-  let [blockEvents, blockTrades] = await Promise.all(
-    ['event_logs', 'nft_trades'].map((table) =>
-      getMaxBlock(`ethereum.${table}`)
-    )
-  );
+  let blockEvents = await getMaxBlock('ethereum.event_logs');
+  let blockTrades = await getMaxBlock('ethereum.nft_trades');
   console.log(
     `syncing nft_trades, ${blockEvents - blockTrades} blocks behind event_logs`
   );
@@ -37,11 +34,18 @@ const exe = async () => {
     let startBlock = blockTrades + 1;
     let endBlock = startBlock + blockRange;
 
-    const trades = await Promise.all(
-      modules.map((m) =>
-        parseEvent(startBlock, endBlock, m.abi, m.config, m.parse)
-      )
-    );
+    const trades = [];
+    for (const m of modules) {
+      const X = await parseEvent(
+        startBlock,
+        endBlock,
+        m.abi,
+        m.config,
+        m.parse
+      );
+      trades.push(X);
+    }
+
     const payload = castTypes(trades.flat());
 
     let response;

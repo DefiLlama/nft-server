@@ -8,11 +8,9 @@ module.exports.handler = async () => {
 
 const main = async () => {
   // get max blocks for each table
-  let [blockEvents, blockTrades] = await Promise.all(
-    ['event_logs', 'nft_trades'].map((table) =>
-      getMaxBlock(`ethereum.${table}`)
-    )
-  );
+  const blockEvents = await getMaxBlock('ethereum.event_logs');
+  const blockTrades = await getMaxBlock('ethereum.nft_trades');
+
   // if more than 50 blocks old (10mins) then we want to trigger a discord msg
   // likely that app failed
   const outdated = blockEvents - blockTrades > blockRangeMonitor;
