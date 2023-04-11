@@ -240,49 +240,6 @@ const getSales = async (collectionId) => {
   return response.map((c) => [c.block_time, c.eth_sale_price]);
 };
 
-const getSalesLite = async (collectionId) => {
-  const conn = await connect(db);
-
-  let lb, ub;
-  // artblocks
-  if (collectionId.includes(':')) {
-    [collectionId, lb, ub] = collectionId.split(':');
-  }
-
-  const query = minify(`
-  WITH sales AS (SELECT
-      EXTRACT(EPOCH FROM block_time) AS block_time,
-      eth_sale_price
-  FROM
-      ethereum.nft_trades_clean
-  WHERE
-      collection = $<collectionId>
-      ${
-        lb
-          ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-          : ''
-      }
-  )
-  SELECT *
-  FROM
-      sales
-  WHERE
-      (SELECT COUNT(*) FROM sales) <= 30000 OR RANDOM() <= 0.5;
-`);
-
-  const response = await conn.query(query, {
-    collectionId: `\\${collectionId.slice(1)}`,
-    lb: Number(lb),
-    ub: Number(ub),
-  });
-
-  if (!response) {
-    return new Error(`Couldn't get data`, 404);
-  }
-
-  return response.map((c) => [c.block_time, c.eth_sale_price]);
-};
-
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
 const getStats = async (collectionId) => {
   const conn = await connect(db);
@@ -506,7 +463,6 @@ module.exports = {
   deleteAndInsertTrades,
   insertWashTrades,
   getSales,
-  getSalesLite,
   getStats,
   getVolume,
   getExchangeStats,
