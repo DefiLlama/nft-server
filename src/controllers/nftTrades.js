@@ -211,7 +211,7 @@ const getSales = async (collectionId) => {
       EXTRACT(EPOCH FROM block_time) AS block_time,
       eth_sale_price
   FROM
-      ethereum.nft_trades_clean
+      ethereum.nft_trades AS t
   WHERE
       collection = $<collectionId>
       ${
@@ -219,8 +219,19 @@ const getSales = async (collectionId) => {
           ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
           : ''
       }
-  )
-  SELECT *
+      AND NOT EXISTS (
+        SELECT 1
+        FROM ethereum.nft_wash_trades AS wt
+        WHERE wt.transaction_hash = t.transaction_hash
+          AND wt.log_index = t.log_index
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM ethereum.nft_trades_blacklist AS b
+        WHERE t.transaction_hash = b.transaction_hash
+      )
+    )
+  SELECT distinct *
   FROM
       sales
   WHERE
@@ -255,7 +266,7 @@ SELECT
     DATE(block_time) AS day,
     SUM(eth_sale_price)
 FROM
-    ethereum.nft_trades_clean
+    ethereum.nft_trades AS t
 WHERE
     collection = $<collectionId>
         ${
@@ -263,6 +274,17 @@ WHERE
             ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
             : ''
         }
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ethereum.nft_wash_trades AS wt
+      WHERE wt.transaction_hash = t.transaction_hash
+        AND wt.log_index = t.log_index
+    )
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ethereum.nft_trades_blacklist AS b
+      WHERE t.transaction_hash = b.transaction_hash
+    )
 GROUP BY
     DATE(block_time)
 ORDER BY
@@ -292,7 +314,19 @@ WITH volumes AS (SELECT
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume"
 FROM
-    ethereum.nft_trades_clean
+    ethereum.nft_trades AS t
+WHERE
+  NOT EXISTS (
+    SELECT 1
+    FROM ethereum.nft_wash_trades AS wt
+    WHERE wt.transaction_hash = t.transaction_hash
+      AND wt.log_index = t.log_index
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM ethereum.nft_trades_blacklist AS b
+    WHERE t.transaction_hash = b.transaction_hash
+  )
 GROUP BY
     collection)
 SELECT * FROM volumes WHERE "7day_volume" > 0
@@ -334,8 +368,26 @@ WITH nft_trades_processed AS (
     block_time,
     eth_sale_price
   FROM
-    $<tableName:raw>
-  WHERE block_time >= NOW() - INTERVAL '14 DAY'
+    ethereum.nft_trades AS t
+  WHERE
+    block_time >= NOW() - INTERVAL '14 DAY'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ethereum.nft_trades_blacklist AS b
+      WHERE t.transaction_hash = b.transaction_hash
+    )
+    AND (
+      CASE WHEN $<condition> = 'clean' THEN
+      NOT EXISTS (
+        SELECT 1
+        FROM ethereum.nft_wash_trades AS wt
+        WHERE wt.transaction_hash = t.transaction_hash
+          AND wt.log_index = t.log_index
+      )
+      ELSE
+        1 = 1
+      END
+    )
 ),
   trades_ AS (
     SELECT
@@ -382,13 +434,9 @@ FROM
   total_daily_volume tdv;
 `);
 
-  const trades = await conn.query(query, {
-    tableName: '"ethereum"."nft_trades"',
-  });
+  const trades = await conn.query(query, { condition: 'raw' });
 
-  const trades_clean = await conn.query(query, {
-    tableName: '"ethereum"."nft_trades_clean"',
-  });
+  const trades_clean = await conn.query(query, { condition: 'clean' });
 
   const response = trades_clean.map((m_clean) => ({
     ...m_clean,
@@ -421,7 +469,19 @@ WITH trades AS (
       LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
       eth_sale_price
     FROM
-      ethereum.nft_trades_clean
+      ethereum.nft_trades AS t
+    WHERE
+      NOT EXISTS (
+        SELECT 1
+        FROM ethereum.nft_wash_trades AS wt
+        WHERE wt.transaction_hash = t.transaction_hash
+          AND wt.log_index = t.log_index
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM ethereum.nft_trades_blacklist AS b
+        WHERE t.transaction_hash = b.transaction_hash
+      )
   ),
   trades_ AS (
     SELECT
