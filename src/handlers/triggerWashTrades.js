@@ -5,6 +5,7 @@ module.exports.handler = async () => {
 };
 
 const main = async () => {
+  // 30day window
   const offset = 7200 * 30;
   const endBlock = await getMaxBlock('ethereum.nft_trades');
   const startBlock = endBlock - offset;
