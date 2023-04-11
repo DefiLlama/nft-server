@@ -10,8 +10,9 @@ const abiAsksPrivateETH = require('./abiAsksPrivateETH.json');
 const abiAsksV1_1 = require('./abiAsksV1.1.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
+const getHistoricalTokenPrice = require('../../utils/price');
 
-const parse = (decodedData, event, events) => {
+const parse = async (decodedData, event, events) => {
   let tokenContract;
   let tokenId;
   let buyer;
@@ -94,7 +95,7 @@ const parse = (decodedData, event, events) => {
       tokenContract,
       tokenOwner: seller,
       winner: buyer,
-      paymentToken: auctionCurrency,
+      auctionCurrency: paymentToken,
       amount: price,
     } = decodedData);
   } else if (
@@ -114,19 +115,34 @@ const parse = (decodedData, event, events) => {
       tokenId,
       tokenContract,
       buyer,
-      ask: { seller, askPrice: price, askCurrency },
+      ask: { seller, askPrice: price, askCurrency: paymentToken },
     } = decodedData);
   }
 
-  const salePrice = price.toString() / 1e18;
+  // get price
+  const ethPaymentTokens = [
+    '0000000000000000000000000000000000000000',
+    'c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  ].map((i) => `0x${i}`);
+  const paymentInEth = ethPaymentTokens.includes(paymentToken?.toLowerCase());
+  if (paymentToken === undefined || paymentInEth) {
+    salePrice = ethSalePrice = price.toString() / 1e18;
+    usdSalePrice = ethSalePrice * event.price;
+  } else {
+    ({ salePrice, ethSalePrice, usdSalePrice } = await getHistoricalTokenPrice(
+      event,
+      paymentToken,
+      price
+    ));
+  }
 
   return {
     collection: tokenContract,
     tokenId,
     amount: 1,
     salePrice,
-    ethSalePrice: salePrice,
-    usdSalePrice: salePrice * event.price,
+    ethSalePrice,
+    usdSalePrice,
     paymentToken: paymentToken ?? '0x0000000000000000000000000000000000000000',
     seller,
     buyer,
