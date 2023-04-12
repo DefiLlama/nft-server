@@ -77,8 +77,8 @@ const exe = async () => {
     }
   }
 
-  // once synced with event_logs, pausing for 12 sec (1block) before next sync starts
-  const pause = 12 * 1e3;
+  // once synced with event_logs, pausing for min 12 sec (1block) before next sync starts
+  const pause = 15 * 1e3;
   console.log(`pausing exe for ${pause / 1e3}sec...\n`);
   await new Promise((resolve) => setTimeout(resolve, pause));
   await exe();
