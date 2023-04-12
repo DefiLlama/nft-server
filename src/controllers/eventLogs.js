@@ -1,7 +1,5 @@
 const minify = require('pg-minify');
 
-const { connect } = require('../utils/dbConnection');
-
 const query = `
 SELECT
   encode(e.transaction_hash, 'hex') AS transaction_hash,
@@ -117,7 +115,9 @@ WHERE
     AND e.block_number <= $<endBlock>
 `;
 
-const getEvents = async (startBlock, endBlock, config) => {
+// we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
+// which doesn't work with conn.query
+const getEvents = async (task, startBlock, endBlock, config) => {
   const eventSignatureHashes = config.events.map(
     (e) => `\\${e.signatureHash.slice(1)}`
   );
@@ -131,8 +131,7 @@ const getEvents = async (startBlock, endBlock, config) => {
       ? queryCryptopunks
       : query;
 
-  const conn = await connect('indexa');
-  const response = await conn.query(minify(q, { compress: false }), {
+  const response = await task.query(minify(q, { compress: false }), {
     startBlock,
     endBlock,
     eventSignatureHashes,

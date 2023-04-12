@@ -4,9 +4,9 @@ const getEvents = require('../controllers/eventLogs');
 const aggregators = require('./aggregators');
 const { nftTransferEvents } = require('../utils/params');
 
-const parseEvent = async (startBlock, endBlock, abi, config, parse) => {
+const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   // read events from db
-  const events = await getEvents(startBlock, endBlock, config);
+  const events = await getEvents(task, startBlock, endBlock, config);
   if (!events.length) return [];
 
   // instantiate abi interface

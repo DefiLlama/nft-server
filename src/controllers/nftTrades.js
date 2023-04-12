@@ -7,9 +7,7 @@ const db = 'indexa';
 const schema = 'ethereum';
 const table = 'nft_trades';
 
-const getMaxBlock = async (table) => {
-  const conn = await connect(db);
-
+const getMaxBlock = async (task, table) => {
   const query = minify(
     `
 SELECT
@@ -20,7 +18,7 @@ FROM
     { compress: true }
   );
 
-  const response = await conn.query(query, { table });
+  const response = await task.query(query, { table });
 
   if (!response) {
     return new Error('getMaxBlock failed', 404);

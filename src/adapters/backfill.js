@@ -6,6 +6,7 @@ const {
 } = require('../controllers/nftTrades');
 const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
+const { connect } = require('../utils/dbConnection');
 
 const argv = yargs.options({
   marketplace: {
@@ -57,7 +58,10 @@ const main = async () => {
 
   console.log(`starting refill from ${endBlock}...`);
   while (true) {
-    const trades = await parseEvent(startBlock, endBlock, abi, config, parse);
+    const conn = await connect('indexa');
+    const trades = await conn.task(async (t) => {
+      return await parseEvent(t, startBlock, endBlock, abi, config, parse);
+    });
 
     if (trades.length) {
       const payload = castTypes(trades);
