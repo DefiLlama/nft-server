@@ -217,31 +217,9 @@ ORDER BY
   return response.map((c) => convertKeysToCamelCase(c));
 };
 
-const getMarketplaceIcons = async () => {
-  const conn = await connect(db);
-
-  const query = minify(
-    `
-SELECT
-    *
-FROM
-    marketplace
-  `
-  );
-
-  const response = await conn.query(query);
-
-  if (!response) {
-    return new Error(`Couldn't get data`, 404);
-  }
-
-  return response;
-};
-
 module.exports = {
   insertCollections,
   getCollections,
   getCollection,
   getFloorHistory,
-  getMarketplaceIcons,
 };
