@@ -78,6 +78,15 @@ functions:
           method: get
           path: /collection/{collectionId}
 
+  getMarketplaceIcons:
+    handler: src/handlers/getMarketplaceIcons.handler
+    description: get marketplace icons
+    timeout: 30
+    events:
+      - httpApi:
+          method: get
+          path: /marketplaceIcons
+
   getFloorHistory:
     handler: src/handlers/getFloorHistory.handler
     description: get floor price history for collectionId

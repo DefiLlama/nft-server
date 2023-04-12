@@ -30,6 +30,14 @@ exports.up = (pgm) => {
       );
     `);
 
+  // marketplace data (name, image url, other static data)
+  pgm.sql(`
+    CREATE TABLE marketplace (
+        name TEXT NOT NULL,
+        image TEXT NOT NULL
+    );
+  `);
+
   // function
   pgm.sql(`
       CREATE OR REPLACE FUNCTION update_updated_at()
