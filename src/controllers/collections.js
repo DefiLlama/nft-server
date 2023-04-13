@@ -175,7 +175,7 @@ ORDER BY COALESCE(latest.rank, CAST('Infinity' AS NUMERIC));
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 const getFloorHistory = async (collectionId) => {
