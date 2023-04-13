@@ -2,6 +2,7 @@ const minify = require('pg-minify');
 
 const { pgp, connect } = require('../utils/dbConnection');
 const { convertKeysToCamelCase } = require('../utils/keyConversion');
+const lambdaResponse = require('../utils/lambda');
 
 const db = 'indexa';
 const schema = 'ethereum';
@@ -246,7 +247,7 @@ const getSales = async (collectionId) => {
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => [c.block_time, c.eth_sale_price]);
+  return lambdaResponse(response.map((c) => [c.block_time, c.eth_sale_price]));
 };
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
@@ -299,7 +300,7 @@ ORDER BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 // get 1day,7day volumes per collection
@@ -336,7 +337,7 @@ SELECT * FROM volumes WHERE "7day_volume" > 0
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response.map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 // Name mapping plus marketplace urls -> should go into new table
@@ -451,9 +452,11 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response
-    .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
-    .map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(
+    response
+      .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+      .map((c) => convertKeysToCamelCase(c))
+  );
 };
 
 const getExchangeVolume = async () => {
@@ -510,9 +513,11 @@ WITH trades AS (
     return new Error(`Couldn't get data`, 404);
   }
 
-  return response
-    .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
-    .map((c) => convertKeysToCamelCase(c));
+  return lambdaResponse(
+    response
+      .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+      .map((c) => convertKeysToCamelCase(c))
+  );
 };
 
 module.exports = {
