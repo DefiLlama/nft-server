@@ -1,14 +1,203 @@
 const minify = require('pg-minify');
 
-const checkCollection = require('../../utils/checkAddress');
-const { convertKeysToCamelCase } = require('../../utils/keyConversion');
-const customHeader = require('../../utils/customHeader');
-const { indexa } = require('../../utils/dbConnection');
+const { pgp, connect } = require('../utils/dbConnection');
+const { convertKeysToCamelCase } = require('../utils/keyConversion');
+const lambdaResponse = require('../utils/lambda');
 
-const getSales = async (req, res) => {
-  const collectionId = req.params.collectionId;
-  if (!checkCollection(collectionId))
-    return res.status(400).json('invalid collectionId!');
+const db = 'indexa';
+const schema = 'ethereum';
+const table = 'nft_trades';
+
+const getMaxBlock = async (task, table) => {
+  const query = minify(
+    `
+SELECT
+    MAX(block_number)
+FROM
+    $<table:raw>
+  `,
+    { compress: true }
+  );
+
+  const response = await task.query(query, { table });
+
+  if (!response) {
+    return new Error('getMaxBlock failed', 404);
+  }
+
+  return response[0].max;
+};
+
+const buildInsertQ = (payload) => {
+  const columns = [
+    'transaction_hash',
+    'log_index',
+    'contract_address',
+    'topic_0',
+    'block_time',
+    'block_number',
+    'exchange_name',
+    'collection',
+    'token_id',
+    'amount',
+    'sale_price',
+    'eth_sale_price',
+    'usd_sale_price',
+    'payment_token',
+    'seller',
+    'buyer',
+    'aggregator_name',
+    'aggregator_address',
+  ];
+
+  const cs = new pgp.helpers.ColumnSet(columns, {
+    // column set requries tablename if schema is not undefined
+    table: new pgp.helpers.TableName({
+      schema,
+      table,
+    }),
+  });
+
+  const query = pgp.helpers.insert(payload, cs);
+
+  return query;
+};
+
+const insertTrades = async (payload) => {
+  const conn = await connect(db);
+
+  const query = buildInsertQ(payload);
+
+  const response = await conn.result(query);
+
+  if (!response) {
+    return new Error(`Couldn't insert into ${schema}.${table}`, 404);
+  }
+
+  return response;
+};
+
+// used when refilling (in case of adapter bug, missing events etc)
+// deletes trades in nft_trades for a given marketplace (its address(es), event signatures and block range)
+const buildDeleteQ = () => {
+  const query = `
+  DELETE FROM
+      ethereum.nft_trades
+  WHERE
+      contract_address in ($<contractAddresses:csv>)
+      AND topic_0 in ($<eventSignatureHashes:csv>)
+      AND block_number >= $<startBlock>
+      AND block_number <= $<endBlock>
+  `;
+
+  return query;
+};
+
+// --------- transaction query
+const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
+  const conn = await connect(db);
+
+  // build queries
+  const deleteQuery = buildDeleteQ();
+  const insertQuery = buildInsertQ(payload);
+
+  // required for the delteteQ
+  const eventSignatureHashes = config.events.map(
+    (e) => `\\${e.signatureHash.slice(1)}`
+  );
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
+
+  return conn
+    .tx(async (t) => {
+      // sequence of queries:
+      // 1. delete trades
+      const q1 = await t.result(deleteQuery, {
+        contractAddresses,
+        eventSignatureHashes,
+        startBlock,
+        endBlock,
+      });
+
+      // 2. insert trades
+      const q2 = await t.result(insertQuery);
+
+      return [q1, q2];
+    })
+    .then((response) => {
+      // success, COMMIT was executed
+      return {
+        status: 'success',
+        data: response,
+      };
+    })
+    .catch((err) => {
+      // failure, ROLLBACK was executed
+      console.log(err);
+      return new Error('Transaction failed, rolling back', 404);
+    });
+};
+
+const insertWashTrades = async (start, stop) => {
+  const conn = await connect(db);
+
+  const query = minify(`
+INSERT INTO ethereum.nft_wash_trades (transaction_hash, log_index)
+WITH counted_trades AS (
+    SELECT
+        transaction_hash,
+        log_index,
+        buyer,
+        seller,
+        collection,
+        token_id,
+        COUNT(*) OVER (PARTITION BY seller, collection, token_id) AS seller_count,
+        COUNT(*) OVER (PARTITION BY buyer, collection, token_id) AS buyer_count
+    FROM
+        ethereum.nft_trades as trades
+    WHERE
+        block_number BETWEEN $<start>
+        AND $<stop>
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ethereum.nft_wash_trades as fake_trades
+          WHERE fake_trades.transaction_hash = trades.transaction_hash
+            AND fake_trades.log_index = trades.log_index
+        )
+)
+SELECT
+    transaction_hash,
+    log_index
+FROM
+    counted_trades
+WHERE
+    buyer = seller
+    OR EXISTS (
+        SELECT
+            1
+        FROM
+            ethereum.nft_trades t
+        WHERE
+            t.seller = counted_trades.buyer
+            AND t.buyer = counted_trades.seller
+            AND t.collection = counted_trades.collection
+            AND t.token_id = counted_trades.token_id
+            AND t.transaction_hash <> counted_trades.transaction_hash
+    )
+    OR seller_count >= 3
+    OR buyer_count >= 3
+  `);
+
+  const response = await conn.query(query, { start, stop });
+
+  if (!response) {
+    return new Error(`Couldn't insert into ethereum.nft_wash_trades`, 404);
+  }
+
+  return response;
+};
+
+const getSales = async (collectionId) => {
+  const conn = await connect(db);
 
   let lb, ub;
   // artblocks
@@ -48,7 +237,7 @@ const getSales = async (req, res) => {
       (SELECT COUNT(*) FROM sales) <= 30000 OR RANDOM() <= 0.5;
 `);
 
-  const response = await indexa.query(query, {
+  const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
     lb: Number(lb),
     ub: Number(ub),
@@ -58,17 +247,12 @@ const getSales = async (req, res) => {
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeader())
-    .status(200)
-    .json(response.map((c) => [c.block_time, c.eth_sale_price]));
+  return lambdaResponse(response.map((c) => [c.block_time, c.eth_sale_price]));
 };
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
-const getStats = async (req, res) => {
-  const collectionId = req.params.collectionId;
-  if (!checkCollection(collectionId))
-    return res.status(400).json('invalid collectionId!');
+const getStats = async (collectionId) => {
+  const conn = await connect(db);
 
   let lb, ub;
   // artblocks
@@ -106,7 +290,7 @@ ORDER BY
     DATE(block_time) ASC;
 `);
 
-  const response = await indexa.query(query, {
+  const response = await conn.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
     lb: Number(lb),
     ub: Number(ub),
@@ -116,14 +300,13 @@ ORDER BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeader())
-    .status(200)
-    .json(response.map((c) => convertKeysToCamelCase(c)));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 // get 1day,7day volumes per collection
-const getVolume = async (req, res) => {
+const getVolume = async () => {
+  const conn = await connect(db);
+
   const query = minify(`
 WITH volumes AS (SELECT
     CONCAT('0x', encode(collection, 'hex')) as collection,
@@ -148,16 +331,13 @@ GROUP BY
 SELECT * FROM volumes WHERE "7day_volume" > 0
   `);
 
-  const response = await indexa.query(query);
+  const response = await conn.query(query);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeader())
-    .status(200)
-    .json(response.map((c) => convertKeysToCamelCase(c)));
+  return lambdaResponse(response.map((c) => convertKeysToCamelCase(c)));
 };
 
 // Name mapping plus marketplace urls -> should go into new table
@@ -176,7 +356,9 @@ const formatName = (exchange_name) => {
   return agg ? n + ' Aggregator' : n;
 };
 
-const getExchangeStats = async (req, res) => {
+const getExchangeStats = async () => {
+  const conn = await connect(db);
+
   const query = minify(`
 WITH nft_trades_processed AS (
   SELECT
@@ -251,9 +433,9 @@ FROM
   total_daily_volume tdv;
 `);
 
-  const trades = await indexa.query(query, { condition: 'raw' });
+  const trades = await conn.query(query, { condition: 'raw' });
 
-  const trades_clean = await indexa.query(query, { condition: 'clean' });
+  const trades_clean = await conn.query(query, { condition: 'clean' });
 
   const response = trades_clean.map((m_clean) => ({
     ...m_clean,
@@ -270,17 +452,16 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeader())
-    .status(200)
-    .json(
-      response
-        .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
-        .map((c) => convertKeysToCamelCase(c))
-    );
+  return lambdaResponse(
+    response
+      .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+      .map((c) => convertKeysToCamelCase(c))
+  );
 };
 
-const getExchangeVolume = async (req, res) => {
+const getExchangeVolume = async () => {
+  const conn = await connect(db);
+
   const query = minify(`
 WITH trades AS (
     SELECT
@@ -326,23 +507,24 @@ WITH trades AS (
     exchange_name;
 `);
 
-  const response = await indexa.query(query);
+  const response = await conn.query(query);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
   }
 
-  return res
-    .set(customHeader())
-    .status(200)
-    .json(
-      response
-        .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
-        .map((c) => convertKeysToCamelCase(c))
-    );
+  return lambdaResponse(
+    response
+      .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+      .map((c) => convertKeysToCamelCase(c))
+  );
 };
 
 module.exports = {
+  getMaxBlock,
+  insertTrades,
+  deleteAndInsertTrades,
+  insertWashTrades,
   getSales,
   getStats,
   getVolume,

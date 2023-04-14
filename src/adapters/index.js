@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const parseEvent = require('./parseEvent');
-const { getMaxBlock, insertTrades } = require('./queries');
+const { getMaxBlock, insertTrades } = require('../controllers/nftTrades');
 const castTypes = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
-const { indexa } = require('../utils/dbConnection');
+const { connect } = require('../utils/dbConnection');
 
 const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
 
@@ -21,7 +21,8 @@ const exe = async () => {
     });
 
   // get max blocks for each table
-  let [blockEvents, blockTrades] = await indexa.task(async (t) => {
+  const conn = await connect('indexa');
+  let [blockEvents, blockTrades] = await conn.task(async (t) => {
     return await Promise.all(
       ['event_logs', 'nft_trades'].map((table) =>
         getMaxBlock(t, `ethereum.${table}`)
@@ -41,7 +42,8 @@ const exe = async () => {
     let startBlock = blockTrades + 1;
     let endBlock = startBlock + blockRange;
 
-    const trades = await indexa.task(async (t) => {
+    const conn = await connect('indexa');
+    const trades = await conn.task(async (t) => {
       return await Promise.all(
         modules.map((m) =>
           parseEvent(t, startBlock, endBlock, m.abi, m.config, m.parse)
@@ -57,7 +59,7 @@ const exe = async () => {
     }
 
     stale = checkIfStale(blockEvents, endBlock);
-    blockTrades = await indexa.task(async (t) => {
+    blockTrades = await conn.task(async (t) => {
       return await getMaxBlock(t, 'ethereum.nft_trades');
     });
 
