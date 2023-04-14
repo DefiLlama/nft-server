@@ -6,7 +6,7 @@ const customHeader = require('../../utils/customHeader');
 const { indexa } = require('../../utils/dbConnection');
 
 const getSales = async (req, res) => {
-  const collectionId = req.params.collectionId;
+  let collectionId = req.params.collectionId;
   if (!checkCollection(collectionId))
     return res.status(400).json('invalid collectionId!');
 
@@ -66,7 +66,7 @@ const getSales = async (req, res) => {
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
 const getStats = async (req, res) => {
-  const collectionId = req.params.collectionId;
+  let collectionId = req.params.collectionId;
   if (!checkCollection(collectionId))
     return res.status(400).json('invalid collectionId!');
 
