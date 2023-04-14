@@ -1,9 +1,12 @@
 const yargs = require('yargs');
 
-const { deleteAndInsertTrades, insertTrades } = require('./queries');
+const {
+  deleteAndInsertTrades,
+  insertTrades,
+} = require('../controllers/nftTrades');
 const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
-const { indexa } = require('../utils/dbConnection');
+const { connect } = require('../utils/dbConnection');
 
 const argv = yargs.options({
   marketplace: {
@@ -47,7 +50,7 @@ const deletePriorInsert = argv.deletePriorInsert === 'false' ? false : true;
 const blockRange = argv.blockRange;
 const blockStop = argv.blockStop;
 
-(async () => {
+const main = async () => {
   console.log(`==== Refill ${marketplace} ====`);
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
@@ -55,7 +58,8 @@ const blockStop = argv.blockStop;
 
   console.log(`starting refill from ${endBlock}...`);
   while (true) {
-    const trades = await indexa.task(async (t) => {
+    const conn = await connect('indexa');
+    const trades = await conn.task(async (t) => {
       return await parseEvent(t, startBlock, endBlock, abi, config, parse);
     });
 
@@ -91,4 +95,8 @@ const blockStop = argv.blockStop;
       process.exit();
     }
   }
+};
+
+(async () => {
+  await main();
 })();
