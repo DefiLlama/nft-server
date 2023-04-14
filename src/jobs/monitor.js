@@ -3,7 +3,7 @@ const sendMessage = require('../utils/discordWebhook');
 const { blockRangeMonitor } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
 
-(async () => {
+const job = async () => {
   // get max blocks for each table
   let [blockEvents, blockTrades] = await indexa.task(async (t) => {
     return await Promise.all(
@@ -23,5 +23,6 @@ const { indexa } = require('../utils/dbConnection');
     } blocks!`;
     await sendMessage(message, process.env.NFT_TRADES_WEBHOOK);
   }
-  process.exit();
-})();
+};
+
+module.exports = job;

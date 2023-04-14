@@ -1,9 +1,11 @@
 const { getMaxBlock, insertWashTrades } = require('../adapters/queries');
 const { indexa } = require('../utils/dbConnection');
 
-(async () => {
+const job = async () => {
   // 30day window
-  const offset = 7200 * 30;
+  const days = 30;
+  const blocksPerDay = 7200;
+  const offset = blocksPerDay * days;
 
   const endBlock = await indexa.task(async (t) => {
     return await getMaxBlock(t, 'ethereum.nft_trades');
@@ -13,4 +15,6 @@ const { indexa } = require('../utils/dbConnection');
 
   const response = await insertWashTrades(startBlock, endBlock);
   console.log(response);
-})();
+};
+
+module.exports = job;

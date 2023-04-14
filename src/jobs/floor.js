@@ -74,8 +74,7 @@ const insertCollections = async (payload) => {
     });
 };
 
-(async () => {
-  console.log('starting floor job...\n');
+const job = async () => {
   const api = 'https://api.reservoir.tools';
 
   const apiKey = {
@@ -167,6 +166,6 @@ const insertCollections = async (payload) => {
   console.log('insert collections...');
   const response = await insertCollections(payload);
   console.log(response);
-  console.log('done!');
-  process.exit();
-})();
+};
+
+module.exports = job;

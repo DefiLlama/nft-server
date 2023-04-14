@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "node-pg-migrate",
     "start:sync_nft_trades": "node src/adapters/index",
-    "start:api": "node src/api/server"
+    "start:api": "node src/api/server",
+    "start:jobs": "node src/jobs/index"
   },
   "author": "",
   "license": "ISC",
