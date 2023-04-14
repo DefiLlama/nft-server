@@ -320,7 +320,7 @@ WHERE
     OR buyer_count >= 3
   `);
 
-  const response = await indexa.query(query, { start, stop });
+  const response = await indexa.result(query, { start, stop });
 
   if (!response) {
     return new Error(`Couldn't insert into ethereum.nft_wash_trades`, 404);
