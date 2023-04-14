@@ -6,13 +6,10 @@ const morgan = require('morgan');
 const trades = require('./routes/trades');
 const floor = require('./routes/floor');
 
-console.log(floor);
-
 const app = express();
-// if (process.env.NODE_ENV === 'development') {
-//   app.use(morgan('dev'));
-// }
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(helmet());
 app.use(cors());
 
