@@ -6,10 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "node-pg-migrate",
-    "deploy:env": "sls deploy --stage $NODE_ENV",
-    "deploy:prod": "export AWS_PROFILE='defillama' && export NODE_ENV=prod && npm run deploy:env",
-    "deploy:dev": "export AWS_PROFILE='defillama' && export NODE_ENV=dev && npm run deploy:env",
-    "deploy": "export NODE_ENV=prod && npm run deploy:env",
     "start:sync_nft_trades": "node src/adapters/index",
     "start:api": "node src/api/server"
   },
@@ -26,19 +22,8 @@
     "pg-promise": "^11.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
-    "@babel/plugin-transform-runtime": "^7.21.0",
-    "@babel/preset-typescript": "^7.21.0",
-    "@babel/runtime": "^7.21.0",
-    "babel-loader": "^9.1.2",
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^2.0.22",
-    "pg": "^8.10.0",
-    "pg-native": "^3.0.1",
-    "serverless": "^3.28.1",
-    "serverless-prune-plugin": "^2.0.2",
-    "serverless-webpack": "^5.11.0",
-    "webpack": "^5.76.0",
     "yargs": "^17.7.1"
   }
 }
