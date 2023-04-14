@@ -8,7 +8,6 @@ const { nft } = require('../../utils/dbConnection');
 
 const getCollection = async (req, res) => {
   const collectionId = req.params.collectionId;
-  console.log(collectionId);
   if (!checkCollection(collectionId))
     return res.status(400).json('invalid collectionId!');
 
@@ -27,12 +26,10 @@ const getCollection = async (req, res) => {
       collection_id = $<collectionId>
       `
   );
-  console.log(query);
 
   const response = await nft.query(query, {
     collectionId,
   });
-  console.log(response);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
