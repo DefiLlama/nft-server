@@ -1,13 +1,10 @@
-const { pgp, connect } = require('../src/utils/dbConnection');
+const { pgp, indexa } = require('../src/utils/dbConnection');
 const aggregatorData = require('../src/adapters/aggregators');
 
-const db = 'indexa';
 const schema = 'ethereum';
 const table = 'nft_aggregators_appendage';
 
 const insertAggregatorAppendage = async (payload) => {
-  const conn = await connect(db);
-
   const columns = ['name', 'appendage', 'appendage_length'];
 
   const cs = new pgp.helpers.ColumnSet(columns, {
@@ -22,7 +19,7 @@ const insertAggregatorAppendage = async (payload) => {
     ' ON CONFLICT(appendage) DO UPDATE SET ' +
     cs.assignColumns({ from: 'EXCLUDED', skip: 'appendage' });
 
-  const response = await conn.result(query);
+  const response = await indexa.result(query);
 
   if (!response) {
     return new Error(`Couldn't insert into ${schema}.${table}`, 404);

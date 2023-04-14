@@ -1,16 +1,11 @@
-const { getMaxBlock } = require('../controllers/nftTrades');
+const { getMaxBlock } = require('../adapters/queries');
 const sendMessage = require('../utils/discordWebhook');
 const { blockRangeMonitor } = require('../utils/params');
-const { connect } = require('../utils/dbConnection');
+const { indexa } = require('../utils/dbConnection');
 
-module.exports.handler = async () => {
-  await main();
-};
-
-const main = async () => {
+(async () => {
   // get max blocks for each table
-  const conn = await connect('indexa');
-  let [blockEvents, blockTrades] = await conn.task(async (t) => {
+  let [blockEvents, blockTrades] = await indexa.task(async (t) => {
     return await Promise.all(
       ['event_logs', 'nft_trades'].map((table) =>
         getMaxBlock(t, `ethereum.${table}`)
@@ -28,4 +23,5 @@ const main = async () => {
     } blocks!`;
     await sendMessage(message, process.env.NFT_TRADES_WEBHOOK);
   }
-};
+  process.exit();
+})();
