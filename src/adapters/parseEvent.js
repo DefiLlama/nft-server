@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const getEvents = require('../controllers/eventLogs');
+const { getEvents } = require('./queries');
 const aggregators = require('./aggregators');
 const { nftTransferEvents } = require('../utils/params');
 

@@ -1,9 +1,9 @@
 const yargs = require('yargs');
 
 const parseEvent = require('./parseEvent');
-const { getMaxBlock } = require('../controllers/nftTrades');
+const { getMaxBlock } = require('./queries');
 const { blockRangeTest } = require('../utils/params');
-const { connect } = require('../utils/dbConnection');
+const { indexa } = require('../utils/dbConnection');
 
 const argv = yargs.options({
   marketplace: {
@@ -36,16 +36,15 @@ const argv = yargs.options({
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
 
-  const conn = await connect('indexa');
   const endBlock = !block
-    ? await conn.task(async (t) => {
+    ? await indexa.task(async (t) => {
         return await getMaxBlock(t, 'ethereum.event_logs');
       })
     : block;
 
   const startBlock = endBlock - (blockRange ?? blockRangeTest);
 
-  const trades = await conn.task(async (t) => {
+  const trades = await indexa.task(async (t) => {
     return await parseEvent(t, startBlock, endBlock, abi, config, parse);
   });
 
