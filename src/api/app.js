@@ -10,7 +10,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 app.use(helmet());
 
-app.use('/api/v1', trades);
-app.use('/api/v1', floor);
+app.use('/', [trades, floor]);
 
 module.exports = app;
