@@ -1,6 +1,7 @@
 const floor = require('./floor');
 const monitor = require('./monitor');
 const washTrades = require('./washTrades');
+const orderbook = require('./orderbook');
 
 const startJobs = () => {
   setInterval(async () => {
@@ -16,6 +17,11 @@ const startJobs = () => {
   setInterval(async () => {
     console.log(`running washTrades job ${new Date()}...`);
     await washTrades();
+  }, 60 * 60 * 1000);
+
+  setInterval(async () => {
+    console.log(`running orderbook job ${new Date()}...`);
+    await orderbook();
   }, 60 * 60 * 1000);
 };
 

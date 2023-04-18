@@ -3,10 +3,7 @@ const axios = require('axios');
 
 const { pgp, nft } = require('../utils/dbConnection');
 const { convertKeysToSnakeCase } = require('../utils/keyConversion');
-
-const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+const sleep = require('../utils/sleep');
 
 // multi row insert (update on conflict) query generator
 const buildCollectionQ = (payload) => {
