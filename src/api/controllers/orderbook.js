@@ -12,31 +12,33 @@ const getOrders = async (req, res) => {
 
   const query = minify(
     `
-WITH asks AS (SELECT
-    price, amount
-FROM
-    orderbook
-WHERE
-  collection_id = $<collectionId>
-  AND timestamp = (
-        SELECT
-            max(timestamp)
-        FROM
-            orderbook
-        WHERE
-            collection_id =  $<collectionId>
-            AND timestamp >= NOW() - INTERVAL '1 day'
-            AND order_type = 'ask'
-            )
-   AND order_type = 'ask'
-ORDER BY price
+WITH orders AS (
+    SELECT
+        price,
+        amount,
+        order_type
+    FROM
+        orderbook
+    WHERE
+        collection_id = $<collectionId>
+        AND timestamp = (
+            SELECT
+                MAX(timestamp)
+            FROM
+                orderbook
+            WHERE
+                collection_id = $<collectionId>
+                AND timestamp >= NOW() - INTERVAL '1 day'
+        )
 )
-SELECT
-  price,
-  SUM(price) OVER (ORDER BY price) AS price_total,
-  AVG(price) OVER (ORDER BY price ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS avg_price,
-  SUM(amount) OVER (ORDER BY price) AS amount
-FROM asks
+  SELECT
+      order_type,
+      price,
+      SUM(price) OVER (PARTITION BY order_type ORDER BY price) AS price_total,
+      round(AVG(price) OVER (PARTITION BY order_type ORDER BY price ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 5) AS avg_price,
+      SUM(amount) OVER (PARTITION BY order_type ORDER BY price) AS amount
+  FROM
+      orders
     `
   );
 
