@@ -26,7 +26,9 @@ WHERE
         WHERE
             collection_id =  $<collectionId>
             AND timestamp >= NOW() - INTERVAL '1 day'
+            AND order_type = 'ask'
             )
+   AND order_type = 'ask'
 ORDER BY price
 )
 SELECT
