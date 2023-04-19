@@ -20,9 +20,13 @@ const artblocks = [
 
 // multi row insert
 const insert = async (payload) => {
-  const columns = ['collectionId', 'timestamp', 'price', 'amount'].map((c) =>
-    _.snakeCase(c)
-  );
+  const columns = [
+    'collectionId',
+    'timestamp',
+    'price',
+    'amount',
+    'orderType',
+  ].map((c) => _.snakeCase(c));
   const cs = new pgp.helpers.ColumnSet(columns, { table: 'orderbook' });
 
   const query = pgp.helpers.insert(payload, cs);
@@ -35,23 +39,16 @@ const insert = async (payload) => {
   return response;
 };
 
-const job = async () => {
-  const collections = await nft.query(getCollectionsQuery);
-
-  const exArtblocks = collections.filter(
-    (c) => !artblocks.includes(c.collection_id.split(':')[0])
-  );
-
-  let asks = [];
-  const timestamp = new Date();
+const orders = async (collections, route, timestamp) => {
+  let d = [];
   const rateLimit = 4;
-  for (let i = 0; i <= exArtblocks.length; i += rateLimit) {
+  for (let i = 0; i <= collections.length; i += rateLimit) {
     console.log(i);
-    const calls = exArtblocks
+    const calls = collections
       .slice(i, rateLimit + i)
       .map((c) =>
         axios.get(
-          `${api}/orders/asks/v4?status=active&limit=${1000}&contracts=${
+          `${api}/orders/${route}?status=active&limit=${1000}&contracts=${
             c.collection_id
           }`,
           apiKey
@@ -71,22 +68,42 @@ const job = async () => {
       const cid = x.value.data.orders[0]?.contract;
       if (!cid) continue;
 
-      asks = [
-        ...asks,
+      d = [
+        ...d,
         ...Object.entries(valueCounts).map((i) => {
           return convertKeysToSnakeCase({
             collectionId: cid,
             timestamp,
             price: Number(i[0]),
             amount: i[1],
+            orderType: route.includes('ask') ? 'ask' : 'bid',
           });
         }),
       ];
     }
     await sleep(1000);
   }
+  return d;
+};
 
-  return await insert(asks);
+const job = async () => {
+  const collections = await nft.query(getCollectionsQuery);
+
+  const exArtblocks = collections.filter(
+    (c) => !artblocks.includes(c.collection_id.split(':')[0])
+  );
+
+  const timestamp = new Date();
+
+  const [asks, bids] = await Promise.all(
+    ['asks/v4', 'bids/v5'].map((route) => orders(exArtblocks, route, timestamp))
+  );
+
+  const payload = [...asks, ...bids];
+  console.log('inserting orderbook...');
+  console.log(payload.length);
+  const response = await insert(payload);
+  console.log(response);
 };
 
 module.exports = job;
