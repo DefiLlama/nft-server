@@ -30,15 +30,26 @@ WITH orders AS (
                 collection_id = $<collectionId>
                 AND timestamp >= NOW() - INTERVAL '1 day'
         )
+), orders_sorted AS (
+    SELECT
+        order_type,
+        price,
+        amount,
+        CASE
+            WHEN order_type = 'ask' THEN 1
+            ELSE -1
+        END as type_sorted
+    FROM
+        orders
 )
-  SELECT
-      order_type,
-      price,
-      SUM(price) OVER (PARTITION BY order_type ORDER BY price) AS price_total,
-      round(AVG(price) OVER (PARTITION BY order_type ORDER BY price ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 5) AS avg_price,
-      SUM(amount) OVER (PARTITION BY order_type ORDER BY price) AS amount
-  FROM
-      orders
+SELECT
+    order_type,
+    price,
+    SUM(price) OVER (PARTITION BY order_type ORDER BY price * type_sorted) AS price_total,
+    round(AVG(price) OVER (PARTITION BY order_type ORDER BY price * type_sorted ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW), 5) AS avg_price,
+    SUM(amount) OVER (PARTITION BY order_type ORDER BY price * type_sorted) AS amount
+FROM
+    orders_sorted;
     `
   );
 
