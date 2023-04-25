@@ -14,6 +14,7 @@ const getCollection = async (req, res) => {
     `
   SELECT
       name,
+      symbol,
       image,
       total_supply,
       token_standard,
@@ -81,6 +82,7 @@ week AS (
 SELECT
     latest.collection_id,
     c.name,
+    c.symbol,
     c.image,
     c.total_supply,
     latest.on_sale_count,
