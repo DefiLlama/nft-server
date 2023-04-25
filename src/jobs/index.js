@@ -3,6 +3,7 @@ const monitor = require('./monitor');
 const washTrades = require('./washTrades');
 const orderbook = require('./orderbook');
 const trimOrderbook = require('./trimOrderbook');
+const symbol = require('./symbol');
 
 const startJobs = () => {
   setInterval(async () => {
@@ -29,6 +30,11 @@ const startJobs = () => {
     console.log(`running trimOrderbook job ${new Date()}...`);
     await trimOrderbook();
   }, 60 * 60 * 1000);
+
+  setInterval(async () => {
+    console.log(`running symbol job ${new Date()}...`);
+    await symbol();
+  }, 24 * 60 * 60 * 1000);
 };
 
 startJobs();

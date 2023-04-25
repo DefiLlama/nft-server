@@ -3,12 +3,6 @@ const sdk = require('@defillama/sdk');
 
 const { pgp, nft } = require('../src/utils/dbConnection');
 
-const artblocks = [
-  '0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270',
-  '0x99a9b7c1116f9ceeb1652de04d5969cce509b069',
-  '0x059edd72cd353df5106d2b9cc5ab83a52287ac3a',
-];
-
 const exclude = [
   '0x62674b8ace7d939bb07bea6d32c55b74650e0eaa', // EtherOrcs Allies
   '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85', // ens
@@ -22,18 +16,12 @@ FROM
 WHERE
     token_standard = 'erc721'
     AND collection_id NOT IN ($<exclude:csv>)
+    AND collection_id NOT LIKE '%:%'
 `);
 
 (async () => {
   const collections = await nft.query(query, { exclude });
-
-  let ids = new Set();
-  for (const c of collections) {
-    const id = c.collection_id.split(':')[0];
-    if (artblocks.includes(id)) continue;
-    ids.add(id);
-  }
-  ids = [...ids];
+  const ids = [...new Set(collections.map((c) => c.collection_id))];
 
   const size = 100;
   const N = Math.ceil(ids.length / size);
