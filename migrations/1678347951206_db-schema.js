@@ -14,7 +14,8 @@ exports.up = (pgm) => {
         total_supply NUMERIC NOT NULL,
         token_standard TEXT NOT NULL,
         project_url TEXT,
-        twitter_username TEXT
+        twitter_username TEXT,
+        symbol TEXT
       );
     `);
 
