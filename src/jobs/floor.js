@@ -78,19 +78,28 @@ const job = async () => {
     headers: { 'x-api-key': process.env.RESERVOIR_API },
   };
 
-  // get top 1k collections based on all time volume
+  // get top K-collections based on all time volume
   // note: collections/v1 'only' inlcudes floor price but no floor price history/totalSupply etc
   // which is why we call /collections/v5.
   // we use collections/v1 mainly to obtain a list of top N collections sorted by all time trade volume
-  const top1k = (
-    await axios.get(`${api}/search/collections/v1?limit=1000`, apiKey)
-  ).data.collections;
-  await sleep(1000);
+  const top = 5; // 5k collections
+  const limit = 1000;
+  let topK = [];
+  for (let i = 0; i < top; i++) {
+    const collections = (
+      await axios.get(
+        `${api}/search/collections/v2?limit=1000&offset=${limit * i}`,
+        apiKey
+      )
+    ).data.collections;
+    topK = [...topK, ...collections];
+    await sleep(1000);
+  }
 
   // remove artblocks (requires separate call cause contract identical between arbtlocks nfts which breaks the
   // the following api calls)
-  const exArtBlocks = top1k.filter((c) => c.collectionId.length <= 42);
-  const artBlocksInTop1k = top1k.length - exArtBlocks.length;
+  const exArtBlocks = topK.filter((c) => c.collectionId.length <= 42);
+  const artBlocksInTopK = topK.length - exArtBlocks.length;
 
   // get the collection addresses
   const ids = exArtBlocks.map((c) => c.collectionId);
@@ -117,7 +126,7 @@ const job = async () => {
   }
 
   // get artblocks
-  const calls = Math.ceil(artBlocksInTop1k / size);
+  const calls = Math.ceil(artBlocksInTopK / size);
   const artblocksUrl = `${api}/collections/v5?community=artblocks`;
 
   let continuation;
