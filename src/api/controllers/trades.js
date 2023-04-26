@@ -128,7 +128,8 @@ const getVolume = async (req, res) => {
 WITH volumes AS (SELECT
     CONCAT('0x', encode(collection, 'hex')) as collection,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume"
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
+    COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_sales"
 FROM
     ethereum.nft_trades AS t
 WHERE
