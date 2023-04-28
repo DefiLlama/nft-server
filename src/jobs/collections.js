@@ -34,7 +34,7 @@ const fetchTokenStandard = async (ids) => {
       .flat()
       .map((c) => ({
         collection: Buffer.from(c.id.replace('0x', ''), 'hex'),
-        tokenStandard: c.contractKind,
+        tokenStandard: Buffer.from(c.contractKind),
       }));
 
     payload = [...payload, ...X];
