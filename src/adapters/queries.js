@@ -302,6 +302,8 @@ SELECT
     log_index
 FROM
     counted_trades
+LEFT JOIN
+    ethereum.nft_collections nc ON counted_trades.collection = nc.collection
 WHERE
     buyer = seller
     OR EXISTS (
@@ -316,8 +318,10 @@ WHERE
             AND t.token_id = counted_trades.token_id
             AND t.transaction_hash <> counted_trades.transaction_hash
     )
-    OR seller_count >= 3
-    OR buyer_count >= 3
+    OR (
+      (counted_trades.seller_count >= 3 OR counted_trades.buyer_count >= 3)
+      AND (token_standard = 'erc721')
+  )
   `);
 
   const response = await indexa.result(query, { start, stop });
