@@ -319,7 +319,8 @@ WITH trades AS (
   SELECT
     DATE(block_time) AS day,
     exchange_name,
-    SUM(eth_sale_price)
+    SUM(eth_sale_price),
+    COUNT(eth_sale_price)
   FROM
     trades_
   GROUP BY
