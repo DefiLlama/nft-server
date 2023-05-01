@@ -10,7 +10,7 @@ const fetchTokenStandard = async (ids) => {
   const api = 'https://api.reservoir.tools';
 
   const apiKey = {
-    headers: { 'x-api-key': process.env.RESERVOIR_API_COLLECTIONS },
+    headers: { 'x-api-key': process.env.RESERVOIR_API_TOKEN_STANDARD },
   };
 
   // collections/v5 accepts a max of 20 collection ids per request
@@ -88,9 +88,9 @@ WHERE
   console.log(payload.length);
 
   // db insert
-  console.log('insert collections...');
+  console.log('insert tokenStandard...');
   const response = await insert(payload);
   console.log(response);
 };
 
-module.exports = { fetchTokenStandard, insert };
+module.exports = { tokenStandard: job, fetchTokenStandard, insert };

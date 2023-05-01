@@ -319,8 +319,8 @@ WHERE
             AND t.transaction_hash <> counted_trades.transaction_hash
     )
     OR (
-      (counted_trades.seller_count >= 3 OR counted_trades.buyer_count >= 3)
-      AND (token_standard = 'erc721')
+      (seller_count >= 3 OR buyer_count >= 3)
+      AND token_standard = 'erc721'
   )
   `);
 
