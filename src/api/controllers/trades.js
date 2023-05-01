@@ -184,7 +184,8 @@ WITH nft_trades_processed AS (
     LOWER(encode(exchange_name, 'escape')) AS exchange_name,
     LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
     block_time,
-    eth_sale_price
+    eth_sale_price,
+    usd_sale_price
   FROM
     ethereum.nft_trades AS t
   WHERE
@@ -215,7 +216,8 @@ WITH nft_trades_processed AS (
         ELSE aggregator_name
       END AS exchange_name,
         block_time,
-        eth_sale_price
+        eth_sale_price,
+        usd_sale_price
     FROM
       nft_trades_processed
   ),
@@ -224,6 +226,8 @@ grouped AS (
     exchange_name,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_volume",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN usd_sale_price END) AS "1day_volume_usd",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN usd_sale_price END) AS "7day_volume_usd",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '14 DAY') AND block_time < (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_volume_prior",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN eth_sale_price END) AS "1day_nb_trades",
     COUNT(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN eth_sale_price END) AS "7day_nb_trades"
@@ -242,6 +246,8 @@ SELECT
   g.exchange_name,
   g."1day_volume",
   g."7day_volume",
+  g."1day_volume_usd",
+  g."7day_volume_usd",
   g."1day_nb_trades",
   g."7day_nb_trades",
   (g."1day_volume" / tdv.total_1day_volume) * 100 AS pct_of_total,
@@ -283,12 +289,13 @@ FROM
 
 const getExchangeVolume = async (req, res) => {
   const query = minify(`
-WITH trades AS (
+  WITH trades AS (
     SELECT
       block_time,
       LOWER(encode(exchange_name, 'escape')) AS exchange_name,
       LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
-      eth_sale_price
+      eth_sale_price,
+      usd_sale_price
     FROM
       ethereum.nft_trades AS t
     WHERE
@@ -312,7 +319,8 @@ WITH trades AS (
         ELSE aggregator_name
       END AS exchange_name,
         block_time,
-        eth_sale_price
+        eth_sale_price,
+        usd_sale_price
     FROM
       trades
   )
@@ -320,6 +328,7 @@ WITH trades AS (
     DATE(block_time) AS day,
     exchange_name,
     SUM(eth_sale_price),
+    SUM(usd_sale_price) AS sum_usd,
     COUNT(eth_sale_price)
   FROM
     trades_
