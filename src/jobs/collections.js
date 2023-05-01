@@ -2,8 +2,9 @@ const _ = require('lodash');
 const axios = require('axios');
 const minify = require('pg-minify');
 
-const { indexa } = require('../utils/dbConnection');
+const { indexa, pgp } = require('../utils/dbConnection');
 const sleep = require('../utils/sleep');
+const { convertKeysToSnakeCase } = require('../utils/keyConversion');
 
 const fetchTokenStandard = async (ids) => {
   const api = 'https://api.reservoir.tools';
@@ -40,7 +41,8 @@ const fetchTokenStandard = async (ids) => {
     payload = [...payload, ...X];
     await sleep(1000);
   }
-  return payload;
+
+  return payload.map((i) => convertKeysToSnakeCase(i));
 };
 
 const insert = async (payload) => {
