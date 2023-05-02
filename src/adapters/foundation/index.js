@@ -2,10 +2,23 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 
 const parse = (decodedData, event) => {
-  const { nftContract, tokenId, seller, buyer, creatorRev, totalFees } =
-    decodedData;
+  const {
+    nftContract,
+    tokenId,
+    seller,
+    buyer,
+    creatorRev,
+    sellerRev,
+    totalFees,
+  } = decodedData;
 
-  const salePrice = (creatorRev + totalFees).toString() / 1e18;
+  const salePrice = (creatorRev + sellerRev + totalFees).toString() / 1e18;
+
+  let royaltyRecipient;
+  if (creatorRev > 0) {
+    ethRoyalty = (creatorRev.toString() / 1e18) * salePrice;
+    usdRoyalty = ethRoyalty * event.price;
+  }
 
   return {
     collection: nftContract,
@@ -17,6 +30,9 @@ const parse = (decodedData, event) => {
     paymentToken: '0x0000000000000000000000000000000000000000',
     seller,
     buyer,
+    royaltyRecipient,
+    ethRoyalty,
+    usdRoyalty,
   };
 };
 
