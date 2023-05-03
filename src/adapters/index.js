@@ -15,7 +15,7 @@ const exe = async () => {
   const modules = [];
   fs.readdirSync(modulesDir)
     .filter((mplace) => !mplace.endsWith('.js'))
-    .filter((mplace) => !['openseaWyvern'].includes(mplace))
+    .filter((mplace) => !['openseaWyvern', 'looksrare'].includes(mplace))
     .forEach((mplace) => {
       modules.push(require(path.join(modulesDir, mplace)));
     });
