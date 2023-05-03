@@ -10,5 +10,6 @@
       "name": "TakerAsk",
       "signatureHash": "0x68cd251d4d267c6e2034ff0088b990352b97b2002c0476587d0c4da889c11330"
     }
-  ]
+  ],
+  "version": "looksrare-v1"
 }
