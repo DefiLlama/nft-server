@@ -117,6 +117,42 @@ WHERE
     AND e.block_number <= $<endBlock>
 `;
 
+const queryLooksrareV1 = `
+SELECT
+    encode(e.transaction_hash, 'hex') AS transaction_hash,
+    e.log_index,
+    encode(e.contract_address, 'hex') AS contract_address,
+    encode(e.topic_0, 'hex') AS topic_0,
+    encode(e.topic_1, 'hex') AS topic_1,
+    encode(e.topic_2, 'hex') AS topic_2,
+    encode(e.topic_3, 'hex') AS topic_3,
+    encode(e.data, 'hex') AS data,
+    e.block_time,
+    e.block_number,
+    encode(e.block_hash, 'hex') AS block_hash,
+    b.price,
+    encode(t.from_address, 'hex') AS from_address,
+    encode(t.to_address, 'hex') AS to_address,
+    a.name AS aggregator_name
+FROM
+    ethereum.event_logs e
+    LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+    LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
+WHERE
+    (
+        (
+            e.contract_address IN ($<contractAddresses:csv>)
+            AND e.topic_0 IN ($<eventSignatureHashes:csv>)
+        )
+        OR (
+            e.topic_0 = '\\x27c4f0403323142b599832f26acd21c74a9e5b809f2215726e244a4ac588cd7d'
+        )
+    )
+    AND e.block_number >= $<startBlock>
+    AND e.block_number <= $<endBlock>
+`;
+
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
 // which doesn't work with conn.query
 const getEvents = async (task, startBlock, endBlock, config) => {
@@ -131,6 +167,8 @@ const getEvents = async (task, startBlock, endBlock, config) => {
       ? queryExtensive
       : config.exchangeName === 'cryptopunks'
       ? queryCryptopunks
+      : config.version === 'looksrare-v1'
+      ? queryLooksrareV1
       : query;
 
   const response = await task.query(minify(q, { compress: false }), {
@@ -187,6 +225,9 @@ const buildInsertQ = (payload) => {
     'buyer',
     'aggregator_name',
     'aggregator_address',
+    'royalty_recipient',
+    'royalty_fee_eth',
+    'royalty_fee_usd',
   ];
 
   const cs = new pgp.helpers.ColumnSet(columns, {

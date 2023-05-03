@@ -108,6 +108,16 @@ const parse = async (decodedData, event) => {
 
   const nullAddress = '0x0000000000000000000000000000000000000000';
 
+  let royaltyRecipient;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
+  if (consideration.length > 2) {
+    ({ amount: royaltyFeeEth, recipient: royaltyRecipient } = consideration[2]);
+
+    royaltyFeeEth = royaltyFeeEth.toString() / 1e18;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
+  }
+
   return {
     collection,
     tokenId,
@@ -118,6 +128,9 @@ const parse = async (decodedData, event) => {
     paymentToken,
     seller: seller === nullAddress ? event.from_address : seller,
     buyer: buyer === nullAddress ? event.from_address : buyer,
+    royaltyRecipient,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 

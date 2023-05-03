@@ -14,6 +14,14 @@ const parse = (decodedData, event) => {
 
   const salePrice = (creatorRev + sellerRev + totalFees).toString() / 1e18;
 
+  let royaltyRecipient;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
+  if (creatorRev > 0) {
+    royaltyFeeEth = (creatorRev.toString() / 1e18) * salePrice;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
+  }
+
   return {
     collection: nftContract,
     tokenId,
@@ -24,6 +32,9 @@ const parse = (decodedData, event) => {
     paymentToken: '0x0000000000000000000000000000000000000000',
     seller,
     buyer,
+    royaltyRecipient,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 
