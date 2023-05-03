@@ -47,9 +47,14 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         transferEvents,
         interface
       );
-      // only keep parsed events with full information
+
+      // only keep parsed events with full information (except for optional royalty fields)
       if (
-        Object.values(parsedEvent).some((i) => i === undefined) ||
+        Object.entries(parsedEvent).some(
+          (i) =>
+            i[1] === undefined &&
+            !['royaltyRecipient', 'ethRoyalty', 'usdRoyalty'].includes(i[0])
+        ) ||
         Object.keys(parsedEvent).length === 0
       ) {
         return {};

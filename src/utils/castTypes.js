@@ -26,6 +26,11 @@ const castTypes = (nftTrades) => {
     aggregator_address: nft.aggregatorAddress
       ? Buffer.from(nft.aggregatorAddress.replace('0x', ''), 'hex')
       : null,
+    royaltyRecipient: nft.royaltyRecipient
+      ? Buffer.from(nft.royaltyRecipient.replace('0x', ''), 'hex')
+      : null,
+    ethRoyalty: nft.ethRoyalty ? Number(nft.ethRoyalty) : null,
+    usdRoyalty: nft.usdRoyalty ? Number(nft.usdRoyalty) : null,
   }));
 };
 
