@@ -11,13 +11,13 @@ const parse = (decodedData, event, events) => {
   );
 
   let royaltyRecipient;
-  let ethRoyalty;
-  let usdRoyalty;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
   if (royaltyEvent) {
     royaltyRecipient = stripZerosLeft(`0x${royaltyEvent.topic_3}`);
     royaltyRaw = BigInt(`0x${royaltyEvent.data.slice(64)}`);
-    ethRoyalty = royaltyRaw.toString() / 1e18;
-    usdRoyalty = ethRoyalty * event.price;
+    royaltyFeeEth = royaltyRaw.toString() / 1e18;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
   }
 
   let buyer;
@@ -52,8 +52,8 @@ const parse = (decodedData, event, events) => {
     seller,
     buyer,
     royaltyRecipient,
-    ethRoyalty,
-    usdRoyalty,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 

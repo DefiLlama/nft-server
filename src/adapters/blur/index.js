@@ -11,12 +11,12 @@ const parse = (decodedData, event) => {
   const salePrice = price.toString() / 1e18;
 
   let royaltyRecipient;
-  let ethRoyalty;
-  let usdRoyalty;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
   if (fees.length > 0) {
     ({ rate, recipient: royaltyRecipient } = fees[0]);
-    ethRoyalty = (salePrice * rate.toString()) / 1e4;
-    usdRoyalty = ethRoyalty * event.price;
+    royaltyFeeEth = (salePrice * rate.toString()) / 1e4;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
   }
 
   return {
@@ -30,8 +30,8 @@ const parse = (decodedData, event) => {
     seller: trader,
     buyer: buy[0],
     royaltyRecipient,
-    ethRoyalty,
-    usdRoyalty,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 

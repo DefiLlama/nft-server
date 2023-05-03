@@ -29,8 +29,8 @@ const castTypes = (nftTrades) => {
     royaltyRecipient: nft.royaltyRecipient
       ? Buffer.from(nft.royaltyRecipient.replace('0x', ''), 'hex')
       : null,
-    ethRoyalty: nft.ethRoyalty ? Number(nft.ethRoyalty) : null,
-    usdRoyalty: nft.usdRoyalty ? Number(nft.usdRoyalty) : null,
+    royaltyFeeEth: nft.royaltyFeeEth ? Number(nft.royaltyFeeEth) : null,
+    royaltyFeeUsd: nft.royaltyFeeUsd ? Number(nft.royaltyFeeUsd) : null,
   }));
 };
 

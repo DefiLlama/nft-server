@@ -226,8 +226,8 @@ const buildInsertQ = (payload) => {
     'aggregator_name',
     'aggregator_address',
     'royalty_recipient',
-    'eth_royalty',
-    'usd_royalty',
+    'royalty_fee_eth',
+    'royalty_fee_usd',
   ];
 
   const cs = new pgp.helpers.ColumnSet(columns, {

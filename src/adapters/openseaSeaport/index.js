@@ -109,13 +109,13 @@ const parse = async (decodedData, event) => {
   const nullAddress = '0x0000000000000000000000000000000000000000';
 
   let royaltyRecipient;
-  let ethRoyalty;
-  let usdRoyalty;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
   if (consideration.length > 2) {
-    ({ amount: ethRoyalty, recipient: royaltyRecipient } = consideration[2]);
+    ({ amount: royaltyFeeEth, recipient: royaltyRecipient } = consideration[2]);
 
-    ethRoyalty = ethRoyalty.toString() / 1e18;
-    usdRoyalty = ethRoyalty * event.price;
+    royaltyFeeEth = royaltyFeeEth.toString() / 1e18;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
   }
 
   return {
@@ -129,8 +129,8 @@ const parse = async (decodedData, event) => {
     seller: seller === nullAddress ? event.from_address : seller,
     buyer: buyer === nullAddress ? event.from_address : buyer,
     royaltyRecipient,
-    ethRoyalty,
-    usdRoyalty,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 

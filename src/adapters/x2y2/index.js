@@ -23,12 +23,12 @@ const parse = (decodedData, event) => {
 
   let royaltyRecipient;
   let percentage;
-  let ethRoyalty;
-  let usdRoyalty;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
   if (fees.length > 1) {
     ({ percentage, to: royaltyRecipient } = fees[1]);
-    ethRoyalty = (salePrice * percentage.toString()) / 1e6;
-    usdRoyalty = ethRoyalty * event.price;
+    royaltyFeeEth = (salePrice * percentage.toString()) / 1e6;
+    royaltyFeeUsd = royaltyFeeEth * event.price;
   }
 
   return {
@@ -42,8 +42,8 @@ const parse = (decodedData, event) => {
     seller: maker,
     buyer: taker,
     royaltyRecipient,
-    ethRoyalty,
-    usdRoyalty,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 
