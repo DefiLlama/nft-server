@@ -89,8 +89,12 @@ WHERE
 
   // db insert
   console.log('insert tokenStandard...');
-  const response = await insert(payload);
-  console.log(response);
+  if (payload.length) {
+    const response = await insert(payload);
+    console.log(response);
+  } else {
+    console.log('empty payload for tokenStandard');
+  }
 };
 
 module.exports = { tokenStandard: job, fetchTokenStandard, insert };
