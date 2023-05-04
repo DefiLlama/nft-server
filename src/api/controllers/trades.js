@@ -354,27 +354,31 @@ const getExchangeVolume = async (req, res) => {
 };
 
 const getRoyalties = async (req, res) => {
-  let collectionId = req.params.collectionId;
-  if (!checkCollection(collectionId))
-    return res.status(400).json('invalid collectionId!');
-
   const query = minify(`
+WITH royalty_stats as (SELECT
+    encode(collection, 'hex') as collection,
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "royalties_eth_1d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "royalties_eth_7d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "royalties_eth_30d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "royalties_usd_1d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "royalties_usd_7d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "royalties_usd_30d"
+  FROM
+      ethereum.nft_trades
+  WHERE
+      royalty_fee_usd > 0
+  GROUP BY collection)
 SELECT
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "royalties_eth_1d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "royalties_eth_7d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "royalties_eth_30d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "royalties_usd_1d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "royalties_usd_7d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "royalties_usd_30d"
+  *
 FROM
-    ethereum.nft_trades
+  royalty_stats
 WHERE
-    collection = $<collectionId>
+  royalties_usd_30d > 0
+ORDER BY
+  royalties_usd_30d DESC
 `);
 
-  const response = await indexa.query(query, {
-    collectionId: `\\${collectionId.slice(1)}`,
-  });
+  const response = await indexa.query(query);
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
