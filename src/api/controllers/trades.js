@@ -357,12 +357,12 @@ const getRoyalties = async (req, res) => {
   const query = minify(`
 WITH royalty_stats as (SELECT
     encode(collection, 'hex') as collection,
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "royalties_eth_1d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "royalties_eth_7d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "royalties_eth_30d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "royalties_usd_1d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "royalties_usd_7d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "royalties_usd_30d"
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "eth_1d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "eth_7d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "eth_30d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
+      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d"
   FROM
       ethereum.nft_trades
   WHERE
@@ -373,9 +373,9 @@ SELECT
 FROM
   royalty_stats
 WHERE
-  royalties_usd_30d > 0
+  usd_30d > 0
 ORDER BY
-  royalties_usd_30d DESC
+  usd_30d DESC
 `);
 
   const response = await indexa.query(query);
