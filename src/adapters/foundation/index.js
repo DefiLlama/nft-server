@@ -17,11 +17,11 @@ const parse = (decodedData, event) => {
   let royaltyRecipient;
   let royaltyFeeEth;
   let royaltyFeeUsd;
-  if (sellerRev > 0) {
-    royaltyFeeEth = sellerRev.toString() / 1e18;
+
+  if (creatorRev > 0) {
+    royaltyFeeEth = creatorRev.toString() / 1e18;
     royaltyFeeUsd = royaltyFeeEth * event.price;
   }
-
   return {
     collection: nftContract,
     tokenId,
