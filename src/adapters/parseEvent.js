@@ -52,7 +52,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
       if (
         Object.entries(parsedEvent).some(
           (i) =>
-            i[1] === undefined &&
+            [undefined, NaN].includes(i[1]) &&
             !['royaltyRecipient', 'royaltyFeeEth', 'royaltyFeeUsd'].includes(
               i[0]
             )
