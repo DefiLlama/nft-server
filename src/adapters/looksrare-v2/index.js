@@ -12,8 +12,6 @@ const parse = (decodedData, event) => {
     feeRecipients,
   } = decodedData;
 
-  console.log(event.transaction_hash, feeRecipients);
-
   const salePrice =
     feeAmounts.reduce((acc, val) => acc + val, BigInt(0)).toString() / 1e18;
 
