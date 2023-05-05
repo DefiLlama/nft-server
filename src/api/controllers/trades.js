@@ -390,6 +390,56 @@ ORDER BY
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getRoyaltyHistory = async (req, res) => {
+  let collectionId = req.params.collectionId;
+  if (!checkCollection(collectionId))
+    return res.status(400).json('invalid collectionId!');
+
+  let lb, ub;
+  // artblocks
+  if (collectionId.includes(':')) {
+    [collectionId, lb, ub] = collectionId.split(':');
+  }
+
+  const query = minify(`
+SELECT
+    DATE(block_time) AS day,
+    SUM(royalty_fee_eth) AS eth,
+    SUM(royalty_fee_usd) AS usd
+FROM
+    ethereum.nft_trades AS t
+WHERE
+    collection = $<collectionId>
+            ${
+              lb
+                ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+                : ''
+            }
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ethereum.nft_trades_blacklist AS b
+      WHERE t.transaction_hash = b.transaction_hash
+    )
+GROUP BY
+    DATE(block_time)
+ORDER BY
+    DATE(block_time) ASC;
+  `);
+
+  const response = await indexa.query(query, {
+    collectionId: `\\${collectionId.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeader())
+    .status(200)
+    .json(response.map((c) => convertKeysToCamelCase(c)));
+};
+
 module.exports = {
   getSales,
   getStats,
@@ -397,4 +447,5 @@ module.exports = {
   getExchangeStats,
   getExchangeVolume,
   getRoyalties,
+  getRoyaltyHistory,
 };
