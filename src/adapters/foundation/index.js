@@ -18,7 +18,7 @@ const parse = (decodedData, event) => {
   let royaltyFeeEth;
   let royaltyFeeUsd;
 
-  if (creatorRev > 0) {
+  if (creatorRev > 0 && sellerRev > 0) {
     royaltyFeeEth = creatorRev.toString() / 1e18;
     royaltyFeeUsd = royaltyFeeEth * event.price;
   }
