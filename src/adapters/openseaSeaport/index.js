@@ -56,6 +56,7 @@ const parse = async (decodedData, event) => {
   let nftAmount;
   let seller;
   let buyer;
+  let tokenPriceUsd;
 
   const iType = Number(itemTypeO);
 
@@ -71,7 +72,7 @@ const parse = async (decodedData, event) => {
       salePrice = ethSalePrice = amountO.toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ salePrice, ethSalePrice, usdSalePrice } =
+      ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
         await getHistoricalTokenPrice(event, tokenO, amountO));
     }
 
@@ -94,7 +95,7 @@ const parse = async (decodedData, event) => {
           .toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ salePrice, ethSalePrice, usdSalePrice } =
+      ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
         await getHistoricalTokenPrice(event, tokenC, amountC));
     }
 
@@ -112,10 +113,16 @@ const parse = async (decodedData, event) => {
   let royaltyFeeEth;
   let royaltyFeeUsd;
   if (consideration.length > 2) {
-    ({ amount: royaltyFeeEth, recipient: royaltyRecipient } = consideration[2]);
+    ({ amount: royaltyFee, recipient: royaltyRecipient } = consideration[2]);
 
-    royaltyFeeEth = royaltyFeeEth.toString() / 1e18;
-    royaltyFeeUsd = royaltyFeeEth * event.price;
+    if (ethPaymentTokens.includes(paymentToken.toLowerCase())) {
+      royaltyFeeEth = royaltyFee.toString() / 1e18;
+      royaltyFeeUsd = royaltyFeeEth * event.price;
+    } else {
+      royaltyFee = royaltyFee.toString() / 1e18;
+      royaltyFeeUsd = royaltyFee * tokenPriceUsd;
+      royaltyFeeEth = royaltyFeeUsd / event.price;
+    }
   }
 
   return {

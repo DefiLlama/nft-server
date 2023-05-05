@@ -10,7 +10,12 @@ const getHistoricalTokenPrice = async (event, token, amount) => {
   const usdSalePrice = salePrice * response?.price;
   const ethSalePrice = usdSalePrice / event.price;
 
-  return { salePrice, ethSalePrice, usdSalePrice };
+  return {
+    salePrice,
+    ethSalePrice,
+    usdSalePrice,
+    tokenPriceUsd: response?.price,
+  };
 };
 
 module.exports = getHistoricalTokenPrice;
