@@ -115,7 +115,7 @@ const parse = async (decodedData, event) => {
   if (consideration.length > 2) {
     ({ amount: royaltyFee, recipient: royaltyRecipient } = consideration[2]);
 
-    if (ethPaymentTokens.includes(paymentToken.toLowerCase())) {
+    if (ethPaymentTokens.includes(paymentToken?.toLowerCase())) {
       royaltyFeeEth = royaltyFee.toString() / 1e18;
       royaltyFeeUsd = royaltyFeeEth * event.price;
     } else {
