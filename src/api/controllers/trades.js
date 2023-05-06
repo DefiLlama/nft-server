@@ -355,19 +355,24 @@ const getExchangeVolume = async (req, res) => {
 
 const getRoyalties = async (req, res) => {
   const query = minify(`
-WITH royalty_stats as (SELECT
+WITH royalty_stats as (
+  SELECT
     encode(collection, 'hex') as collection,
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "eth_1d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "eth_7d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "eth_30d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
-      SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d"
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "eth_1d",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "eth_7d",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "eth_30d",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
+    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
+    SUM(royalty_fee_eth) AS "eth_lifetime",
+    SUM(royalty_fee_usd) AS "usd_lifetime"
   FROM
-      ethereum.nft_trades
+    ethereum.nft_trades
   WHERE
-      royalty_fee_usd > 0
-  GROUP BY collection)
+    royalty_fee_usd > 0
+  GROUP BY
+    collection
+)
 SELECT
   *
 FROM
