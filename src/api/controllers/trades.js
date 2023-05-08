@@ -396,6 +396,49 @@ ORDER BY
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getRoyalty = async (req, res) => {
+  let collectionId = req.params.collectionId;
+  if (!checkCollection(collectionId))
+    return res.status(400).json('invalid collectionId!');
+
+  let lb, ub;
+  // artblocks
+  if (collectionId.includes(':')) {
+    [collectionId, lb, ub] = collectionId.split(':');
+  }
+
+  const query = minify(`
+SELECT
+  SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
+  SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
+  SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
+  SUM(royalty_fee_usd) AS "usd_lifetime"
+FROM
+  ethereum.nft_trades AS t
+WHERE
+  collection = $<collectionId>
+  AND royalty_fee_usd > 0
+  AND NOT EXISTS (
+    SELECT 1
+    FROM ethereum.nft_trades_blacklist AS b
+    WHERE t.transaction_hash = b.transaction_hash
+  )
+  `);
+
+  const response = await indexa.query(query, {
+    collectionId: `\\${collectionId.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeader())
+    .status(200)
+    .json(response.map((c) => convertKeysToCamelCase(c)));
+};
+
 const getRoyaltyHistory = async (req, res) => {
   let collectionId = req.params.collectionId;
   if (!checkCollection(collectionId))
@@ -453,4 +496,5 @@ module.exports = {
   getExchangeVolume,
   getRoyalties,
   getRoyaltyHistory,
+  getRoyalty,
 };

@@ -9,6 +9,7 @@ router.route('/exchangeVolume').get(trades.getExchangeVolume);
 router.route('/sales/:collectionId').get(trades.getSales);
 router.route('/stats/:collectionId').get(trades.getStats);
 router.route('/royalties').get(trades.getRoyalties);
+router.route('/royalty/:collectionId').get(trades.getRoyalty);
 router.route('/royaltyHistory/:collectionId').get(trades.getRoyaltyHistory);
 
 module.exports = router;
