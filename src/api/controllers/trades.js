@@ -358,13 +358,9 @@ const getRoyalties = async (req, res) => {
 WITH royalty_stats as (
   SELECT
     encode(collection, 'hex') as collection,
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_eth END) AS "eth_1d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_eth END) AS "eth_7d",
-    SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_eth END) AS "eth_30d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
-    SUM(royalty_fee_eth) AS "eth_lifetime",
     SUM(royalty_fee_usd) AS "usd_lifetime"
   FROM
     ethereum.nft_trades AS t
@@ -413,8 +409,7 @@ const getRoyaltyHistory = async (req, res) => {
 
   const query = minify(`
 SELECT
-    DATE(block_time) AS day,
-    SUM(royalty_fee_eth) AS eth,
+    EXTRACT(EPOCH FROM DATE(block_time)) AS day,
     SUM(royalty_fee_usd) AS usd
 FROM
     ethereum.nft_trades AS t
@@ -447,7 +442,7 @@ ORDER BY
   res
     .set(customHeader())
     .status(200)
-    .json(response.map((c) => convertKeysToCamelCase(c)));
+    .json(response.map((c) => [c.day, c.usd]));
 };
 
 module.exports = {
