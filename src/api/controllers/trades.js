@@ -367,9 +367,14 @@ WITH royalty_stats as (
     SUM(royalty_fee_eth) AS "eth_lifetime",
     SUM(royalty_fee_usd) AS "usd_lifetime"
   FROM
-    ethereum.nft_trades
+    ethereum.nft_trades AS t
   WHERE
     royalty_fee_usd > 0
+    AND NOT EXISTS (
+      SELECT 1
+      FROM ethereum.nft_trades_blacklist AS b
+      WHERE t.transaction_hash = b.transaction_hash
+    )
   GROUP BY
     collection
 )
