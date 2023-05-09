@@ -24,6 +24,7 @@ const getSales = async (req, res) => {
       ethereum.nft_trades AS t
   WHERE
       collection = $<collectionId>
+      AND block_time >= '2023-01-01 00:00'
       ${
         lb
           ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
@@ -84,6 +85,7 @@ FROM
     ethereum.nft_trades AS t
 WHERE
     collection = $<collectionId>
+    AND block_time >= '2023-01-01 00:00'
         ${
           lb
             ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
@@ -299,7 +301,8 @@ const getExchangeVolume = async (req, res) => {
     FROM
       ethereum.nft_trades AS t
     WHERE
-      NOT EXISTS (
+      block_time >= '2023-01-01 00:00'
+      AND NOT EXISTS (
         SELECT 1
         FROM ethereum.nft_wash_trades AS wt
         WHERE wt.transaction_hash = t.transaction_hash
