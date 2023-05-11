@@ -479,6 +479,8 @@ ORDER BY
 
   const response = await indexa.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
+    lb: Number(lb),
+    ub: Number(ub),
   });
 
   if (!response) {
