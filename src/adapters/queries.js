@@ -73,6 +73,17 @@ WHERE
     )
     AND e.block_number >= $<startBlock>
     AND e.block_number <= $<endBlock>
+    AND e.transaction_hash IN (
+	    SELECT
+            e.transaction_hash
+	    FROM
+            ethereum.event_logs e
+      WHERE
+            e.contract_address IN ($<contractAddresses:csv>)
+            AND e.topic_0 IN ($<eventSignatureHashes:csv>)
+            AND e.block_number >= $<startBlock>
+            AND e.block_number <= $<endBlock>
+	    )
 `;
 
 // like queryExtensive but:
