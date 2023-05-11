@@ -63,10 +63,12 @@ WHERE
         )
         OR (
             e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+            AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
             AND topic_3 IS NOT NULL
         )
         OR (
           e.topic_0 = '\\xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
+          AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
       )
     )
     AND e.block_number >= $<startBlock>
