@@ -5,6 +5,7 @@ const orderbook = require('./orderbook');
 const trimOrderbook = require('./trimOrderbook');
 const symbol = require('./symbol');
 const { tokenStandard } = require('./tokenStandard');
+const exchangeVolume = require('./exchangeVolume');
 
 const startJobs = () => {
   setInterval(async () => {
@@ -41,6 +42,11 @@ const startJobs = () => {
     console.log(`running tokenStandard job ${new Date()}...`);
     await tokenStandard();
   }, 60 * 60 * 1000);
+
+  setInterval(async () => {
+    console.log(`running exchangeVolume job ${new Date()}...`);
+    await exchangeVolume();
+  }, 24 * 60 * 60 * 1000);
 };
 
 startJobs();
