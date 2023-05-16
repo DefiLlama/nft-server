@@ -1,4 +1,10 @@
 const axios = require('axios');
+const axiosRetry = require('axios-retry');
+
+axiosRetry(axios, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+});
 
 const getHistoricalTokenPrice = async (event, token, amount) => {
   const timestamp = Math.round(Number(event.block_time) / 1000);

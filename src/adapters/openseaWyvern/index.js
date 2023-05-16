@@ -67,7 +67,7 @@ const parse = async (decodedData, event, events) => {
       paymentToken = x.contract_address;
 
       ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
-        await getHistoricalTokenPrice(event, paymentToken, price));
+        await getHistoricalTokenPrice(event, `0x${paymentToken}`, price));
     }
   } else {
     salePrice = ethSalePrice = price.toString() / 1e18;
