@@ -338,6 +338,29 @@ const buildDeleteQ = () => {
   return query;
 };
 
+const deleteTrades = async (config, startBlock, endBlock) => {
+  const query = buildDeleteQ();
+
+  // required for the delteteQ
+  const eventSignatureHashes = config.events.map(
+    (e) => `\\${e.signatureHash.slice(1)}`
+  );
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
+
+  const response = await indexa.result(query, {
+    contractAddresses,
+    eventSignatureHashes,
+    startBlock,
+    endBlock,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't delete from ethereum.nft_trades`, 404);
+  }
+
+  return response;
+};
+
 // --------- transaction query
 const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
   // build queries
@@ -445,6 +468,7 @@ module.exports = {
   getEvents,
   getMaxBlock,
   insertTrades,
+  deleteTrades,
   deleteAndInsertTrades,
   insertWashTrades,
 };

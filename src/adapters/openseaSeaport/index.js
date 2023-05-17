@@ -95,8 +95,12 @@ const parse = async (decodedData, event) => {
           .toString() / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {
-      ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
-        await getHistoricalTokenPrice(event, tokenC, amountC));
+      try {
+        ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
+          await getHistoricalTokenPrice(event, tokenC, amountC));
+      } catch (err) {
+        console.log('api price call failed');
+      }
     }
 
     collection = tokenO;

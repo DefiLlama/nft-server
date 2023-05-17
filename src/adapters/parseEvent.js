@@ -48,17 +48,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         interface
       );
 
-      // only keep parsed events with full information (except for optional royalty fields)
-      if (
-        Object.entries(parsedEvent).some(
-          (i) =>
-            [undefined, NaN].includes(i[1]) &&
-            !['royaltyRecipient', 'royaltyFeeEth', 'royaltyFeeUsd'].includes(
-              i[0]
-            )
-        ) ||
-        Object.keys(parsedEvent).length === 0
-      ) {
+      if (Object.keys(parsedEvent).length === 0) {
         return {};
       }
 
@@ -89,7 +79,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
       return {
         ...rest,
         ...parsedEvent,
-        buyer: aggregatorContracts.includes(parsedEvent.buyer.toLowerCase())
+        buyer: aggregatorContracts.includes(parsedEvent.buyer?.toLowerCase())
           ? event.from_address
           : parsedEvent.buyer,
         exchangeName: config.exchangeName,

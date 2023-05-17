@@ -67,11 +67,10 @@ const parse = async (decodedData, event, events) => {
       paymentToken = x.contract_address;
 
       try {
-        ({ salePrice, ethSalePrice, usdSalePrice, tokenPriceUsd } =
+        ({ salePrice, ethSalePrice, usdSalePrice, _ } =
           await getHistoricalTokenPrice(event, `0x${paymentToken}`, price));
       } catch (err) {
         console.log('api price call failed');
-        return {};
       }
     }
   } else {

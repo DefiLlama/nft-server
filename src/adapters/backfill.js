@@ -1,6 +1,6 @@
 const yargs = require('yargs');
 
-const { deleteAndInsertTrades, insertTrades } = require('./queries');
+const { deleteAndInsertTrades, deleteTrades } = require('./queries');
 const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
 const { indexa } = require('../utils/dbConnection');
@@ -25,14 +25,6 @@ const argv = yargs.options({
     demandOption: true,
     describe: 'block window size used for querying events from event_logs',
   },
-  deletePriorInsert: {
-    type: 'string',
-    demandOption: false,
-    default: 'true',
-    choices: ['true', 'false'],
-    describe:
-      'will delete any rows in the table prior to insertion by default. set to false to disable (eg useful for new adapter or older blockrange for which we dont have any data yet)',
-  },
   blockStop: {
     alias: 's',
     type: 'number',
@@ -43,7 +35,6 @@ const argv = yargs.options({
 
 const marketplace = argv.marketplace;
 let endBlock = argv.block;
-const deletePriorInsert = argv.deletePriorInsert === 'false' ? false : true;
 const blockRange = argv.blockRange;
 const blockStop = argv.blockStop;
 
@@ -61,25 +52,21 @@ const blockStop = argv.blockStop;
 
     if (trades.length) {
       const payload = castTypes(trades);
-      if (deletePriorInsert) {
-        const response = await deleteAndInsertTrades(
-          payload,
-          config,
-          startBlock,
-          endBlock
-        );
+      const response = await deleteAndInsertTrades(
+        payload,
+        config,
+        startBlock,
+        endBlock
+      );
 
-        console.log(
-          `filled ${startBlock}-${endBlock} [deleted: ${response.data[0].rowCount} inserted: ${response.data[1].rowCount}]`
-        );
-      } else {
-        const response = await insertTrades(payload);
-        console.log(
-          `filled blocks: ${startBlock}-${endBlock} [inserted: ${response.rowCount}]`
-        );
-      }
+      console.log(
+        `filled ${startBlock}-${endBlock} [deleted: ${response.data[0].rowCount} inserted: ${response.data[1].rowCount}]`
+      );
     } else {
-      console.log(`no events in ${startBlock}-${endBlock}`);
+      const response = await deleteTrades(config, startBlock, endBlock);
+      console.log(
+        `filled ${startBlock}-${endBlock} [deleted:  ${response.rowCount} inserted: 0]`
+      );
     }
 
     // update blocks
