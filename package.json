@@ -9,7 +9,7 @@
     "start:sync_nft_trades": "node src/adapters/index",
     "start:api": "node src/api/server",
     "start:jobs": "node src/jobs/index",
-    "start:backfillWyvern": "node src/adapters/backfill.js -m=openseaWyvern -b=10606675 -r=100 -s=4652926"
+    "start:backfillWyvern": "node src/adapters/backfill.js -m=openseaWyvern -b=11565018 -r=100 -s=4652926"
   },
   "author": "",
   "license": "ISC",
