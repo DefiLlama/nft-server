@@ -55,11 +55,9 @@ const parse = async (decodedData, event, events) => {
       const d = stripZerosLeft(`0x${t.data}`);
       return BigInt(d === '0x' ? '0x0' : d) === price;
     });
-    // if eth transfer (x === undefined) or weth payment token
-    if (
-      x === undefined ||
-      x.contract_address === 'c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-    ) {
+
+    if (x === undefined) return {};
+    if (x.contract_address === 'c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') {
       salePrice = ethSalePrice = price.toString() / 1e18;
       paymentToken = x?.contract_address ?? nullAddress;
       usdSalePrice = salePrice * event.price;
