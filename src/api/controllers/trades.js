@@ -431,7 +431,6 @@ JOIN
   ethereum.nft_collections c ON t.collection = c.collection
 WHERE
   t.collection = $<collectionId>
-  ${lb ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>" : ''}
   `);
 
   const response = await indexa.query(query, {
@@ -476,11 +475,6 @@ JOIN
     ethereum.nft_collections c ON t.collection = c.collection
 WHERE
     t.collection = $<collectionId>
-            ${
-              lb
-                ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-                : ''
-            }
 GROUP BY
     DATE(block_time)
 ORDER BY
@@ -489,8 +483,6 @@ ORDER BY
 
   const response = await indexa.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
-    lb: Number(lb),
-    ub: Number(ub),
   });
 
   if (!response) {

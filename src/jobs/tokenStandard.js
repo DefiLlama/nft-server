@@ -34,7 +34,7 @@ const fetchTokenStandard = async (ids) => {
       .map((x) => x.value.data.collections)
       .flat()
       .map((c) => ({
-        collection: Buffer.from(c.id.replace('0x', ''), 'hex'),
+        collection: c.id, // keep as string so we can remove dupes
         tokenStandard: Buffer.from(c.contractKind),
         royaltyRecipient: c?.royalties?.recipient
           ? Buffer.from(c?.royalties?.recipient.replace('0x', ''), 'hex')
@@ -46,7 +46,21 @@ const fetchTokenStandard = async (ids) => {
     await sleep(1000);
   }
 
-  return payload.map((i) => convertKeysToSnakeCase(i));
+  const payload_unique = [];
+  const seen = new Set();
+  for (const obj of payload) {
+    if (!seen.has(obj.collection)) {
+      payload_unique.push(obj);
+      seen.add(obj.collection);
+    }
+  }
+
+  return payload_unique
+    .map((i) => ({
+      ...i,
+      collection: Buffer.from(i.collection.replace('0x', ''), 'hex'),
+    }))
+    .map((i) => convertKeysToSnakeCase(i));
 };
 
 const insert = async (payload) => {
