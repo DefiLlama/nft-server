@@ -34,7 +34,7 @@ const fetchTokenStandard = async (ids) => {
       .map((x) => x.value.data.collections)
       .flat()
       .map((c) => ({
-        collection: c.id, // keep as string so we can remove dupes
+        collection: c.id.split(':')[0], // keep as string so we can remove dupes
         tokenStandard: Buffer.from(c.contractKind),
         royaltyRecipient: c?.royalties?.recipient
           ? Buffer.from(c?.royalties?.recipient.replace('0x', ''), 'hex')
