@@ -36,6 +36,10 @@ const fetchTokenStandard = async (ids) => {
       .map((c) => ({
         collection: Buffer.from(c.id.replace('0x', ''), 'hex'),
         tokenStandard: Buffer.from(c.contractKind),
+        royaltyRecipient: c?.royalties?.recipient
+          ? Buffer.from(c?.royalties?.recipient.replace('0x', ''), 'hex')
+          : null,
+        royaltyFeePct: c?.royalties?.bps ? c?.royalties?.bps / 100 : null,
       }));
 
     payload = [...payload, ...X];
@@ -46,7 +50,12 @@ const fetchTokenStandard = async (ids) => {
 };
 
 const insert = async (payload) => {
-  const columns = ['collection', 'tokenStandard'].map((c) => _.snakeCase(c));
+  const columns = [
+    'collection',
+    'tokenStandard',
+    'royaltyRecipient',
+    'royaltyFeePct',
+  ].map((c) => _.snakeCase(c));
   const cs = new pgp.helpers.ColumnSet(columns, {
     table: new pgp.helpers.TableName({
       schema: 'ethereum',
