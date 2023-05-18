@@ -376,13 +376,6 @@ WITH royalty_stats as (
     ethereum.nft_trades AS t
   JOIN
     ethereum.nft_collections c ON t.collection = c.collection
-  WHERE
-    royalty_fee_usd > 0
-    AND NOT EXISTS (
-      SELECT 1
-      FROM ethereum.nft_trades_blacklist AS b
-      WHERE t.transaction_hash = b.transaction_hash
-    )
   GROUP BY
     t.collection
   )
@@ -438,12 +431,7 @@ JOIN
   ethereum.nft_collections c ON t.collection = c.collection
 WHERE
   t.collection = $<collectionId>
-  AND royalty_fee_usd > 0
-  AND NOT EXISTS (
-    SELECT 1
-    FROM ethereum.nft_trades_blacklist AS b
-    WHERE t.transaction_hash = b.transaction_hash
-  )
+  ${lb ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>" : ''}
   `);
 
   const response = await indexa.query(query, {
@@ -493,11 +481,6 @@ WHERE
                 ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
                 : ''
             }
-    AND NOT EXISTS (
-      SELECT 1
-      FROM ethereum.nft_trades_blacklist AS b
-      WHERE t.transaction_hash = b.transaction_hash
-    )
 GROUP BY
     DATE(block_time)
 ORDER BY
