@@ -356,6 +356,30 @@ const getExchangeVolume = async (req, res) => {
     );
 };
 
+const getExchangeVolumeView = async (req, res) => {
+  const query = minify(`
+  SELECT
+    *
+  FROM
+    ethereum.nft_trades_exchange_volume
+`);
+
+  const response = await indexa.query(query);
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return res
+    .set(customHeader())
+    .status(200)
+    .json(
+      response
+        .map((i) => ({ ...i, exchange_name: formatName(i.exchange_name) }))
+        .map((c) => convertKeysToCamelCase(c))
+    );
+};
+
 const getRoyalties = async (req, res) => {
   const query = minify(`
 WITH royalty_stats as (
@@ -501,6 +525,7 @@ module.exports = {
   getVolume,
   getExchangeStats,
   getExchangeVolume,
+  getExchangeVolumeView,
   getRoyalties,
   getRoyaltyHistory,
   getRoyalty,
