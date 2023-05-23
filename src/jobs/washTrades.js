@@ -28,7 +28,7 @@ WITH counted_trades AS (
             AND fake_trades.log_index = trades.log_index
         )
 )
-SELECT
+SELECT DISTINCT
     transaction_hash,
     log_index
 FROM

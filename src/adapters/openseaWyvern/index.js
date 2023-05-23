@@ -24,12 +24,15 @@ const parse = async (decodedData, event, events) => {
 
   // find the first transfer event which has the from address in either topic_1 - topic_3
   // so we catch both cases of erc721 transfer and erc1155 TransferSingle
-  const transferEventNFT = transfersNFT.find(
-    (tf) =>
-      tf.topic_1.includes(event.from_address) ||
-      tf.topic_2.includes(event.from_address) ||
-      tf.topic_3.includes(event.from_address)
-  );
+  const transferEventNFT =
+    transfersNFT?.length === 1
+      ? transfersNFT[0]
+      : transfersNFT.find(
+          (tf) =>
+            tf.topic_1.includes(event.from_address) ||
+            tf.topic_2.includes(event.from_address) ||
+            tf.topic_3.includes(event.from_address)
+        );
 
   if (!transferEventNFT) return {};
 
