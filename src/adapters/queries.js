@@ -100,7 +100,8 @@ SELECT
     b.price,
     encode(t.from_address, 'hex') AS from_address,
     encode(t.to_address, 'hex') AS to_address,
-    a.name AS aggregator_name
+    a.name AS aggregator_name,
+    t.data AS tx_data
 FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time

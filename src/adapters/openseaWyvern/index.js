@@ -5,7 +5,7 @@ const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
 const getHistoricalTokenPrice = require('../../utils/price');
 
-const parse = async (decodedData, event, events) => {
+const parse = async (decodedData, event, events, interface) => {
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -51,6 +51,8 @@ const parse = async (decodedData, event, events) => {
   let salePrice;
   let ethSalePrice;
   let usdSalePrice;
+  let tokenPriceUsd;
+  let tokenDecimals;
 
   const nullAddress = '0x0000000000000000000000000000000000000000';
   if (transfersERC20.length) {
@@ -68,8 +70,13 @@ const parse = async (decodedData, event, events) => {
       paymentToken = x.contract_address;
 
       try {
-        ({ salePrice, ethSalePrice, usdSalePrice, _ } =
-          await getHistoricalTokenPrice(event, `0x${paymentToken}`, price));
+        ({
+          salePrice,
+          ethSalePrice,
+          usdSalePrice,
+          tokenPriceUsd,
+          tokenDecimals,
+        } = await getHistoricalTokenPrice(event, `0x${paymentToken}`, price));
       } catch (err) {
         console.log('api price call failed');
       }
@@ -78,6 +85,57 @@ const parse = async (decodedData, event, events) => {
     salePrice = ethSalePrice = price.toString() / 1e18;
     paymentToken = nullAddress;
     usdSalePrice = salePrice * event.price;
+  }
+
+  // royalty data: for direct interactions with the os wyvern contracts we can use
+  // tx-input data which contains all required info
+  let royaltyRecipient;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
+  if (config.contracts.includes(`0x${event.to_address}`)) {
+    const txData = `0x${event.tx_data.toString('hex')}`;
+    const funcSigHash = txData.slice(0, 10);
+    const { addrs, uints } = interface.decodeFunctionData(funcSigHash, txData);
+    const osWalletPP = Number(uints[0]); // basis point
+    const osWalletPlatformFee = salePrice * 0.025; // os platform fee
+
+    let osWalletTransferAmount;
+
+    if (osWalletPP > 0) {
+      const osWalletPct = osWalletPP / 1e4; // in % scaled
+      osWalletTransferAmount = salePrice * osWalletPct; // what gets transferred to OS wallet address (=OS fee + optional creator fee)
+    } else if (osWalletPP === 0) {
+      // some instances where we osWalletPP is 0 even though the os wallet received
+      // something, for example: 0xcf43a10f80378887b7261690d41b890aa0ef5026adbc5311b1e187c861653f82
+      const osWalletTransfer = transfersERC20.find(
+        (e) =>
+          e.topic_2 ===
+          '0000000000000000000000005b3256965e7c3cf26e11fcaf296dfc8807c01073'
+      );
+
+      const d = stripZerosLeft(`0x${osWalletTransfer?.data}`);
+      osWalletTransferAmount = BigInt(d === '0x' ? '0x0' : d).toString();
+
+      osWalletTransferAmount = tokenDecimals
+        ? osWalletTransferAmount / 10 ** tokenDecimals
+        : osWalletTransferAmount / 1e18;
+    }
+
+    const royaltyFee = osWalletTransferAmount - osWalletPlatformFee; // = creator fee
+    if (
+      paymentToken === nullAddress ||
+      paymentToken
+        .toLowerCase()
+        .includes('c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
+    ) {
+      royaltyFeeEth = royaltyFee;
+      royaltyFeeUsd = royaltyFee * event.price;
+    } else {
+      royaltyFeeUsd = royaltyFee * tokenPriceUsd;
+      royaltyFeeEth = royaltyFeeUsd / event.price;
+    }
+
+    royaltyRecipient = addrs[10];
   }
 
   // bundle trades:
@@ -107,6 +165,9 @@ const parse = async (decodedData, event, events) => {
         paymentToken,
         seller: maker,
         buyer: taker,
+        royaltyRecipient,
+        royaltyFeeEth: royaltyFeeEth / numberOfNftsSold,
+        royaltyFeeUsd: royaltyFeeUsd / numberOfNftsSold,
       };
     });
   }
@@ -121,6 +182,9 @@ const parse = async (decodedData, event, events) => {
     paymentToken,
     seller: maker,
     buyer: taker,
+    royaltyRecipient,
+    royaltyFeeEth,
+    royaltyFeeUsd,
   };
 };
 
