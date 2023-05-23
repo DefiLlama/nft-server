@@ -76,6 +76,22 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         ...rest
       } = event;
 
+      // for opensea wyvern bundle trades only
+      if (config.version === 'wyvern' && parsedEvent.length) {
+        return parsedEvent.map((e) => {
+          return {
+            ...rest,
+            ...e,
+            buyer: aggregatorContracts.includes(e.buyer?.toLowerCase())
+              ? event.from_address
+              : e.buyer,
+            exchangeName: config.exchangeName,
+            aggregatorName,
+            aggregatorAddress,
+          };
+        });
+      }
+
       return {
         ...rest,
         ...parsedEvent,
@@ -90,7 +106,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   );
 
   // remove empty objects
-  return parsedEvents.filter((event) => event.collection);
+  return parsedEvents.flat().filter((event) => event.collection);
 };
 
 module.exports = parseEvent;

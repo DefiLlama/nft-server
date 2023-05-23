@@ -77,6 +77,37 @@ const parse = async (decodedData, event, events) => {
     usdSalePrice = salePrice * event.price;
   }
 
+  // bundle trades:
+  // if to_address was wyvern exchange contracts and if more than 1 nft was transferred then
+  // it was a bundle trade, for which we scale the total sale price from the ordersMatched event
+  // by the nb of nft-transfers (= the individual sales)
+  const numberOfNftsSold = transfersNFT.length;
+  if (
+    config.contracts.includes(`0x${event.to_address}`) &&
+    numberOfNftsSold > 1
+  ) {
+    return transfersNFT.map((t) => {
+      let tokenId;
+      if (t.topic_0 === nftTransferEvents['erc721_Transfer']) {
+        tokenId = BigInt(`0x${t.topic_3}`);
+      } else if (t.topic_0 === nftTransferEvents['erc1155_TransferSingle']) {
+        tokenId = BigInt(`0x${t.data.slice(0, 64)}`);
+      }
+
+      return {
+        collection: t.contract_address,
+        tokenId,
+        amount: 1,
+        salePrice: salePrice / numberOfNftsSold,
+        ethSalePrice: ethSalePrice / numberOfNftsSold,
+        usdSalePrice: usdSalePrice / numberOfNftsSold,
+        paymentToken,
+        seller: maker,
+        buyer: taker,
+      };
+    });
+  }
+
   return {
     collection: transferEventNFT.contract_address,
     tokenId,
