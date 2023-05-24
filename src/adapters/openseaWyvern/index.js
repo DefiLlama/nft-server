@@ -144,8 +144,8 @@ const parse = async (decodedData, event, events, interface, trace) => {
   } else {
     // b)
     osWalletTransferAmount = tokenDecimals
-      ? trace.value / 10 ** tokenDecimals
-      : trace.value / 1e18;
+      ? trace?.value / 10 ** tokenDecimals
+      : trace?.value / 1e18;
   }
 
   royaltyFee =
