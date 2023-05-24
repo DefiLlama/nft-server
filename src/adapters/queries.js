@@ -230,9 +230,9 @@ SELECT
 FROM
     ethereum.traces
 WHERE
-    transaction_hash IN ($<txHashes:csv>)
+    to_address = '\\x5b3256965e7c3cf26e11fcaf296dfc8807c01073'
+    AND transaction_hash IN ($<txHashes:csv>)
     AND from_address IN ($<contractAddresses:csv>)
-    AND to_address = '\\x5b3256965e7c3cf26e11fcaf296dfc8807c01073'
     AND block_number >= $<startBlock>
     AND block_number <= $<endBlock>
 `;

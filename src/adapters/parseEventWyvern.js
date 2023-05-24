@@ -26,18 +26,16 @@ const parseEventWyvern = async (
     config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
   );
 
-  // filter for marketplaceEvents from aggregator
+  // traces are required to calc royalty fee in the context of
+  // tx originating from aggregators (the trace contains the individual os wallet amount.
+  // filter the mplace event array to aggregator events only
   const aggregatorTransactions = marketplaceEvents.filter(
     (i) => !config.contracts.includes(`0x${i.to_address}`)
   );
   const traces = aggregatorTransactions.length
-    ? await getTraces(
-        task,
-        startBlock,
-        endBlock,
-        config,
-        aggregatorTransactions.map((i) => i.transaction_hash)
-      )
+    ? await getTraces(task, startBlock, endBlock, config, [
+        ...new Set(aggregatorTransactions.map((i) => i.transaction_hash)),
+      ])
     : [];
 
   // will be empty for all marketplace for which we don't read nft transfer events
