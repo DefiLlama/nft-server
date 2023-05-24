@@ -113,7 +113,10 @@ const parse = async (decodedData, event, events, interface) => {
           '0000000000000000000000005b3256965e7c3cf26e11fcaf296dfc8807c01073'
       );
 
-      const d = stripZerosLeft(`0x${osWalletTransfer?.data}`);
+      // also cases with no oswallet transfer at all: 0x4358c887190cc6b0397cadadd7a126a0d535583df5cfd473bd1f6633458dc54d
+      const d = osWalletTransfer
+        ? stripZerosLeft(`0x${osWalletTransfer?.data}`)
+        : '0x';
       osWalletTransferAmount = BigInt(d === '0x' ? '0x0' : d).toString();
 
       osWalletTransferAmount = tokenDecimals
@@ -121,7 +124,10 @@ const parse = async (decodedData, event, events, interface) => {
         : osWalletTransferAmount / 1e18;
     }
 
-    const royaltyFee = osWalletTransferAmount - osWalletPlatformFee; // = creator fee
+    const royaltyFee =
+      osWalletTransferAmount > 0
+        ? osWalletTransferAmount - osWalletPlatformFee
+        : 0; // = creator fee
     if (
       paymentToken === nullAddress ||
       paymentToken
