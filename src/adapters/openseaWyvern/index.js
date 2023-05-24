@@ -142,12 +142,21 @@ const parse = async (decodedData, event, events, interface) => {
   // if to_address was wyvern exchange contracts and if more than 1 nft was transferred then
   // it was a bundle trade, for which we scale the total sale price from the ordersMatched event
   // by the nb of nft-transfers (= the individual sales)
-  const numberOfNftsSold = transfersNFT.length;
+
+  // some contracts have bugs like this one 0x2aF75676692817d85121353f0D6e8E9aE6AD5576
+  // which emits both erc1155 and er721 transfer events for the same tokenId. -> remove duplicated entries
+  const transfersNFTunique = transfersNFT.filter(
+    (obj, index, self) =>
+      index ===
+      self.findIndex((el) => el.contract_address === obj.contract_address)
+  );
+  const numberOfNftsSold = transfersNFTunique.length;
+
   if (
     config.contracts.includes(`0x${event.to_address}`) &&
     numberOfNftsSold > 1
   ) {
-    return transfersNFT.map((t) => {
+    return transfersNFTunique.map((t) => {
       let tokenId;
       if (t.topic_0 === nftTransferEvents['erc721_Transfer']) {
         tokenId = BigInt(`0x${t.topic_3}`);
