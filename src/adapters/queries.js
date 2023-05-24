@@ -222,6 +222,21 @@ WHERE
     AND e.block_number <= $<endBlock>
 `;
 
+const queryTraces = `
+SELECT
+    trace_index,
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    value
+FROM
+    ethereum.traces
+WHERE
+    transaction_hash IN ($<txHashes:csv>)
+    AND from_address IN ($<contractAddresses:csv>)
+    AND to_address = '\\x5b3256965e7c3cf26e11fcaf296dfc8807c01073'
+    AND block_number >= $<startBlock>
+    AND block_number <= $<endBlock>
+`;
+
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
 // which doesn't work with conn.query
 const getEvents = async (task, startBlock, endBlock, config) => {
@@ -272,6 +287,24 @@ FROM
   }
 
   return response[0].max;
+};
+
+const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
+  txHashes = txHashes.map((h) => `\\x${h}`);
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
+
+  const response = await task.query(minify(queryTraces, { compress: false }), {
+    txHashes,
+    startBlock,
+    endBlock,
+    contractAddresses,
+  });
+
+  if (!response) {
+    return new Error('getEvents failed', 404);
+  }
+
+  return response;
 };
 
 const buildInsertQ = (payload) => {
@@ -408,6 +441,7 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
 module.exports = {
   getEvents,
   getMaxBlock,
+  getTraces,
   insertTrades,
   deleteTrades,
   deleteAndInsertTrades,

@@ -1,7 +1,6 @@
 const yargs = require('yargs');
 
 const { deleteAndInsertTrades, deleteTrades } = require('./queries');
-const parseEvent = require('./parseEvent');
 const castTypes = require('../utils/castTypes');
 const { indexa } = require('../utils/dbConnection');
 
@@ -42,6 +41,11 @@ const blockStop = argv.blockStop;
   console.log(`==== Refill ${marketplace} ====`);
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
+  const parseEvent =
+    config.version === 'wyvern'
+      ? require('./parseEventWyvern')
+      : require('./parseEvent');
+
   let startBlock = endBlock - blockRange;
 
   console.log(`starting refill from ${endBlock}...`);

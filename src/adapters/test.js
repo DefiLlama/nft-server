@@ -1,6 +1,5 @@
 const yargs = require('yargs');
 
-const parseEvent = require('./parseEvent');
 const { getMaxBlock } = require('./queries');
 const { blockRangeTest } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
@@ -42,6 +41,11 @@ const argv = yargs.options({
   const start = time();
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
+
+  const parseEvent =
+    config.version === 'wyvern'
+      ? require('./parseEventWyvern')
+      : require('./parseEvent');
 
   const endBlock = !block
     ? await indexa.task(async (t) => {

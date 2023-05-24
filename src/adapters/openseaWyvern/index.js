@@ -5,7 +5,7 @@ const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
 const getHistoricalTokenPrice = require('../../utils/price');
 
-const parse = async (decodedData, event, events, interface) => {
+const parse = async (decodedData, event, events, interface, trace) => {
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -90,6 +90,7 @@ const parse = async (decodedData, event, events, interface) => {
   // royalty data: for direct interactions with the os wyvern contracts we can use
   // tx-input data which contains all required info
   let royaltyRecipient;
+  let royaltyFee;
   let royaltyFeeEth;
   let royaltyFeeUsd;
   if (config.contracts.includes(`0x${event.to_address}`)) {
@@ -124,24 +125,36 @@ const parse = async (decodedData, event, events, interface) => {
         : osWalletTransferAmount / 1e18;
     }
 
-    const royaltyFee =
+    royaltyFee =
       osWalletTransferAmount > 0
         ? osWalletTransferAmount - osWalletPlatformFee
         : 0; // = creator fee
-    if (
-      paymentToken === nullAddress ||
-      paymentToken
-        .toLowerCase()
-        .includes('c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
-    ) {
-      royaltyFeeEth = royaltyFee;
-      royaltyFeeUsd = royaltyFee * event.price;
-    } else {
-      royaltyFeeUsd = royaltyFee * tokenPriceUsd;
-      royaltyFeeEth = royaltyFeeUsd / event.price;
-    }
 
     royaltyRecipient = addrs[10];
+  } else {
+    // aggregator sweep -> get os wallet value from trace
+    const osWalletPlatformFee = salePrice * 0.025; // os platform fee
+    const osWalletTransferAmount = tokenDecimals
+      ? trace.value / 10 ** tokenDecimals
+      : trace.value / 1e18;
+
+    royaltyFee =
+      osWalletTransferAmount > 0
+        ? osWalletTransferAmount - osWalletPlatformFee
+        : 0; // = creator fee
+  }
+
+  if (
+    paymentToken === nullAddress ||
+    paymentToken
+      .toLowerCase()
+      .includes('c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
+  ) {
+    royaltyFeeEth = royaltyFee;
+    royaltyFeeUsd = royaltyFee * event.price;
+  } else {
+    royaltyFeeUsd = royaltyFee * tokenPriceUsd;
+    royaltyFeeEth = royaltyFeeUsd / event.price;
   }
 
   // bundle trades:
