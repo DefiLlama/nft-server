@@ -18,10 +18,19 @@ const parse = async (decodedData, event, events, interface, trace) => {
   const transfersERC20LogIndices = transfersERC20.map((i) => i.log_index);
 
   // erc721/erc1155 transfers
-  const transfersNFT = transfers.filter(
+  let transfersNFT = transfers.filter(
     (e) => !transfersERC20LogIndices.includes(e.log_index)
   );
 
+  // some contracts have bugs like this one 0x2aF75676692817d85121353f0D6e8E9aE6AD5576
+  // which emits both erc1155 and er721 transfer events for the same tokenId. -> remove duplicated entries
+  transfersNFT = transfersNFT.filter(
+    (obj, index, self) =>
+      index ===
+      self.findIndex((el) => el.contract_address === obj.contract_address)
+  );
+
+  // --- collection + tokenId
   // find the first transfer event which has the from address in either topic_1 - topic_3
   // so we catch both cases of erc721 transfer and erc1155 TransferSingle
   const transferEventNFT =
@@ -47,6 +56,7 @@ const parse = async (decodedData, event, events, interface, trace) => {
 
   const { maker, taker, price } = decodedData;
 
+  // --- sale info
   let paymentToken;
   let salePrice;
   let ethSalePrice;
@@ -87,20 +97,25 @@ const parse = async (decodedData, event, events, interface, trace) => {
     usdSalePrice = salePrice * event.price;
   }
 
-  // royalty data: for direct interactions with the os wyvern contracts we can use
-  // tx-input data which contains all required info
+  // --- royalty data
+  // we calculate this via: osWalletTransferAmount - salePrice * 0.025
+  // where we get osWalletTransferAmount from:
+  // - a) tx-input data in case of direct interactions with the os wyvern contracts
+  // - b) traces in case of tx from aggregator
+
   let royaltyRecipient;
   let royaltyFee;
   let royaltyFeeEth;
   let royaltyFeeUsd;
+
+  let osWalletTransferAmount;
+  const osWalletPlatformFee = salePrice * 0.025; // os platform fee
+  // a)
   if (config.contracts.includes(`0x${event.to_address}`)) {
     const txData = `0x${event.tx_data.toString('hex')}`;
     const funcSigHash = txData.slice(0, 10);
     const { addrs, uints } = interface.decodeFunctionData(funcSigHash, txData);
     const osWalletPP = Number(uints[0]); // basis point
-    const osWalletPlatformFee = salePrice * 0.025; // os platform fee
-
-    let osWalletTransferAmount;
 
     if (osWalletPP > 0) {
       const osWalletPct = osWalletPP / 1e4; // in % scaled
@@ -125,24 +140,18 @@ const parse = async (decodedData, event, events, interface, trace) => {
         : osWalletTransferAmount / 1e18;
     }
 
-    royaltyFee =
-      osWalletTransferAmount > 0
-        ? osWalletTransferAmount - osWalletPlatformFee
-        : 0; // = creator fee
-
     royaltyRecipient = addrs[10];
   } else {
-    // aggregator sweep -> get os wallet value from trace
-    const osWalletPlatformFee = salePrice * 0.025; // os platform fee
-    const osWalletTransferAmount = tokenDecimals
+    // b)
+    osWalletTransferAmount = tokenDecimals
       ? trace.value / 10 ** tokenDecimals
       : trace.value / 1e18;
-
-    royaltyFee =
-      osWalletTransferAmount > 0
-        ? osWalletTransferAmount - osWalletPlatformFee
-        : 0; // = creator fee
   }
+
+  royaltyFee =
+    osWalletTransferAmount > 0
+      ? osWalletTransferAmount - osWalletPlatformFee
+      : 0;
 
   if (
     paymentToken === nullAddress ||
@@ -157,25 +166,18 @@ const parse = async (decodedData, event, events, interface, trace) => {
     royaltyFeeEth = royaltyFeeUsd / event.price;
   }
 
-  // bundle trades:
+  // --- bundle trades
   // if to_address was wyvern exchange contracts and if more than 1 nft was transferred then
   // it was a bundle trade, for which we scale the total sale price from the ordersMatched event
-  // by the nb of nft-transfers (= the individual sales)
+  // by the nb of nft-transfers (= the individual sales). this is only required for direct tx on os but not
+  // for aggregators cause in that case we have 1 sales event per sale
 
-  // some contracts have bugs like this one 0x2aF75676692817d85121353f0D6e8E9aE6AD5576
-  // which emits both erc1155 and er721 transfer events for the same tokenId. -> remove duplicated entries
-  const transfersNFTunique = transfersNFT.filter(
-    (obj, index, self) =>
-      index ===
-      self.findIndex((el) => el.contract_address === obj.contract_address)
-  );
-  const numberOfNftsSold = transfersNFTunique.length;
-
+  const numberOfNftsSold = transfersNFT?.length;
   if (
     config.contracts.includes(`0x${event.to_address}`) &&
     numberOfNftsSold > 1
   ) {
-    return transfersNFTunique.map((t) => {
+    return transfersNFT.map((t) => {
       let tokenId;
       if (t.topic_0 === nftTransferEvents['erc721_Transfer']) {
         tokenId = BigInt(`0x${t.topic_3}`);
