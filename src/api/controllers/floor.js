@@ -49,7 +49,7 @@ WITH latest AS (
     FROM
         floor
     WHERE
-        timestamp >= CURRENT_DATE
+        timestamp >= '2023-05-24 00:00'
         AND floor_price IS NOT NULL
     ORDER BY
         collection_id,
