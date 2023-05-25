@@ -109,35 +109,32 @@ const parse = async (decodedData, event, events, interface, trace) => {
   let royaltyFeeUsd;
 
   let osWalletTransferAmount;
+  let osWalletPP;
   const osWalletPlatformFee = salePrice * 0.025; // os platform fee
   // a)
   if (config.contracts.includes(`0x${event.to_address}`)) {
     const txData = `0x${event.tx_data.toString('hex')}`;
     const funcSigHash = txData.slice(0, 10);
 
-    let addrs, uints;
     try {
-      ({ addrs, uints } = interface.decodeFunctionData(funcSigHash, txData));
+      const { addrs, uints } = interface.decodeFunctionData(
+        funcSigHash,
+        txData
+      );
+      royaltyRecipient = addrs[10];
+      osWalletPP = Number(uints[0]); // basis point
     } catch (err) {
       console.log(event.transaction_hash);
-      console.log(err);
 
-      return {
-        collection: transferEventNFT.contract_address,
-        tokenId,
-        amount: 1,
-        salePrice,
-        ethSalePrice,
-        usdSalePrice,
-        paymentToken,
-        seller: maker,
-        buyer: taker,
-        royaltyRecipient,
-        royaltyFeeEth,
-        royaltyFeeUsd,
-      };
+      // for wyvern v2 decoding breaks (not sure yet why, abi seems fine)
+      // extract relevant info manually
+      royaltyRecipient = stripZerosLeft(
+        `0x${txData.slice(10 + 64 * 10, 10 + 64 * 11)}`
+      );
+      osWalletPP = Number(
+        BigInt(`0x${txData.slice(10 + 64 * 14, 10 + 64 * 15)}`)
+      );
     }
-    const osWalletPP = Number(uints[0]); // basis point
 
     if (osWalletPP > 0) {
       const osWalletPct = osWalletPP / 1e4; // in % scaled
@@ -161,8 +158,6 @@ const parse = async (decodedData, event, events, interface, trace) => {
         ? osWalletTransferAmount / 10 ** tokenDecimals
         : osWalletTransferAmount / 1e18;
     }
-
-    royaltyRecipient = addrs[10];
   } else {
     // b)
     osWalletTransferAmount = tokenDecimals
