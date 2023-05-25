@@ -21,8 +21,7 @@ const fetchTokenStandard = async (ids) => {
     requests.push(`${api}/collections/v5?contract=${batch}`);
   }
 
-  // free api key rate limite = 4RPS
-  const rateLimit = 4;
+  const rateLimit = 2;
   let payload = [];
   for (let i = 0; i <= requests.length; i += rateLimit) {
     const X = (

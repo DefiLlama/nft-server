@@ -41,22 +41,20 @@ const insert = async (payload) => {
 
 const orders = async (collections, route, timestamp) => {
   let d = [];
-  const rateLimit = 4;
+  const rateLimit = 2;
   for (let i = 0; i <= collections.length; i += rateLimit) {
     console.log(i);
-    const calls = collections
+    const requests = collections
       .slice(i, rateLimit + i)
-      .map((c) =>
-        axios.get(
+      .map(
+        (c) =>
           `${api}/orders/${route}?status=active&limit=${1000}&contracts=${
             c.collection_id
-          }`,
-          apiKey
-        )
+          }`
       );
-    const X = (await Promise.allSettled(calls)).filter(
-      (x) => x.status === 'fulfilled'
-    );
+    const X = (
+      await Promise.allSettled(requests.map((r) => axios.get(r, apiKey)))
+    ).filter((x) => x.status === 'fulfilled');
 
     for (const x of X) {
       const valueCounts = x.value.data.orders?.reduce((acc, val) => {
