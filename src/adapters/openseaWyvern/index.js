@@ -114,7 +114,29 @@ const parse = async (decodedData, event, events, interface, trace) => {
   if (config.contracts.includes(`0x${event.to_address}`)) {
     const txData = `0x${event.tx_data.toString('hex')}`;
     const funcSigHash = txData.slice(0, 10);
-    const { addrs, uints } = interface.decodeFunctionData(funcSigHash, txData);
+
+    let addrs, uints;
+    try {
+      ({ addrs, uints } = interface.decodeFunctionData(funcSigHash, txData));
+    } catch (err) {
+      console.log(event.transaction_hash);
+      console.log(err);
+
+      return {
+        collection: transferEventNFT.contract_address,
+        tokenId,
+        amount: 1,
+        salePrice,
+        ethSalePrice,
+        usdSalePrice,
+        paymentToken,
+        seller: maker,
+        buyer: taker,
+        royaltyRecipient,
+        royaltyFeeEth,
+        royaltyFeeUsd,
+      };
+    }
     const osWalletPP = Number(uints[0]); // basis point
 
     if (osWalletPP > 0) {
