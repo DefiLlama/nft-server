@@ -21,6 +21,7 @@ const getHistoricalTokenPrice = async (event, token, amount) => {
     ethSalePrice,
     usdSalePrice,
     tokenPriceUsd: response?.price,
+    tokenDecimals: response?.decimals,
   };
 };
 

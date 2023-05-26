@@ -100,7 +100,8 @@ SELECT
     b.price,
     encode(t.from_address, 'hex') AS from_address,
     encode(t.to_address, 'hex') AS to_address,
-    a.name AS aggregator_name
+    a.name AS aggregator_name,
+    t.data AS tx_data
 FROM
     ethereum.event_logs e
     LEFT JOIN ethereum.blocks b ON e.block_time = b.time
@@ -115,6 +116,7 @@ WHERE
         OR (
             e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
             AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+            AND topic_2 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
             AND topic_3 IS NOT NULL
         )
         OR (
@@ -269,7 +271,21 @@ WHERE
             AND e.topic_0 IN ($<eventSignatureHashes:csv>)
             AND e.block_number >= $<startBlock>
             AND e.block_number <= $<endBlock>
-    )
+    )`;
+
+const queryTraces = `
+SELECT
+    trace_index,
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    value
+FROM
+    ethereum.traces
+WHERE
+    to_address = '\\x5b3256965e7c3cf26e11fcaf296dfc8807c01073'
+    AND transaction_hash IN ($<txHashes:csv>)
+    AND from_address IN ($<contractAddresses:csv>)
+    AND block_number >= $<startBlock>
+    AND block_number <= $<endBlock>
 `;
 
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
@@ -324,6 +340,24 @@ FROM
   }
 
   return response[0].max;
+};
+
+const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
+  txHashes = txHashes.map((h) => `\\x${h}`);
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
+
+  const response = await task.query(minify(queryTraces, { compress: false }), {
+    txHashes,
+    startBlock,
+    endBlock,
+    contractAddresses,
+  });
+
+  if (!response) {
+    return new Error('getEvents failed', 404);
+  }
+
+  return response;
 };
 
 const buildInsertQ = (payload) => {
@@ -392,6 +426,29 @@ const buildDeleteQ = () => {
   return query;
 };
 
+const deleteTrades = async (config, startBlock, endBlock) => {
+  const query = buildDeleteQ();
+
+  // required for the delteteQ
+  const eventSignatureHashes = config.events.map(
+    (e) => `\\${e.signatureHash.slice(1)}`
+  );
+  const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
+
+  const response = await indexa.result(query, {
+    contractAddresses,
+    eventSignatureHashes,
+    startBlock,
+    endBlock,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't delete from ethereum.nft_trades`, 404);
+  }
+
+  return response;
+};
+
 // --------- transaction query
 const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
   // build queries
@@ -434,71 +491,11 @@ const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
     });
 };
 
-const insertWashTrades = async (start, stop) => {
-  const query = minify(`
-INSERT INTO ethereum.nft_wash_trades (transaction_hash, log_index)
-WITH counted_trades AS (
-    SELECT
-        transaction_hash,
-        log_index,
-        buyer,
-        seller,
-        collection,
-        token_id,
-        COUNT(*) OVER (PARTITION BY seller, collection, token_id) AS seller_count,
-        COUNT(*) OVER (PARTITION BY buyer, collection, token_id) AS buyer_count
-    FROM
-        ethereum.nft_trades as trades
-    WHERE
-        block_number BETWEEN $<start>
-        AND $<stop>
-        AND NOT EXISTS (
-          SELECT 1
-          FROM ethereum.nft_wash_trades as fake_trades
-          WHERE fake_trades.transaction_hash = trades.transaction_hash
-            AND fake_trades.log_index = trades.log_index
-        )
-)
-SELECT
-    transaction_hash,
-    log_index
-FROM
-    counted_trades
-LEFT JOIN
-    ethereum.nft_collections nc ON counted_trades.collection = nc.collection
-WHERE
-    buyer = seller
-    OR EXISTS (
-        SELECT
-            1
-        FROM
-            ethereum.nft_trades t
-        WHERE
-            t.seller = counted_trades.buyer
-            AND t.buyer = counted_trades.seller
-            AND t.collection = counted_trades.collection
-            AND t.token_id = counted_trades.token_id
-            AND t.transaction_hash <> counted_trades.transaction_hash
-    )
-    OR (
-      (seller_count >= 3 OR buyer_count >= 3)
-      AND token_standard = 'erc721'
-  )
-  `);
-
-  const response = await indexa.result(query, { start, stop });
-
-  if (!response) {
-    return new Error(`Couldn't insert into ethereum.nft_wash_trades`, 404);
-  }
-
-  return response;
-};
-
 module.exports = {
   getEvents,
   getMaxBlock,
+  getTraces,
   insertTrades,
+  deleteTrades,
   deleteAndInsertTrades,
-  insertWashTrades,
 };

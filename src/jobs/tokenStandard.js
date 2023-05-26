@@ -21,8 +21,7 @@ const fetchTokenStandard = async (ids) => {
     requests.push(`${api}/collections/v5?contract=${batch}`);
   }
 
-  // free api key rate limite = 4RPS
-  const rateLimit = 4;
+  const rateLimit = 2;
   let payload = [];
   for (let i = 0; i <= requests.length; i += rateLimit) {
     const X = (
@@ -34,19 +33,42 @@ const fetchTokenStandard = async (ids) => {
       .map((x) => x.value.data.collections)
       .flat()
       .map((c) => ({
-        collection: Buffer.from(c.id.replace('0x', ''), 'hex'),
+        collection: c.id.split(':')[0], // keep as string so we can remove dupes
         tokenStandard: Buffer.from(c.contractKind),
+        royaltyRecipient: c?.royalties?.recipient
+          ? Buffer.from(c?.royalties?.recipient.replace('0x', ''), 'hex')
+          : null,
+        royaltyFeePct: c?.royalties?.bps ? c?.royalties?.bps / 100 : null,
       }));
 
     payload = [...payload, ...X];
     await sleep(1000);
   }
 
-  return payload.map((i) => convertKeysToSnakeCase(i));
+  const payload_unique = [];
+  const seen = new Set();
+  for (const obj of payload) {
+    if (!seen.has(obj.collection)) {
+      payload_unique.push(obj);
+      seen.add(obj.collection);
+    }
+  }
+
+  return payload_unique
+    .map((i) => ({
+      ...i,
+      collection: Buffer.from(i.collection.replace('0x', ''), 'hex'),
+    }))
+    .map((i) => convertKeysToSnakeCase(i));
 };
 
 const insert = async (payload) => {
-  const columns = ['collection', 'tokenStandard'].map((c) => _.snakeCase(c));
+  const columns = [
+    'collection',
+    'tokenStandard',
+    'royaltyRecipient',
+    'royaltyFeePct',
+  ].map((c) => _.snakeCase(c));
   const cs = new pgp.helpers.ColumnSet(columns, {
     table: new pgp.helpers.TableName({
       schema: 'ethereum',

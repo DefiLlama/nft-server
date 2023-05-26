@@ -109,15 +109,20 @@ const job = async () => {
   const requests = [];
   for (let i = 0; i < ids.length; i += size) {
     const batch = ids.slice(i, size + i).join('&contract=');
-    requests.push(axios.get(`${api}/collections/v5?contract=${batch}`, apiKey));
+    requests.push(`${api}/collections/v5?contract=${batch}`);
   }
 
-  // free api key rate limite = 4RPS
-  const rateLimit = 4;
+  // free api key rate limite = 120credits/min (collections endpoint 1 credit = 1 request)
+  // -> setting 2rps
+  const rateLimit = 2;
   let collectionDetails = [];
   for (let i = 0; i <= requests.length; i += rateLimit) {
     console.log(i);
-    const X = (await Promise.allSettled(requests.slice(i, rateLimit + i)))
+    const X = (
+      await Promise.allSettled(
+        requests.slice(i, rateLimit + i).map((r) => axios.get(r, apiKey))
+      )
+    )
       .filter((x) => x.status === 'fulfilled')
       .map((x) => x.value.data.collections)
       .flat();

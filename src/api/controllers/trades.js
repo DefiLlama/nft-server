@@ -291,53 +291,10 @@ FROM
 
 const getExchangeVolume = async (req, res) => {
   const query = minify(`
-  WITH trades AS (
-    SELECT
-      block_time,
-      LOWER(encode(exchange_name, 'escape')) AS exchange_name,
-      LOWER(encode(aggregator_name, 'escape')) AS aggregator_name,
-      eth_sale_price,
-      usd_sale_price
-    FROM
-      ethereum.nft_trades AS t
-    WHERE
-      block_time >= '2023-01-01 00:00'
-      AND NOT EXISTS (
-        SELECT 1
-        FROM ethereum.nft_wash_trades AS wt
-        WHERE wt.transaction_hash = t.transaction_hash
-          AND wt.log_index = t.log_index
-      )
-      AND NOT EXISTS (
-        SELECT 1
-        FROM ethereum.nft_trades_blacklist AS b
-        WHERE t.transaction_hash = b.transaction_hash
-      )
-  ),
-  trades_ AS (
-    SELECT
-      CASE
-        WHEN exchange_name = aggregator_name THEN exchange_name || '-aggregator'
-        WHEN aggregator_name IS NULL THEN exchange_name
-        ELSE aggregator_name
-      END AS exchange_name,
-        block_time,
-        eth_sale_price,
-        usd_sale_price
-    FROM
-      trades
-  )
   SELECT
-    DATE(block_time) AS day,
-    exchange_name,
-    SUM(eth_sale_price),
-    SUM(usd_sale_price) AS sum_usd,
-    COUNT(eth_sale_price)
+    *
   FROM
-    trades_
-  GROUP BY
-    DATE(block_time),
-    exchange_name;
+    ethereum.nft_trades_exchange_volume
 `);
 
   const response = await indexa.query(query);
@@ -360,29 +317,31 @@ const getRoyalties = async (req, res) => {
   const query = minify(`
 WITH royalty_stats as (
   SELECT
-    encode(collection, 'hex') as collection,
+    encode(t.collection, 'hex') as collection,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
-    SUM(royalty_fee_usd) AS "usd_lifetime"
+    SUM(
+      CASE
+        WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
+          usd_sale_price * royalty_fee_pct / 100
+        ELSE
+          royalty_fee_usd
+      END
+    ) AS "usd_lifetime"
   FROM
     ethereum.nft_trades AS t
-  WHERE
-    royalty_fee_usd > 0
-    AND NOT EXISTS (
-      SELECT 1
-      FROM ethereum.nft_trades_blacklist AS b
-      WHERE t.transaction_hash = b.transaction_hash
-    )
+  JOIN
+    ethereum.nft_collections c ON t.collection = c.collection
   GROUP BY
-    collection
-)
+    t.collection
+  )
 SELECT
   *
 FROM
   royalty_stats
 WHERE
-  usd_30d > 0
+  usd_lifetime > 10000
 ORDER BY
   usd_30d DESC
 `);
@@ -415,17 +374,20 @@ SELECT
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
-  SUM(royalty_fee_usd) AS "usd_lifetime"
+  SUM(
+    CASE
+      WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
+        usd_sale_price * royalty_fee_pct / 100
+      ELSE
+        royalty_fee_usd
+    END
+  ) AS "usd_lifetime"
 FROM
   ethereum.nft_trades AS t
+JOIN
+  ethereum.nft_collections c ON t.collection = c.collection
 WHERE
-  collection = $<collectionId>
-  AND royalty_fee_usd > 0
-  AND NOT EXISTS (
-    SELECT 1
-    FROM ethereum.nft_trades_blacklist AS b
-    WHERE t.transaction_hash = b.transaction_hash
-  )
+  t.collection = $<collectionId>
   `);
 
   const response = await indexa.query(query, {
@@ -456,22 +418,20 @@ const getRoyaltyHistory = async (req, res) => {
   const query = minify(`
 SELECT
     EXTRACT(EPOCH FROM DATE(block_time)) AS day,
-    SUM(royalty_fee_usd) AS usd
+    SUM(
+      CASE
+        WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
+          usd_sale_price * royalty_fee_pct / 100
+        ELSE
+          royalty_fee_usd
+      END
+    ) AS usd
 FROM
     ethereum.nft_trades AS t
+JOIN
+    ethereum.nft_collections c ON t.collection = c.collection
 WHERE
-    collection = $<collectionId>
-    AND block_time >= '2023-01-01 00:00'
-            ${
-              lb
-                ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
-                : ''
-            }
-    AND NOT EXISTS (
-      SELECT 1
-      FROM ethereum.nft_trades_blacklist AS b
-      WHERE t.transaction_hash = b.transaction_hash
-    )
+    t.collection = $<collectionId>
 GROUP BY
     DATE(block_time)
 ORDER BY
@@ -480,8 +440,6 @@ ORDER BY
 
   const response = await indexa.query(query, {
     collectionId: `\\${collectionId.slice(1)}`,
-    lb: Number(lb),
-    ub: Number(ub),
   });
 
   if (!response) {

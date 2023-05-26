@@ -1,5 +1,5 @@
 const { indexa } = require('../src/utils/dbConnection');
-const { fetchTokenStandard, insert } = require('../src/jobs/collections');
+const { fetchTokenStandard, insert } = require('../src/jobs/tokenStandard');
 
 (async () => {
   const allCollectionsRaw = await indexa.query(

@@ -11,7 +11,7 @@ const startJobs = () => {
   setInterval(async () => {
     console.log(`running floor job ${new Date()}...`);
     await floor();
-  }, 5 * 60 * 1000);
+  }, 60 * 60 * 1000);
 
   setInterval(async () => {
     console.log(`running monitor job ${new Date()}...`);

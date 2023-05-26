@@ -1,6 +1,5 @@
 const yargs = require('yargs');
 
-const parseEvent = require('./parseEvent');
 const { getMaxBlock } = require('./queries');
 const { blockRangeTest } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
@@ -22,12 +21,19 @@ const argv = yargs.options({
     type: 'number',
     demandOption: false,
   },
+  txHash: {
+    alias: 'h',
+    type: 'string',
+    demandOption: false,
+    describe: 'transaction_hash',
+  },
 }).argv;
 
 (async () => {
   const marketplace = argv.marketplace;
   const block = argv.block;
   const blockRange = argv.blockRange;
+  const txHash = argv.txHash;
 
   console.log(`==== Testing ${marketplace} ====`);
 
@@ -35,6 +41,11 @@ const argv = yargs.options({
   const start = time();
 
   const { abi, config, parse } = require(`../adapters/${marketplace}`);
+
+  const parseEvent =
+    config.version === 'wyvern'
+      ? require('./parseEventWyvern')
+      : require('./parseEvent');
 
   const endBlock = !block
     ? await indexa.task(async (t) => {
@@ -51,6 +62,13 @@ const argv = yargs.options({
   console.log(trades);
   console.log(`\nRuntime: ${(time() - start).toFixed(2)} sec`);
   console.log(`${trades.length} trades in blocks ${startBlock}-${endBlock}`);
+
+  if (txHash) {
+    console.log('\nresult for txHash:');
+    console.log(
+      trades.filter((e) => e.transaction_hash === txHash.replace('0x', ''))
+    );
+  }
 
   process.exit(0);
 })();
