@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const { getEvents } = require('./queries');
+const { getEvents, getTraces } = require('./queries');
 const aggregators = require('./aggregators');
 const { nftTransferEvents } = require('../utils/params');
 
@@ -26,6 +26,13 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   const aggregatorContracts = aggregators.flatMap((agg) =>
     agg.contracts.map((c) => c.toLowerCase())
   );
+
+  const traces =
+    config.exchangeName === 'sudoswap'
+      ? await getTraces(task, startBlock, endBlock, config, [
+          ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
+        ])
+      : [];
 
   // parse event data
   const parsedEvents = await Promise.all(

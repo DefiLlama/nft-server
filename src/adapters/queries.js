@@ -288,6 +288,17 @@ WHERE
     AND block_number <= $<endBlock>
 `;
 
+const queryTracesSudoswap = `
+SELECT
+    trace_index,
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    value
+FROM
+    ethereum.traces
+WHERE
+    transaction_hash IN ($<txHashes:csv>)
+`;
+
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
 // which doesn't work with conn.query
 const getEvents = async (task, startBlock, endBlock, config) => {
@@ -296,7 +307,7 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   );
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const q = ['rarible', 'zora'].includes(config.exchangeName)
+  const q = ['rarible', 'zora', 'sudoswap'].includes(config.exchangeName)
     ? queryExtensive
     : config.version === 'wyvern'
     ? queryWyvern
@@ -346,12 +357,22 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
   txHashes = txHashes.map((h) => `\\x${h}`);
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const response = await task.query(minify(queryTraces, { compress: false }), {
-    txHashes,
-    startBlock,
-    endBlock,
-    contractAddresses,
-  });
+  let response;
+  if (config.version === 'wyvern') {
+    response = await task.query(minify(queryTraces, { compress: false }), {
+      txHashes,
+      startBlock,
+      endBlock,
+      contractAddresses,
+    });
+  } else if (config.exchangeName === 'sudoswap') {
+    response = await task.query(
+      minify(queryTracesSudoswap, { compress: false }),
+      {
+        txHashes,
+      }
+    );
+  }
 
   if (!response) {
     return new Error('getEvents failed', 404);
