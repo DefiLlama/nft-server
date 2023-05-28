@@ -49,7 +49,7 @@ WITH latest AS (
     FROM
         floor
     WHERE
-        timestamp >= CURRENT_DATE
+        timestamp >= CURRENT_DATE - INTERVAL '1 day'
         AND floor_price IS NOT NULL
     ORDER BY
         collection_id,
