@@ -48,11 +48,29 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         .map((t) => `0x${t}`);
 
       const decodedEvent = interface.decodeEventLog(topics[0], data, topics);
+
+      let trace = {};
+      if (traces.length) {
+        const sortedEvents = marketplaceEvents
+          .filter((e) => e.transaction_hash === event.transaction_hash)
+          .sort((a, b) => a.log_index - b.log_index);
+
+        const sortedTraces = traces
+          .filter((tr) => tr.transaction_hash === event.transaction_hash)
+          .sort((a, b) => a.trace_index - b.trace_index);
+
+        const idx = sortedEvents.findIndex(
+          (i) => i.log_index === event.log_index
+        );
+        trace = sortedTraces[idx];
+      }
+
       const parsedEvent = await parse(
         decodedEvent,
         event,
         transferEvents,
-        interface
+        interface,
+        trace
       );
 
       if (Object.keys(parsedEvent).length === 0) {
