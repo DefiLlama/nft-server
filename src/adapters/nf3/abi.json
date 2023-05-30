@@ -1,0 +1,2208 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "enum ISwap.SwapErrorCodes",
+        "name": "code",
+        "type": "uint8"
+      }
+    ],
+    "name": "SwapError",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum Utils.UtilsErrorCodes",
+        "name": "code",
+        "type": "uint8"
+      }
+    ],
+    "name": "UtilsError",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets",
+            "name": "considerationItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct CollectionSwapOffer",
+        "name": "offer",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "paymentTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Assets",
+        "name": "considerationItems",
+        "type": "tuple"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "CollectionSwapOfferAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets",
+            "name": "considerationItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct CollectionSwapOffer",
+        "name": "offer",
+        "type": "tuple"
+      }
+    ],
+    "name": "CollectionSwapOfferCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct Listing",
+        "name": "listing",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "paymentTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Assets",
+        "name": "offeredAssets",
+        "type": "tuple"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "swapId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "DirectSwapped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct Listing",
+        "name": "listing",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct SwapOffer",
+        "name": "offer",
+        "type": "tuple"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "ListedSwapOfferAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct Listing",
+        "name": "listing",
+        "type": "tuple"
+      }
+    ],
+    "name": "ListingCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldMarketAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newMarketAddress",
+        "type": "address"
+      }
+    ],
+    "name": "MarketSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "enum Status",
+        "name": "oldStatus",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum Status",
+        "name": "newStatus",
+        "type": "uint8"
+      }
+    ],
+    "name": "NonceSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldReserveAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newReserveAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ReserveSet",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct SwapOffer",
+        "name": "offer",
+        "type": "tuple"
+      }
+    ],
+    "name": "SwapOfferCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "indexed": false,
+        "internalType": "struct SwapOffer",
+        "name": "offer",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "paymentTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct Assets",
+        "name": "considerationItems",
+        "type": "tuple"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "UnlistedSwapOfferAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "oldVaultAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newVaultAddress",
+        "type": "address"
+      }
+    ],
+    "name": "VaultSet",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets",
+            "name": "considerationItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct CollectionSwapOffer",
+        "name": "_offer",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      { "internalType": "address[]", "name": "_tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "_tokenIds", "type": "uint256[]" },
+      {
+        "internalType": "bytes32[][]",
+        "name": "_proofs",
+        "type": "bytes32[][]"
+      },
+      { "internalType": "address", "name": "_user", "type": "address" },
+      { "internalType": "uint256", "name": "_value", "type": "uint256" },
+      {
+        "components": [
+          { "internalType": "address[]", "name": "to", "type": "address[]" },
+          {
+            "internalType": "uint256[]",
+            "name": "percentage",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct Royalty",
+        "name": "_royalty",
+        "type": "tuple"
+      }
+    ],
+    "name": "acceptCollectionOffer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct Listing",
+        "name": "_listing",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_listingSignature", "type": "bytes" },
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct SwapOffer",
+        "name": "_offer",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_offerSignature", "type": "bytes" },
+      { "internalType": "bytes32[]", "name": "_proof", "type": "bytes32[]" },
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
+    "name": "acceptListedDirectSwapOffer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct SwapOffer",
+        "name": "_offer",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      {
+        "components": [
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "tokenIds",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "paymentTokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct Assets",
+        "name": "_consideration",
+        "type": "tuple"
+      },
+      { "internalType": "bytes32[]", "name": "_proof", "type": "bytes32[]" },
+      { "internalType": "address", "name": "_user", "type": "address" },
+      { "internalType": "uint256", "name": "_value", "type": "uint256" },
+      {
+        "components": [
+          { "internalType": "address[]", "name": "to", "type": "address[]" },
+          {
+            "internalType": "uint256[]",
+            "name": "percentage",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct Royalty",
+        "name": "_royalty",
+        "type": "tuple"
+      }
+    ],
+    "name": "acceptUnlistedDirectSwapOffer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets",
+            "name": "considerationItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct CollectionSwapOffer",
+        "name": "_offer",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
+    "name": "cancelCollectionSwapOffer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct Listing",
+        "name": "_listing",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
+    "name": "cancelListing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "offeringItems",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "considerationRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct SwapOffer",
+        "name": "_offer",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
+    "name": "cancelSwapOffer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      { "internalType": "uint256", "name": "_nonce", "type": "uint256" },
+      { "internalType": "enum Status", "name": "_status", "type": "uint8" }
+    ],
+    "name": "checkNonce",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "tokenIds",
+                "type": "uint256[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Assets",
+            "name": "listingAssets",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "tokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "bytes32[]",
+                "name": "roots",
+                "type": "bytes32[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "paymentTokens",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "amounts",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct SwapAssets[]",
+            "name": "directSwaps",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "deposit",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address[]",
+                    "name": "tokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "tokenIds",
+                    "type": "uint256[]"
+                  },
+                  {
+                    "internalType": "address[]",
+                    "name": "paymentTokens",
+                    "type": "address[]"
+                  },
+                  {
+                    "internalType": "uint256[]",
+                    "name": "amounts",
+                    "type": "uint256[]"
+                  }
+                ],
+                "internalType": "struct Assets",
+                "name": "remaining",
+                "type": "tuple"
+              },
+              {
+                "internalType": "uint256",
+                "name": "duration",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ReserveInfo[]",
+            "name": "reserves",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address[]",
+                "name": "to",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256[]",
+                "name": "percentage",
+                "type": "uint256[]"
+              }
+            ],
+            "internalType": "struct Royalty",
+            "name": "royalty",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "tradeIntendedFor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timePeriod",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "owner", "type": "address" },
+          { "internalType": "uint256", "name": "nonce", "type": "uint256" }
+        ],
+        "internalType": "struct Listing",
+        "name": "_listing",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_signature", "type": "bytes" },
+      { "internalType": "uint256", "name": "_swapId", "type": "uint256" },
+      { "internalType": "address", "name": "_user", "type": "address" },
+      { "internalType": "address[]", "name": "_tokens", "type": "address[]" },
+      { "internalType": "uint256[]", "name": "_tokenIds", "type": "uint256[]" },
+      {
+        "internalType": "bytes32[][]",
+        "name": "_proofs",
+        "type": "bytes32[][]"
+      },
+      { "internalType": "uint256", "name": "_value", "type": "uint256" },
+      {
+        "components": [
+          { "internalType": "address[]", "name": "to", "type": "address[]" },
+          {
+            "internalType": "uint256[]",
+            "name": "percentage",
+            "type": "uint256[]"
+          }
+        ],
+        "internalType": "struct Royalty",
+        "name": "_royalty",
+        "type": "tuple"
+      }
+    ],
+    "name": "directSwap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "marketAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "nonce",
+    "outputs": [{ "internalType": "enum Status", "name": "", "type": "uint8" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "reserveAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_marketAddress", "type": "address" }
+    ],
+    "name": "setMarket",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      { "internalType": "uint256", "name": "_nonce", "type": "uint256" },
+      { "internalType": "enum Status", "name": "_status", "type": "uint8" }
+    ],
+    "name": "setNonce",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_reserveAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setReserve",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_vaultAddress", "type": "address" }
+    ],
+    "name": "setVault",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vaultAddress",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

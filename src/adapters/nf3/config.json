@@ -1,0 +1,10 @@
+{
+  "exchangeName": "nf3",
+  "contracts": ["0xfD85F13eE64B356a6b5182d3769FA24452437A9C"],
+  "events": [
+    {
+      "name": "DirectSwapped",
+      "signatureHash": "0x3f9640238502f8504ff0206cd86ad2d403277abc84d1731223208e0972b52f6a"
+    }
+  ]
+}
