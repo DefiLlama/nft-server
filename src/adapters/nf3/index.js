@@ -9,18 +9,31 @@ const ethPaymentTokens = [
 
 const parse = async (decodedData, event) => {
   const {
-    listing: {
-      owner,
-      tradeIntendedFor,
-      listingAssets: { paymentTokens, amounts },
-    },
-    offeredAssets: { tokens, tokenIds },
+    listing: { owner, tradeIntendedFor, listingAssets },
+    offeredAssets,
   } = decodedData;
+
+  let paymentTokens;
+  let amounts;
+  let tokens;
+  let tokenIds;
+  let buyer;
+  let seller;
+
+  if (listingAssets[2].length) {
+    ({ paymentTokens, amounts } = listingAssets);
+    ({ tokens, tokenIds } = offeredAssets);
+    seller = tradeIntendedFor;
+    buyer = owner;
+  } else {
+    ({ paymentTokens, amounts } = offeredAssets);
+    ({ tokens, tokenIds } = listingAssets);
+    seller = owner;
+    buyer = tradeIntendedFor;
+  }
 
   const collection = tokens[0];
   const tokenId = tokenIds[0];
-  const seller = tradeIntendedFor;
-  const buyer = owner;
 
   const paymentToken = paymentTokens[0]?.toLowerCase();
   const amount = amounts[0];
