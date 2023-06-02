@@ -20,7 +20,7 @@ const startJobs = () => {
   setInterval(async () => {
     console.log(`running orderbook job ${new Date()}...`);
     await orderbook();
-  }, 60 * 60 * 1000);
+  }, 24 * 60 * 60 * 1000);
 
   setInterval(async () => {
     console.log(`running trimOrderbook job ${new Date()}...`);
