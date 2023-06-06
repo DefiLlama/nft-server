@@ -2,7 +2,10 @@ const minify = require('pg-minify');
 
 const checkCollection = require('../../utils/checkAddress');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
-const customHeader = require('../../utils/customHeader');
+const {
+  customHeader,
+  customHeaderFixedCache,
+} = require('../../utils/customHeader');
 const { indexa } = require('../../utils/dbConnection');
 
 const getSales = async (req, res) => {
@@ -59,7 +62,7 @@ const getSales = async (req, res) => {
   }
 
   res
-    .set(customHeader())
+    .set(customHeaderFixedCache(300))
     .status(200)
     .json(response.map((c) => [c.block_time, c.eth_sale_price]));
 };
@@ -117,7 +120,7 @@ ORDER BY
   }
 
   res
-    .set(customHeader())
+    .set(customHeaderFixedCache(300))
     .status(200)
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
