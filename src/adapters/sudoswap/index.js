@@ -7,18 +7,26 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
   const paymentToken = '0x0000000000000000000000000000000000000000'; // eth only
   const amount = 1; // erc721 only; each sale will be in separate object
 
+  const transfers = events.filter(
+    (e) => e.transaction_hash === event.transaction_hash
+  );
+
   // if tx originated from aggregator than the nft transfer events (events array) won't be limited
   // to sudoswap but to whatever marketplaces the sales were made.
   // we filter the events array to sudoswap related ones only
-  const sudoContracts = config.contracts.map((c) => c.toLowerCase());
-  const eventsSudo = events.filter(
-    (e) =>
-      sudoContracts.includes(stripZerosLeft(`0x${e.topic_1}`)) ||
-      sudoContracts.includes(stripZerosLeft(`0x${e.topic_2}`))
+  const sudoContract = event.contract_address;
+  const eventsSudo = transfers.filter(
+    (e) => e.topic_1.includes(sudoContract) || e.topic_2.includes(sudoContract)
   );
 
-  const nbEvents = events.length;
+  const nbEvents = transfers.length;
   const nbEventsSudo = eventsSudo.length;
+
+  console.log(nbEvents, nbEventsSudo);
+  console.log(event);
+  console.log(trace);
+  console.log(traces.length);
+  process.exit();
 
   const pairRouter = '2b2e8cda09bba9660dca5cb6233787738ad68329';
   return eventsSudo.map((e) => {
@@ -38,9 +46,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     if (nbEvents > nbEventsSudo) {
       salePrice = ethSalePrice =
         traces.find(
-          (t) =>
-            t.to_address === pairRouter ||
-            t.from_address === sudoContracts[0].replace('0x', '')
+          (t) => t.to_address === pairRouter || t.from_address === sudoContract
         ).value / 1e18;
       usdSalePrice = ethSalePrice * event.price;
     } else {

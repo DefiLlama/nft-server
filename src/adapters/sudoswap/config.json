@@ -1,10 +1,6 @@
 {
   "exchangeName": "sudoswap",
-  "contracts": [
-    "0x319aA0C0b9ac8286eE0a76AA3d9EC1ef524E776D",
-    "0xB6CB9d47203Ad29A0f97F88ae1E92e4A15e949E1",
-    "0x4Ab0b853453694F3Bf51b8d8DFf6F5DD951e6F00"
-  ],
+  "contracts": [],
   "events": [
     {
       "name": "SwapNFTInPair",
