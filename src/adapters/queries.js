@@ -292,11 +292,14 @@ const queryTracesSudoswap = `
 SELECT
     trace_index,
     encode(transaction_hash, 'hex') AS transaction_hash,
-    value
+    value,
+    encode(from_address, 'hex') as from_address,
+    encode(to_address, 'hex') as to_address
 FROM
     ethereum.traces
 WHERE
     transaction_hash IN ($<txHashes:csv>)
+    and value > 0
 `;
 
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all

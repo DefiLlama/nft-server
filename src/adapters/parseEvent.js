@@ -18,6 +18,14 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   const marketplaceEvents = events.filter((e) =>
     config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
   );
+
+  const traces =
+    config.exchangeName === 'sudoswap'
+      ? await getTraces(task, startBlock, endBlock, config, [
+          ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
+        ])
+      : [];
+
   // will be empty for all marketplace for which we don't read nft transfer events
   const transferEvents = events.filter((e) =>
     Object.values(nftTransferEvents).includes(e.topic_0)
@@ -26,13 +34,6 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   const aggregatorContracts = aggregators.flatMap((agg) =>
     agg.contracts.map((c) => c.toLowerCase())
   );
-
-  const traces =
-    config.exchangeName === 'sudoswap'
-      ? await getTraces(task, startBlock, endBlock, config, [
-          ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
-        ])
-      : [];
 
   // parse event data
   const parsedEvents = await Promise.all(
@@ -50,12 +51,13 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
       const decodedEvent = interface.decodeEventLog(topics[0], data, topics);
 
       let trace = {};
+      let sortedTraces = [];
       if (traces.length) {
         const sortedEvents = marketplaceEvents
           .filter((e) => e.transaction_hash === event.transaction_hash)
           .sort((a, b) => a.log_index - b.log_index);
 
-        const sortedTraces = traces
+        sortedTraces = traces
           .filter((tr) => tr.transaction_hash === event.transaction_hash)
           .sort((a, b) => a.trace_index - b.trace_index);
 
@@ -70,7 +72,8 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         event,
         transferEvents,
         interface,
-        trace
+        trace,
+        sortedTraces
       );
 
       if (Object.keys(parsedEvent).length === 0) {
@@ -101,6 +104,22 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         ...rest
       } = event;
 
+      // for sudoswap (==array of objects instead of single object in case of multi swap)
+      if (parsedEvent.length) {
+        return parsedEvent.map((e) => {
+          return {
+            ...rest,
+            ...e,
+            buyer: aggregatorContracts.includes(e.buyer?.toLowerCase())
+              ? event.from_address
+              : e.buyer,
+            exchangeName: config.exchangeName,
+            aggregatorName,
+            aggregatorAddress,
+          };
+        });
+      }
+
       return {
         ...rest,
         ...parsedEvent,
@@ -115,7 +134,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   );
 
   // remove empty objects
-  return parsedEvents.filter((event) => event.collection);
+  return parsedEvents.flat().filter((event) => event.collection);
 };
 
 module.exports = parseEvent;
