@@ -1,7 +1,7 @@
 const minify = require('pg-minify');
 
 const checkCollection = require('../../utils/checkAddress');
-const customHeader = require('../../utils/customHeader');
+const { customHeader } = require('../../utils/customHeader');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
 const { nft } = require('../../utils/dbConnection');
 
@@ -49,7 +49,7 @@ WITH latest AS (
     FROM
         floor
     WHERE
-        timestamp >= CURRENT_DATE
+        timestamp >= CURRENT_DATE - INTERVAL '1 day'
         AND floor_price IS NOT NULL
     ORDER BY
         collection_id,

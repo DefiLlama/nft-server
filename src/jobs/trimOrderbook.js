@@ -5,7 +5,7 @@ const job = async () => {
     DELETE FROM
         orderbook
     WHERE
-        timestamp < NOW() - INTERVAL '1 DAY'
+        timestamp < NOW() - INTERVAL '2 DAY'
     `;
 
   const response = await nft.result(query);

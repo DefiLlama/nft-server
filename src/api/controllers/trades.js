@@ -2,7 +2,10 @@ const minify = require('pg-minify');
 
 const checkCollection = require('../../utils/checkAddress');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
-const customHeader = require('../../utils/customHeader');
+const {
+  customHeader,
+  customHeaderFixedCache,
+} = require('../../utils/customHeader');
 const { indexa } = require('../../utils/dbConnection');
 
 const getSales = async (req, res) => {
@@ -24,7 +27,6 @@ const getSales = async (req, res) => {
       ethereum.nft_trades AS t
   WHERE
       collection = $<collectionId>
-      AND block_time >= '2023-01-01 00:00'
       ${
         lb
           ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
@@ -60,7 +62,7 @@ const getSales = async (req, res) => {
   }
 
   res
-    .set(customHeader())
+    .set(customHeaderFixedCache(300))
     .status(200)
     .json(response.map((c) => [c.block_time, c.eth_sale_price]));
 };
@@ -85,7 +87,6 @@ FROM
     ethereum.nft_trades AS t
 WHERE
     collection = $<collectionId>
-    AND block_time >= '2023-01-01 00:00'
         ${
           lb
             ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
@@ -119,7 +120,7 @@ ORDER BY
   }
 
   res
-    .set(customHeader())
+    .set(customHeaderFixedCache(300))
     .status(200)
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
@@ -317,24 +318,17 @@ const getRoyalties = async (req, res) => {
   const query = minify(`
 WITH royalty_stats as (
   SELECT
-    encode(t.collection, 'hex') as collection,
+    encode(collection, 'hex') as collection,
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
     SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
-    SUM(
-      CASE
-        WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
-          usd_sale_price * royalty_fee_pct / 100
-        ELSE
-          royalty_fee_usd
-      END
-    ) AS "usd_lifetime"
+    SUM(royalty_fee_usd) AS usd_lifetime
   FROM
-    ethereum.nft_trades AS t
-  JOIN
-    ethereum.nft_collections c ON t.collection = c.collection
+    ethereum.nft_trades
+  WHERE
+    eth_sale_price > royalty_fee_eth
   GROUP BY
-    t.collection
+    collection
   )
 SELECT
   *
@@ -343,7 +337,7 @@ FROM
 WHERE
   usd_lifetime > 10000
 ORDER BY
-  usd_30d DESC
+  usd_lifetime DESC
 `);
 
   const response = await indexa.query(query);
@@ -374,20 +368,12 @@ SELECT
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '1 DAY') THEN royalty_fee_usd END) AS "usd_1d",
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '7 DAY') THEN royalty_fee_usd END) AS "usd_7d",
   SUM(CASE WHEN block_time >= (NOW() - INTERVAL '30 DAY') THEN royalty_fee_usd END) AS "usd_30d",
-  SUM(
-    CASE
-      WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
-        usd_sale_price * royalty_fee_pct / 100
-      ELSE
-        royalty_fee_usd
-    END
-  ) AS "usd_lifetime"
+  SUM(royalty_fee_usd) AS usd_lifetime
 FROM
-  ethereum.nft_trades AS t
-JOIN
-  ethereum.nft_collections c ON t.collection = c.collection
+  ethereum.nft_trades
 WHERE
-  t.collection = $<collectionId>
+  collection = $<collectionId>
+  and eth_sale_price > royalty_fee_eth
   `);
 
   const response = await indexa.query(query, {
@@ -418,20 +404,12 @@ const getRoyaltyHistory = async (req, res) => {
   const query = minify(`
 SELECT
     EXTRACT(EPOCH FROM DATE(block_time)) AS day,
-    SUM(
-      CASE
-        WHEN topic_0 = '\\xc4109843e0b7d514e4c093114b863f8e7d8d9a458c372cd51bfe526b588006c9' THEN
-          usd_sale_price * royalty_fee_pct / 100
-        ELSE
-          royalty_fee_usd
-      END
-    ) AS usd
+    SUM(royalty_fee_usd) AS usd
 FROM
-    ethereum.nft_trades AS t
-JOIN
-    ethereum.nft_collections c ON t.collection = c.collection
+    ethereum.nft_trades
 WHERE
-    t.collection = $<collectionId>
+    collection = $<collectionId>
+    and eth_sale_price > royalty_fee_eth
 GROUP BY
     DATE(block_time)
 ORDER BY

@@ -6,14 +6,19 @@ const customHeader = () => {
     date.setHours(date.getHours() + 1);
   }
 
-  return (
-    'headers',
-    {
-      'Content-Type': 'application/json',
-      Expires: date.toUTCString(),
-      'Access-Control-Allow-Origin': '*',
-    }
-  );
+  return {
+    'Content-Type': 'application/json',
+    Expires: date.toUTCString(),
+    'Access-Control-Allow-Origin': '*',
+  };
 };
 
-module.exports = customHeader;
+const customHeaderFixedCache = (cacheTime) => {
+  return {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': `max-age=${cacheTime}`,
+  };
+};
+
+module.exports = { customHeader, customHeaderFixedCache };

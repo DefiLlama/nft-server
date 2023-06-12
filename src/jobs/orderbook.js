@@ -39,42 +39,35 @@ const insert = async (payload) => {
   return response;
 };
 
-const orders = async (collections, route, timestamp) => {
+const orders = async (collections, side, timestamp) => {
   let d = [];
-  const rateLimit = 2;
+  const rateLimit = 5;
   for (let i = 0; i <= collections.length; i += rateLimit) {
     console.log(i);
     const requests = collections
       .slice(i, rateLimit + i)
       .map(
         (c) =>
-          `${api}/orders/${route}?status=active&limit=${1000}&contracts=${
-            c.collection_id
-          }`
+          `${api}/orders/depth/v1?side=${side}&collection=${c.collection_id}`
       );
+
     const X = (
       await Promise.allSettled(requests.map((r) => axios.get(r, apiKey)))
     ).filter((x) => x.status === 'fulfilled');
 
     for (const x of X) {
-      const valueCounts = x.value.data.orders?.reduce((acc, val) => {
-        const price = val?.price?.amount?.native;
-        acc[price] = (acc[price] || 0) + 1;
-        return acc;
-      }, {});
-
-      const cid = x.value.data.orders[0]?.contract;
+      const cid = x.value.config.url.split('collection=')[1];
       if (!cid) continue;
 
       d = [
         ...d,
-        ...Object.entries(valueCounts).map((i) => {
+        ...x.value.data.depth.map((i) => {
           return convertKeysToSnakeCase({
             collectionId: cid,
             timestamp,
-            price: Number(i[0]),
-            amount: i[1],
-            orderType: route.includes('ask') ? 'ask' : 'bid',
+            price: i.price,
+            amount: i.quantity,
+            orderType: side === 'sell' ? 'ask' : 'bid',
           });
         }),
       ];
@@ -94,7 +87,7 @@ const job = async () => {
   const timestamp = new Date();
 
   const [asks, bids] = await Promise.all(
-    ['asks/v4', 'bids/v5'].map((route) => orders(exArtblocks, route, timestamp))
+    ['sell', 'buy'].map((side) => orders(exArtblocks, side, timestamp))
   );
 
   const payload = [...asks, ...bids];

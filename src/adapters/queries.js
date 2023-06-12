@@ -31,7 +31,7 @@ WHERE
   AND e.block_number <= $<endBlock>
 `;
 
-const queryExtensive = `
+const queryZora = `
 SELECT
     encode(e.transaction_hash, 'hex') AS transaction_hash,
     e.log_index,
@@ -68,6 +68,62 @@ WHERE
           e.topic_0 = '\\xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
           AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
       )
+    )
+    AND e.block_number >= $<startBlock>
+    AND e.block_number <= $<endBlock>
+    AND e.transaction_hash IN (
+	    SELECT
+            e.transaction_hash
+	    FROM
+            ethereum.event_logs e
+      WHERE
+            e.contract_address IN ($<contractAddresses:csv>)
+            AND e.topic_0 IN ($<eventSignatureHashes:csv>)
+            AND e.block_number >= $<startBlock>
+            AND e.block_number <= $<endBlock>
+	    )
+`;
+
+const queryRarible = `
+SELECT
+    encode(e.transaction_hash, 'hex') AS transaction_hash,
+    e.log_index,
+    encode(e.contract_address, 'hex') AS contract_address,
+    encode(e.topic_0, 'hex') AS topic_0,
+    encode(e.topic_1, 'hex') AS topic_1,
+    encode(e.topic_2, 'hex') AS topic_2,
+    encode(e.topic_3, 'hex') AS topic_3,
+    encode(e.data, 'hex') AS data,
+    e.block_time,
+    e.block_number,
+    encode(e.block_hash, 'hex') AS block_hash,
+    b.price,
+    encode(t.from_address, 'hex') AS from_address,
+    encode(t.to_address, 'hex') AS to_address,
+    a.name AS aggregator_name
+FROM
+    ethereum.event_logs e
+    LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+    LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+    LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
+WHERE
+    (
+        (
+            e.contract_address IN ($<contractAddresses:csv>)
+            AND e.topic_0 IN ($<eventSignatureHashes:csv>)
+        )
+        OR (
+            e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+            AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+            AND topic_3 IS NOT NULL
+        )
+        OR (
+          e.topic_0 = '\\xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
+          AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+        ) OR (
+          e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+          AND topic_3 IS NULL
+        )
     )
     AND e.block_number >= $<startBlock>
     AND e.block_number <= $<endBlock>
@@ -142,7 +198,7 @@ WHERE
 	    )
 `;
 
-// like queryExtensive but:
+// like queryZora but:
 // + tx input data (tx_data)
 // + however cryptopunks = erc20 (we filter for cryptpunks emitted erc20's transfer events)
 // so we read erc20 transfer events
@@ -355,19 +411,22 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   );
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const q = ['rarible', 'zora'].includes(config.exchangeName)
-    ? queryExtensive
-    : config.version === 'wyvern'
-    ? queryWyvern
-    : config.exchangeName === 'cryptopunks'
-    ? queryCryptopunks
-    : config.version === 'looksrare-v1'
-    ? queryLooksrareV1
-    : config.version === 'blur-blend'
-    ? queryBlurBlend
-    : config.exchangeName === 'sudoswap'
-    ? querySudoswap
-    : query;
+  const q =
+    config.exchangeName === 'zora'
+      ? queryZora
+      : config.version === 'wyvern'
+      ? queryWyvern
+      : config.exchangeName === 'cryptopunks'
+      ? queryCryptopunks
+      : config.version === 'looksrare-v1'
+      ? queryLooksrareV1
+      : config.version === 'blur-blend'
+      ? queryBlurBlend
+      : config.exchangeName === 'rarible'
+      ? queryRarible
+      : config.exchangeName === 'sudoswap'
+      ? querySudoswap
+      : query;
 
   const response = await task.query(minify(q, { compress: false }), {
     startBlock,
