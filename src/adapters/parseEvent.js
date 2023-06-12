@@ -3,6 +3,7 @@ const ethers = require('ethers');
 const { getEvents, getTraces } = require('./queries');
 const aggregators = require('./aggregators');
 const { nftTransferEvents } = require('../utils/params');
+const removeRedundantEvents = require('../utils/removeDupes');
 
 const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   // read events from db
@@ -15,16 +16,18 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
     config[e.signatureHash] = e.name;
   }
 
-  const marketplaceEvents = events.filter((e) =>
+  let marketplaceEvents = events.filter((e) =>
     config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
   );
 
-  const traces =
-    config.exchangeName === 'sudoswap'
-      ? await getTraces(task, startBlock, endBlock, config, [
-          ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
-        ])
-      : [];
+  // sudoswap specific
+  let traces = [];
+  if (config.exchangeName === 'sudoswap') {
+    marketplaceEvents = removeRedundantEvents(marketplaceEvents);
+    traces = await getTraces(task, startBlock, endBlock, config, [
+      ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
+    ]);
+  }
 
   // will be empty for all marketplace for which we don't read nft transfer events
   const transferEvents = events.filter((e) =>
