@@ -329,6 +329,51 @@ WHERE
             AND e.block_number <= $<endBlock>
     )`;
 
+const querySudoswap = `
+    SELECT
+        encode(e.transaction_hash, 'hex') AS transaction_hash,
+        e.log_index,
+        encode(e.contract_address, 'hex') AS contract_address,
+        encode(e.topic_0, 'hex') AS topic_0,
+        encode(e.topic_1, 'hex') AS topic_1,
+        encode(e.topic_2, 'hex') AS topic_2,
+        encode(e.topic_3, 'hex') AS topic_3,
+        encode(e.data, 'hex') AS data,
+        e.block_time,
+        e.block_number,
+        encode(e.block_hash, 'hex') AS block_hash,
+        b.price,
+        encode(t.from_address, 'hex') AS from_address,
+        encode(t.to_address, 'hex') AS to_address,
+        a.name AS aggregator_name
+    FROM
+        ethereum.event_logs e
+        LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+        LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+        LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
+    WHERE
+        (
+            e.topic_0 IN ($<eventSignatureHashes:csv>)
+            OR (
+                e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+                AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+                AND topic_3 IS NOT NULL
+            )
+        )
+        AND e.block_number >= $<startBlock>
+        AND e.block_number <= $<endBlock>
+        AND e.transaction_hash IN (
+          SELECT
+                e.transaction_hash
+          FROM
+                ethereum.event_logs e
+          WHERE
+                e.topic_0 IN ($<eventSignatureHashes:csv>)
+                AND e.block_number >= $<startBlock>
+                AND e.block_number <= $<endBlock>
+          )
+    `;
+
 const queryTraces = `
 SELECT
     trace_index,
@@ -342,6 +387,20 @@ WHERE
     AND from_address IN ($<contractAddresses:csv>)
     AND block_number >= $<startBlock>
     AND block_number <= $<endBlock>
+`;
+
+const queryTracesSudoswap = `
+SELECT
+    trace_index,
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    value,
+    encode(from_address, 'hex') as from_address,
+    encode(to_address, 'hex') as to_address
+FROM
+    ethereum.traces
+WHERE
+    transaction_hash IN ($<txHashes:csv>)
+    and value > 0
 `;
 
 // we pass in a pgp task, this way we can share a single db connection to indexa inside a Promise.all
@@ -365,6 +424,8 @@ const getEvents = async (task, startBlock, endBlock, config) => {
       ? queryBlurBlend
       : config.exchangeName === 'rarible'
       ? queryRarible
+      : config.exchangeName === 'sudoswap'
+      ? querySudoswap
       : query;
 
   const response = await task.query(minify(q, { compress: false }), {
@@ -405,12 +466,22 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
   txHashes = txHashes.map((h) => `\\x${h}`);
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const response = await task.query(minify(queryTraces, { compress: false }), {
-    txHashes,
-    startBlock,
-    endBlock,
-    contractAddresses,
-  });
+  let response;
+  if (config.version === 'wyvern') {
+    response = await task.query(minify(queryTraces, { compress: false }), {
+      txHashes,
+      startBlock,
+      endBlock,
+      contractAddresses,
+    });
+  } else if (config.exchangeName === 'sudoswap') {
+    response = await task.query(
+      minify(queryTracesSudoswap, { compress: false }),
+      {
+        txHashes,
+      }
+    );
+  }
 
   if (!response) {
     return new Error('getEvents failed', 404);
@@ -471,8 +542,9 @@ const insertTrades = async (payload) => {
 
 // used when refilling (in case of adapter bug, missing events etc)
 // deletes trades in nft_trades for a given marketplace (its address(es), event signatures and block range)
-const buildDeleteQ = () => {
-  const query = `
+const buildDeleteQ = (config) => {
+  return config.exchangeName !== 'sudoswap'
+    ? `
   DELETE FROM
       ethereum.nft_trades
   WHERE
@@ -480,13 +552,19 @@ const buildDeleteQ = () => {
       AND topic_0 in ($<eventSignatureHashes:csv>)
       AND block_number >= $<startBlock>
       AND block_number <= $<endBlock>
+  `
+    : `
+  DELETE FROM
+      ethereum.nft_trades
+  WHERE
+      topic_0 in ($<eventSignatureHashes:csv>)
+      AND block_number >= $<startBlock>
+      AND block_number <= $<endBlock>
   `;
-
-  return query;
 };
 
 const deleteTrades = async (config, startBlock, endBlock) => {
-  const query = buildDeleteQ();
+  const query = buildDeleteQ(config);
 
   // required for the delteteQ
   const eventSignatureHashes = config.events.map(
@@ -511,7 +589,7 @@ const deleteTrades = async (config, startBlock, endBlock) => {
 // --------- transaction query
 const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
   // build queries
-  const deleteQuery = buildDeleteQ();
+  const deleteQuery = buildDeleteQ(config);
   const insertQuery = buildInsertQ(payload);
 
   // required for the delteteQ
