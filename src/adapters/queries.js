@@ -542,8 +542,9 @@ const insertTrades = async (payload) => {
 
 // used when refilling (in case of adapter bug, missing events etc)
 // deletes trades in nft_trades for a given marketplace (its address(es), event signatures and block range)
-const buildDeleteQ = () => {
-  const query = `
+const buildDeleteQ = (config) => {
+  return config.exchangeName !== 'sudoswap'
+    ? `
   DELETE FROM
       ethereum.nft_trades
   WHERE
@@ -551,13 +552,19 @@ const buildDeleteQ = () => {
       AND topic_0 in ($<eventSignatureHashes:csv>)
       AND block_number >= $<startBlock>
       AND block_number <= $<endBlock>
+  `
+    : `
+  DELETE FROM
+      ethereum.nft_trades
+  WHERE
+      topic_0 in ($<eventSignatureHashes:csv>)
+      AND block_number >= $<startBlock>
+      AND block_number <= $<endBlock>
   `;
-
-  return query;
 };
 
 const deleteTrades = async (config, startBlock, endBlock) => {
-  const query = buildDeleteQ();
+  const query = buildDeleteQ(config);
 
   // required for the delteteQ
   const eventSignatureHashes = config.events.map(
@@ -582,7 +589,7 @@ const deleteTrades = async (config, startBlock, endBlock) => {
 // --------- transaction query
 const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
   // build queries
-  const deleteQuery = buildDeleteQ();
+  const deleteQuery = buildDeleteQ(config);
   const insertQuery = buildInsertQ(payload);
 
   // required for the delteteQ
