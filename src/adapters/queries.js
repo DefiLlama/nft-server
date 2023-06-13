@@ -374,6 +374,55 @@ const querySudoswap = `
           )
     `;
 
+const querySudoswapV2 = `
+    SELECT
+        encode(e.transaction_hash, 'hex') AS transaction_hash,
+        e.log_index,
+        encode(e.contract_address, 'hex') AS contract_address,
+        encode(e.topic_0, 'hex') AS topic_0,
+        encode(e.topic_1, 'hex') AS topic_1,
+        encode(e.topic_2, 'hex') AS topic_2,
+        encode(e.topic_3, 'hex') AS topic_3,
+        encode(e.data, 'hex') AS data,
+        e.block_time,
+        e.block_number,
+        encode(e.block_hash, 'hex') AS block_hash,
+        b.price,
+        encode(t.from_address, 'hex') AS from_address,
+        encode(t.to_address, 'hex') AS to_address,
+        a.name AS aggregator_name
+    FROM
+        ethereum.event_logs e
+        LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+        LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
+        LEFT JOIN ethereum.nft_aggregators_appendage a ON RIGHT(encode(t.data, 'hex'), a.appendage_length) = encode(a.appendage, 'escape')
+    WHERE
+        (
+            e.topic_0 IN ($<eventSignatureHashes:csv>)
+            OR (
+                e.topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+                AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+                AND topic_3 IS NOT NULL
+            )
+            OR (
+              e.topic_0 = '\\xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
+              AND topic_1 != '\\x0000000000000000000000000000000000000000000000000000000000000000'
+          )
+        )
+        AND e.block_number >= $<startBlock>
+        AND e.block_number <= $<endBlock>
+        AND e.transaction_hash IN (
+          SELECT
+                e.transaction_hash
+          FROM
+                ethereum.event_logs e
+          WHERE
+                e.topic_0 IN ($<eventSignatureHashes:csv>)
+                AND e.block_number >= $<startBlock>
+                AND e.block_number <= $<endBlock>
+          )
+    `;
+
 const queryTraces = `
 SELECT
     trace_index,
@@ -426,6 +475,8 @@ const getEvents = async (task, startBlock, endBlock, config) => {
       ? queryRarible
       : config.exchangeName === 'sudoswap'
       ? querySudoswap
+      : config.version === 'sudoswap-v2'
+      ? querySudoswapV2
       : query;
 
   const response = await task.query(minify(q, { compress: false }), {
