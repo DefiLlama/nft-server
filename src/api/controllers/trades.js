@@ -335,7 +335,7 @@ SELECT
 FROM
   royalty_stats
 WHERE
-  usd_lifetime > 10000
+  usd_lifetime > 0
 ORDER BY
   usd_lifetime DESC
 `);
