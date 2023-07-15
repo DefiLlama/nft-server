@@ -4,9 +4,51 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../utils/params');
 
-const parse = (decodedData, event, events) => {
-  const { transfer, price } = decodedData;
+const unpackTokenIdListingIndexTrader = (packedValue) => {
+  /*
+ function packTokenIdListingIndexTrader(
+        uint256 tokenId,
+        uint256 listingIndex,
+        address trader
+    ) private pure returns (uint256) {
+        return (tokenId << (21 * 8)) | (listingIndex << (20 * 8)) | uint160(trader);
+    }
+*/
 
+  let trader = packedValue % BigInt(2) ** BigInt(160);
+  packedValue /= BigInt(2) ** BigInt(160);
+
+  let listingIndex = packedValue % BigInt(2) ** BigInt(8);
+  packedValue /= BigInt(2) ** BigInt(8);
+
+  let tokenId = packedValue;
+
+  return [tokenId, listingIndex, trader.toString(16)];
+};
+
+const unpackTypePriceCollection = (packedValue) => {
+  /*
+  function packTypePriceCollection(
+      OrderType orderType,
+      uint256 price,
+      address collection
+  ) private pure returns (uint256) {
+      return (uint256(orderType) << (31 * 8)) | (price << (20 * 8)) | uint160(collection);
+  }
+*/
+
+  let collection = packedValue % BigInt(2) ** BigInt(160);
+  packedValue /= BigInt(2) ** BigInt(160);
+
+  let price = packedValue % BigInt(2) ** BigInt(88);
+  packedValue /= BigInt(2) ** BigInt(88);
+
+  let orderType = packedValue;
+
+  return [orderType, price, collection.toString(16)];
+};
+
+const parse = (decodedData, event, events) => {
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -48,12 +90,16 @@ const parse = (decodedData, event, events) => {
   let royaltyRecipient;
   let royaltyFeeEth;
   let royaltyFeeUsd;
+  const paymentToken = '0000000000000000000000000000000000000000';
 
   if (
     `0x${event.topic_0}` ===
     config.events.find((e) => e.name === 'Execution').signatureHash
   ) {
-    const { trader, id, collection: collectionAddress } = transfer;
+    const {
+      transfer: { trader, id, collection: collectionAddress },
+      price,
+    } = decodedData;
     seller = trader;
     tokenId = id;
     salePrice = price.toString() / 1e18;
@@ -62,6 +108,26 @@ const parse = (decodedData, event, events) => {
     collection = collectionAddress;
     amount = 1;
     buyer = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
+  } else if (
+    `0x${event.topic_0}` ===
+    config.events.find((e) => e.name === 'Execution721Packed').signatureHash
+  ) {
+    const { tokenIdListingIndexTrader, collectionPriceSide } = decodedData;
+
+    const [nftTokenId, listingIndex, trader] = unpackTokenIdListingIndexTrader(
+      tokenIdListingIndexTrader
+    );
+
+    const [orderType, price, collectionAddress] =
+      unpackTypePriceCollection(collectionPriceSide);
+
+    buyer = trader;
+    tokenId = nftTokenId;
+    collection = collectionAddress;
+    salePrice = ethSalePrice = price.toString() / 1e18;
+    usdSalePrice = ethSalePrice * event.price;
+    amount = 1;
+    seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
   } else return {};
 
   return {
@@ -71,7 +137,7 @@ const parse = (decodedData, event, events) => {
     salePrice,
     ethSalePrice,
     usdSalePrice,
-    paymentToken: '0000000000000000000000000000000000000000',
+    paymentToken,
     seller,
     buyer,
     royaltyRecipient,
