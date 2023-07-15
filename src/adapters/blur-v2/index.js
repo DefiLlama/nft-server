@@ -48,6 +48,21 @@ const unpackTypePriceCollection = (packedValue) => {
   return [orderType, price, collection.toString(16)];
 };
 
+const unpackFee = (packedValue) => {
+  /*
+  function packFee(FeeRate memory fee) private pure returns (uint256) {
+    return (uint256(fee.rate) << (20 * 8)) | uint160(fee.recipient);
+  }
+  */
+
+  let recipient = packedValue % BigInt(2) ** BigInt(160);
+  packedValue /= BigInt(2) ** BigInt(160);
+
+  let rate = packedValue;
+
+  return [rate, recipient.toString(16)];
+};
+
 const parse = (decodedData, event, events) => {
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
@@ -108,11 +123,13 @@ const parse = (decodedData, event, events) => {
     collection = collectionAddress;
     amount = 1;
     buyer = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
-  } else if (
-    `0x${event.topic_0}` ===
-    config.events.find((e) => e.name === 'Execution721Packed').signatureHash
-  ) {
-    const { tokenIdListingIndexTrader, collectionPriceSide } = decodedData;
+  } else {
+    const {
+      tokenIdListingIndexTrader,
+      collectionPriceSide,
+      takerFeeRecipientRate,
+      makerFeeRecipientRate,
+    } = decodedData;
 
     const [nftTokenId, listingIndex, trader] = unpackTokenIdListingIndexTrader(
       tokenIdListingIndexTrader
@@ -128,7 +145,18 @@ const parse = (decodedData, event, events) => {
     usdSalePrice = ethSalePrice * event.price;
     amount = 1;
     seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
-  } else return {};
+
+    if (takerFeeRecipientRate || makerFeeRecipientRate) {
+      const [rate, recipient] =
+        takerFeeRecipientRate !== undefined
+          ? unpackFee(takerFeeRecipientRate)
+          : unpackFee(makerFeeRecipientRate);
+
+      royaltyFeeEth = ethSalePrice * (rate.toString() / 1e4);
+      royaltyFeeUsd = royaltyFeeEth * event.price;
+      royaltyRecipient = recipient;
+    }
+  }
 
   return {
     collection,
