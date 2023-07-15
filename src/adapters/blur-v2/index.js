@@ -147,13 +147,19 @@ const parse = (decodedData, event, events) => {
     const [orderType, price, collectionAddress] =
       unpackTypePriceCollection(collectionPriceSide);
 
-    buyer = trader;
     tokenId = nftTokenId;
     collection = collectionAddress;
     salePrice = ethSalePrice = price.toString() / 1e18;
     usdSalePrice = ethSalePrice * event.price;
     amount = 1;
-    seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
+    seller =
+      orderType === 0n
+        ? trader
+        : stripZerosLeft(`0x${transferEventNFT.topic_1}`);
+    buyer =
+      orderType === 0n
+        ? stripZerosLeft(`0x${transferEventNFT.topic_2}`)
+        : trader;
 
     if (takerFeeRecipientRate || makerFeeRecipientRate) {
       const [rate, recipient] =
