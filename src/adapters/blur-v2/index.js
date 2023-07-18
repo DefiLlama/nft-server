@@ -117,15 +117,24 @@ const parse = (decodedData, event, events) => {
       fees: {
         takerFee: { recipient, rate },
       },
+      orderType,
     } = decodedData;
-    seller = trader;
+
+    seller =
+      orderType === 0n
+        ? trader
+        : stripZerosLeft(`0x${transferEventNFT.topic_1}`);
+    buyer =
+      orderType === 0n
+        ? stripZerosLeft(`0x${transferEventNFT.topic_2}`)
+        : trader;
+
     tokenId = id;
     salePrice = price.toString() / 1e18;
     ethSalePrice = salePrice;
     usdSalePrice = ethSalePrice * event.price;
     collection = collectionAddress;
     amount = 1;
-    buyer = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
 
     if (rate > 0) {
       royaltyFeeEth = ethSalePrice * (rate.toString() / 1e4);
