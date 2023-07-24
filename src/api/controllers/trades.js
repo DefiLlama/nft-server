@@ -20,10 +20,16 @@ const getSales = async (req, res) => {
     [collectionId, lb, ub] = collectionId.split(':');
   }
 
+  let columns =
+    'SELECT EXTRACT(EPOCH FROM block_time) AS block_time, eth_sale_price';
+  if (tokenId) {
+    columns +=
+      ", ENCODE(transaction_hash, 'hex') AS tx_hash, ENCODE(buyer, 'hex') AS buyer, ENCODE(seller, 'hex') AS seller";
+  }
+
   const query = minify(`
-    WITH sales AS (SELECT
-        EXTRACT(EPOCH FROM block_time) AS block_time,
-        eth_sale_price
+    WITH sales AS (
+        ${columns}
     FROM
         ethereum.nft_trades AS t
     WHERE
@@ -65,10 +71,14 @@ const getSales = async (req, res) => {
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeaderFixedCache(300))
-    .status(200)
-    .json(response.map((c) => [c.block_time, c.eth_sale_price]));
+  if (!tokenId) {
+    res
+      .set(customHeaderFixedCache(300))
+      .status(200)
+      .json(response.map((c) => [c.block_time, c.eth_sale_price]));
+  } else {
+    res.set(customHeaderFixedCache(300)).status(200).json(response);
+  }
 };
 
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
