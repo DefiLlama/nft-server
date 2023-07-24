@@ -24,7 +24,7 @@ const getSales = async (req, res) => {
     'SELECT EXTRACT(EPOCH FROM block_time) AS block_time, eth_sale_price';
   if (tokenId) {
     columns +=
-      ", ENCODE(transaction_hash, 'hex') AS tx_hash, ENCODE(buyer, 'hex') AS buyer, ENCODE(seller, 'hex') AS seller";
+      ", ENCODE(transaction_hash, 'hex') AS tx_hash, ENCODE(seller, 'hex') AS seller, ENCODE(buyer, 'hex') AS buyer";
   }
 
   const query = minify(`
