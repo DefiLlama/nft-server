@@ -6,7 +6,7 @@ const trades = require('../controllers/trades');
 router.route('/volume').get(trades.getVolume);
 router.route('/exchangeStats').get(trades.getExchangeStats);
 router.route('/exchangeVolume').get(trades.getExchangeVolume);
-router.route('/sales/:collectionId').get(trades.getSales);
+router.route('/sales').get(trades.getSales);
 router.route('/salesNew').get(trades.getSalesNew);
 router.route('/stats/:collectionId').get(trades.getStats);
 router.route('/royalties').get(trades.getRoyalties);
