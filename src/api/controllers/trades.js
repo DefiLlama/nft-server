@@ -67,6 +67,69 @@ const getSales = async (req, res) => {
     .json(response.map((c) => [c.block_time, c.eth_sale_price]));
 };
 
+const getSalesNew = async (req, res) => {
+  let collectionId = req.query.collectionId;
+  if (!collectionId || !checkCollection(collectionId))
+    return res.status(400).json('invalid collectionId!');
+  let tokenId = req.query.tokenId;
+
+  let lb, ub;
+  // artblocks
+  if (collectionId.includes(':')) {
+    [collectionId, lb, ub] = collectionId.split(':');
+  }
+
+  const query = minify(`
+    WITH sales AS (SELECT
+        EXTRACT(EPOCH FROM block_time) AS block_time,
+        eth_sale_price
+    FROM
+        ethereum.nft_trades AS t
+    WHERE
+        collection = $<collectionId>
+        ${
+          lb
+            ? "AND encode(token_id, 'escape')::numeric BETWEEN $<lb> AND $<ub>"
+            : tokenId
+            ? 'AND token_id = $<tokenId>'
+            : ''
+        }
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ethereum.nft_wash_trades AS wt
+          WHERE wt.transaction_hash = t.transaction_hash
+            AND wt.log_index = t.log_index
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM ethereum.nft_trades_blacklist AS b
+          WHERE t.transaction_hash = b.transaction_hash
+        )
+      )
+    SELECT distinct *
+    FROM
+        sales
+    WHERE
+        (SELECT COUNT(*) FROM sales) <= 30000 OR RANDOM() <= 0.5;
+  `);
+
+  const response = await indexa.query(query, {
+    collectionId: `\\${collectionId.slice(1)}`,
+    lb: Number(lb),
+    ub: Number(ub),
+    tokenId,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeaderFixedCache(300))
+    .status(200)
+    .json(response.map((c) => [c.block_time, c.eth_sale_price]));
+};
+
 // get daily aggregated statistics such as volume, sale count per day for a given collectionId
 const getStats = async (req, res) => {
   let collectionId = req.params.collectionId;
@@ -432,6 +495,7 @@ ORDER BY
 
 module.exports = {
   getSales,
+  getSalesNew,
   getStats,
   getVolume,
   getExchangeStats,
