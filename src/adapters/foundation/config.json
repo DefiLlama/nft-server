@@ -9,6 +9,10 @@
     {
       "name": "OfferAccepted",
       "signatureHash": "0x1cb8adb37d6d35e94cd0695ca39895b84371864713f5ca7eada52af9ff23744b"
+    },
+    {
+      "name": "ReserveAuctionFinalized",
+      "signatureHash": "0x2edb0e99c6ac35be6731dab554c1d1fa1b7beb675090dbb09fb14e615aca1c4a"
     }
   ]
 }

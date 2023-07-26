@@ -460,24 +460,23 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   );
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const q =
-    config.exchangeName === 'zora'
-      ? queryZora
-      : config.version === 'wyvern'
-      ? queryWyvern
-      : config.exchangeName === 'cryptopunks'
-      ? queryCryptopunks
-      : config.version === 'looksrare-v1'
-      ? queryLooksrareV1
-      : ['blur-lend', 'blur-v2'].includes(config.version)
-      ? queryBlurBlend
-      : config.exchangeName === 'rarible'
-      ? queryRarible
-      : config.exchangeName === 'sudoswap'
-      ? querySudoswap
-      : config.version === 'sudoswap-v2'
-      ? querySudoswapV2
-      : query;
+  const q = ['zora', 'foundation'].includes(config.exchangeName)
+    ? queryZora
+    : config.version === 'wyvern'
+    ? queryWyvern
+    : config.exchangeName === 'cryptopunks'
+    ? queryCryptopunks
+    : config.version === 'looksrare-v1'
+    ? queryLooksrareV1
+    : ['blur-lend', 'blur-v2'].includes(config.version)
+    ? queryBlurBlend
+    : config.exchangeName === 'rarible'
+    ? queryRarible
+    : config.exchangeName === 'sudoswap'
+    ? querySudoswap
+    : config.version === 'sudoswap-v2'
+    ? querySudoswapV2
+    : query;
 
   const response = await task.query(minify(q, { compress: false }), {
     startBlock,
