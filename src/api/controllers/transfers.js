@@ -6,7 +6,7 @@ const { customHeaderFixedCache } = require('../../utils/customHeader');
 const { indexa } = require('../../utils/dbConnection');
 
 const getTransfers = async (req, res) => {
-  let { collectionId, tokenId } = req.query;
+  let { collectionId, tokenId, excludeSales } = req.query;
   if (!collectionId || !tokenId || !checkCollection(collectionId))
     return res.status(400).json('invalid collectionId/tokenId!');
 
@@ -29,16 +29,11 @@ FROM
 WHERE
   t.collection = $<collectionId>
   AND t.token_id = $<tokenId>
-  AND NOT EXISTS (
-      SELECT
-          1
-      FROM
-          ethereum.nft_trades AS trades
-      WHERE
-          trades.collection = $<collectionId>
-          AND trades.token_id = $<tokenId>
-          AND trades.transaction_hash = t.transaction_hash
-  )
+  ${
+    excludeSales
+      ? 'AND NOT EXISTS (SELECT 1 FROM ethereum.nft_trades AS trades WHERE trades.collection = $<collectionId> AND trades.token_id = $<tokenId> AND trades.transaction_hash = t.transaction_hash)'
+      : ''
+  }
   `);
 
   const response = await indexa.query(query, {
