@@ -51,6 +51,79 @@ const getTransfers = async (req, res) => {
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getNfts = async (req, res) => {
+  const query = minify(`
+WITH receiver AS (
+    SELECT
+        *
+    FROM
+        ethereum.nft_transfers
+    WHERE
+        to_address = $<address>
+        OR from_address = $<address>
+),
+max_date AS (
+    SELECT
+        collection,
+        token_id,
+        max(block_number) AS block_number
+    FROM
+        receiver
+    GROUP BY
+        collection,
+        token_id
+),
+latest AS (
+    SELECT
+        *
+    FROM
+        receiver r
+    WHERE
+        EXISTS (
+            SELECT
+                1
+            FROM
+                max_date m
+            WHERE
+                r.collection = m.collection
+                AND r.token_id = m.token_id
+                AND r.block_number = m.block_number
+        )
+)
+SELECT
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    encode(collection, 'hex') AS collection,
+    encode(token_id, 'escape') AS token_id,
+    encode(from_address, 'hex') AS from_address,
+    encode(to_address, 'hex') AS to_address,
+    log_index,
+    block_time,
+    block_number
+FROM
+    latest
+WHERE
+    to_address = $<address>
+  `);
+
+  const address = req.params.address;
+  if (!checkCollection(address))
+    return res.status(400).json('invalid address!');
+
+  const response = await indexa.query(query, {
+    address: `\\${address.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeaderFixedCache(300))
+    .status(200)
+    .json(response.map((c) => convertKeysToCamelCase(c)));
+};
+
 module.exports = {
   getTransfers,
+  getNfts,
 };
