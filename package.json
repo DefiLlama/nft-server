@@ -10,7 +10,7 @@
     "start:api": "node src/api/server",
     "start:jobs": "node src/jobs/index",
     "start:monitor": "node src/jobs/indexMonitor",
-    "start:backfill_nft_transfers": "node src/transfers/backfill.js -b=17338865 -r=25"
+    "start:sync_nft_transfers": "node src/transfers/index"
   },
   "author": "",
   "license": "ISC",

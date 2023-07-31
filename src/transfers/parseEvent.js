@@ -9,12 +9,16 @@ const parseEvent = async (task, startBlock, endBlock) => {
   const events = await getEvents(task, startBlock, endBlock);
   if (!events.length) return [];
 
-  const parsedEvents = events.map((e) => parse(e));
+  const parsedEvents = events
+    .map((e) => parse(e))
+    .filter((e) => e.transaction_hash);
 
   return parsedEvents;
 };
 
 const parse = (event) => {
+  if (!event.topic_1) return {};
+
   const collection = event.contract_address;
   let tokenId;
   let fromAddress;
