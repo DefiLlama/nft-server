@@ -1,0 +1,10 @@
+{
+  "exchangeName": "knownorigin",
+  "contracts": ["0xf11ed77fd65840b64602526ddc38311e9923c81b"],
+  "events": [
+    {
+      "name": "BuyNowPurchased",
+      "signatureHash": "0x25a395eca5bca1a1ca0c1543a3e87384fabcf63100e03535276da15f838805b2"
+    }
+  ]
+}
