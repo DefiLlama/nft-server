@@ -1,0 +1,18 @@
+{
+  "exchangeName": "makersplace",
+  "contracts": ["0xa2707b069eebca7f8ae133162f19fe720d3aaa58"],
+  "events": [
+    {
+      "name": "OBOSaleEvent",
+      "signatureHash": "0x7657ffe1f72297f8773cec737634d73ad5d98a421b9f15dc99f3b792278d1396"
+    },
+    {
+      "name": "SaleSuccessfulEvent",
+      "signatureHash": "0x60364304ae1fda694c3be5cac0f507f6fcd2144b5d26870e8a26f7ac17df83bf"
+    },
+    {
+      "name": "TokenBidAccepted",
+      "signatureHash": "0x1f742344121ee39367760387f62d61b3b3490773d72cd37a18fc135d27babfda"
+    }
+  ]
+}
