@@ -1,0 +1,10 @@
+{
+  "exchangeName": "foundation",
+  "contracts": ["0xcDA72070E455bb31C7690a170224Ce43623d0B6f"],
+  "events": [
+    {
+      "name": "BuyPriceSet",
+      "signatureHash": "0xfcc77ea8bdcce862f43b7fb00fe6b0eb90d6aeead27d3800d9257cf7a05f9d96"
+    }
+  ]
+}
