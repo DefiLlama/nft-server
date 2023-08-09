@@ -7,7 +7,8 @@ const { nft } = require('../../utils/dbConnection');
 
 const getCollection = async (req, res) => {
   const collectionId = req.params.collectionId;
-  if (!checkCollection(collectionId))
+  const ids = collectionId.split(',');
+  if (ids.map((id) => checkCollection(id)).includes(false))
     return res.status(400).json('invalid collectionId!');
 
   const query = minify(
@@ -23,12 +24,12 @@ const getCollection = async (req, res) => {
   FROM
       collection
   WHERE
-      collection_id = $<collectionId>
+      collection_id IN ($<collectionId:csv>)
       `
   );
 
   const response = await nft.query(query, {
-    collectionId,
+    collectionId: ids,
   });
 
   if (!response) {
