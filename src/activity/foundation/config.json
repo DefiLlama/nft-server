@@ -21,6 +21,26 @@
     {
       "name": "OfferMade",
       "signatureHash": "0x00ce0a712e4e277ac7b34942865f0de7a5629dffe0539b70423ad5ff1ed6ab42"
+    },
+    {
+      "name": "ReserveAuctionBidPlaced",
+      "signatureHash": "0x26ea3ebbda62eb1baef13e1c237dddd956c87f80b2801f2616d806d52557b121"
+    },
+    {
+      "name": "ReserveAuctionCanceled",
+      "signatureHash": "0x14b9c40404d5b41deb481f9a40b8aeb2bf4b47679b38cf757075a66ed510f7f1"
+    },
+    {
+      "name": "ReserveAuctionCreated",
+      "signatureHash": "0x1062dd3b35f12b4064331244d00f40c1d4831965e4285654157a2409c6217cff"
+    },
+    {
+      "name": "ReserveAuctionInvalidated",
+      "signatureHash": "0x5603897cc9b1e866f3f7395ffc6638776041f21c094d0b4e748ff44c407fa362"
+    },
+    {
+      "name": "ReserveAuctionUpdated",
+      "signatureHash": "0x0c0f2662914f0cd1e952db2aa425901cb00e7c1f507687d22cb04e836d55d9c7"
     }
   ]
 }

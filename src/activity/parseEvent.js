@@ -47,7 +47,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   });
 
   // remove empty objects
-  return parsedEvents.filter((event) => event.collection);
+  return parsedEvents;
 };
 
 module.exports = parseEvent;
