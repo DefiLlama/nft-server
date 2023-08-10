@@ -27,10 +27,6 @@
       "signatureHash": "0x3ed14e51a13ebed8bcb36a692319d51c90603eef8a9b49835ed0f77909e6bdc6"
     },
     {
-      "name": "EditionBidAccepted",
-      "signatureHash": "0xbb5456559b0c90450f12de9d601e1470b0edb240c3425838360bd25412e6b8be"
-    },
-    {
       "name": "EditionBidPlaced",
       "signatureHash": "0x823a6e5c949aae9db807fd853796d0cf551fda5395f20faa534a3a2ef7149b9b"
     },
@@ -73,10 +69,6 @@
     {
       "name": "ReserveAuctionConvertedToOffers",
       "signatureHash": "0x5ad253cc2bfa6797b2f1b2a45aa1b0e961d3c6ff8090cc72122c1745d3e84101"
-    },
-    {
-      "name": "ReserveAuctionResulted",
-      "signatureHash": "0xa0a548bb147d15d7de045c333ab8b0ec3d0cc790775d009185aa0e009437507e"
     },
     {
       "name": "ReservePriceUpdated",
