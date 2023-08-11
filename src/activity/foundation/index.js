@@ -1,12 +1,14 @@
 const abi = require('../../adapters/foundation/abi.json');
 const config = require('./config.json');
 
+const nullAddress = '0000000000000000000000000000000000000000';
+
 const parse = (decodedData, event) => {
-  const activity = config.events.find(
+  const eventType = config.events.find(
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;
 
-  if (activity === 'BuyPriceSet') {
+  if (eventType === 'BuyPriceSet') {
     const { nftContract, tokenId, seller, price: _price } = decodedData;
 
     const price = _price.toString() / 1e18;
@@ -17,12 +19,13 @@ const parse = (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      address: seller,
-      activity,
+      currencyAddress: nullAddress,
+      userAddress: seller,
+      eventType,
     };
   } else if (
     ['BuyPriceCanceled', 'BuyPriceInvalidated', 'OfferInvalidated'].includes(
-      activity
+      eventType
     )
   ) {
     const { nftContract, tokenId } = decodedData;
@@ -30,9 +33,9 @@ const parse = (decodedData, event) => {
     return {
       collection: nftContract,
       tokenId,
-      activity,
+      eventType,
     };
-  } else if (activity === 'OfferMade') {
+  } else if (eventType === 'OfferMade') {
     const { nftContract, tokenId, buyer, amount, expiration } = decodedData;
 
     const price = amount.toString() / 1e18;
@@ -43,61 +46,65 @@ const parse = (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      address: buyer,
-      activity,
+      currencyAddress: nullAddress,
+      userAddress: buyer,
+      eventType,
       expiration,
     };
-  } else if (activity === 'ReserveAuctionBidPlaced') {
+  } else if (eventType === 'ReserveAuctionBidPlaced') {
     const { auctionId, bidder, amount, endTime } = decodedData;
 
     const price = amount.toString() / 1e18;
 
     return {
-      auctionId,
-      address: bidder,
+      eventId: auctionId,
+      userAddress: bidder,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
       expiration: endTime,
     };
   } else if (
-    ['ReserveAuctionCanceled', 'ReserveAuctionInvalidated'].includes(activity)
+    ['ReserveAuctionCanceled', 'ReserveAuctionInvalidated'].includes(eventType)
   ) {
     const { auctionId } = decodedData;
 
     return {
-      auctionId,
-      activity,
+      eventId: auctionId,
+      eventType,
     };
-  } else if (activity === 'ReserveAuctionCreated') {
+  } else if (eventType === 'ReserveAuctionCreated') {
     const { seller, nftContract, tokenId, duration, reservePrice, auctionId } =
       decodedData;
 
     const price = reservePrice.toString() / 1e18;
 
     return {
-      auctionId,
-      address: seller,
+      eventId: auctionId,
+      userAddress: seller,
       collection: nftContract,
       tokenId,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
       duration,
     };
-  } else if (activity === 'ReserveAuctionUpdated') {
+  } else if (eventType === 'ReserveAuctionUpdated') {
     const { auctionId, reservePrice } = decodedData;
 
     const price = reservePrice.toString() / 1e18;
 
     return {
-      auctionId,
-      activity,
+      eventId: auctionId,
+      eventType,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      currencyAddress: nullAddress,
     };
   }
 };

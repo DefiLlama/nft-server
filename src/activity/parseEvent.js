@@ -49,6 +49,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
       return {
         ...rest,
         ...parsedEvent,
+        exchangeName: config.exchangeName,
       };
     })
   );

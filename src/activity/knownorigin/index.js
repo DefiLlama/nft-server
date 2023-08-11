@@ -1,131 +1,141 @@
 const abi = require('../../adapters/knownorigin/abi.json');
 const config = require('./config.json');
 
+const nullAddress = '0000000000000000000000000000000000000000';
+
 const parse = (decodedData, event) => {
-  const activity = config.events.find(
+  const eventType = config.events.find(
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;
 
-  if (activity === 'BidPlacedOnReserveAuction') {
+  if (eventType === 'BidPlacedOnReserveAuction') {
     const { _id, _bidder, _amount, _currentBiddingEnd } = decodedData;
 
     const price = _amount.toString() / 1e18;
 
     return {
-      id: _id,
+      eventId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      address: _bidder,
+      userAddress: _bidder,
       expiration: _currentBiddingEnd,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'BidWithdrawnFromReserveAuction') {
+  } else if (eventType === 'BidWithdrawnFromReserveAuction') {
     const { _id, _bidder } = decodedData;
 
     return {
-      id: _id,
-      address: _bidder,
-      activity,
+      eventId: _id,
+      userAddress: _bidder,
+      eventType,
     };
-  } else if (activity === 'BuyNowPriceChanged') {
+  } else if (eventType === 'BuyNowPriceChanged') {
     const { _id, _price } = decodedData;
 
     const price = _price.toString() / 1e18;
 
     return {
-      id: _id,
+      eventId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'ConvertFromBuyNowToOffers') {
+  } else if (eventType === 'ConvertFromBuyNowToOffers') {
     const { _editionId } = decodedData;
 
     return {
-      id: _editionId,
-      activity,
+      eventId: _editionId,
+      eventType,
     };
-  } else if (activity === 'ConvertSteppedAuctionToBuyNow') {
+  } else if (eventType === 'ConvertSteppedAuctionToBuyNow') {
     const { _editionId, _listingPrice } = decodedData;
 
     const price = _listingPrice.toString() / 1e18;
 
     return {
-      id: _editionId,
+      eventId: _editionId,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'ListedForBuyNow') {
+  } else if (eventType === 'ListedForBuyNow') {
     const { _id, _price, _currentOwner } = decodedData;
 
     const price = _price.toString() / 1e18;
 
     return {
-      id: _id,
+      eventId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'ListedForReserveAuction') {
+  } else if (eventType === 'ListedForReserveAuction') {
     const { _id, _reservePrice, _startDate } = decodedData;
 
     const price = _reservePrice.toString() / 1e18;
 
     return {
-      id: _id,
+      eventId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'ReserveAuctionConvertedToBuyItNow') {
+  } else if (eventType === 'ReserveAuctionConvertedToBuyItNow') {
     const { _id, _listingPrice, _startDate } = decodedData;
 
     const price = _listingPrice.toString() / 1e18;
 
     return {
-      id: _id,
+      eventId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'ReserveAuctionConvertedToOffers') {
+  } else if (eventType === 'ReserveAuctionConvertedToOffers') {
     const { _editionId, _startDate } = decodedData;
 
     return {
-      id: _editionId,
-      activity,
+      eventId: _editionId,
+      eventType,
     };
-  } else if (activity === 'ReservePriceUpdated') {
+  } else if (eventType === 'ReservePriceUpdated') {
     const { _id, _finalPrice, _currentOwner, _winner, _resulter } = decodedData;
 
     const price = _finalPrice.toString() / 1e18;
 
     return {
-      id: _id,
-      activity,
+      eventId: _id,
+      eventType,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      address: _winner,
+      currencyAddress: nullAddress,
+      userAddress: _winner,
     };
-  } else if (activity === 'ReservePriceUpdated') {
+  } else if (eventType === 'ReservePriceUpdated') {
     const { _id, _reservePrice } = decodedData;
 
     const price = _reservePrice.toString() / 1e18;
 
     return {
-      id: _id,
-      activity,
+      eventId: _id,
+      eventType,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      currencyAddress: nullAddress,
     };
   }
 };

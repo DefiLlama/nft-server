@@ -34,11 +34,11 @@ const getPrice = async (currencyAddress, amount, event) => {
 };
 
 const parse = async (decodedData, event) => {
-  const activity = config.events.find(
+  const eventType = config.events.find(
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;
 
-  if (activity === 'AuctionBid') {
+  if (eventType === 'AuctionBid') {
     const { _contractAddress, _bidder, _tokenId, _currencyAddress, _amount } =
       decodedData;
 
@@ -51,23 +51,23 @@ const parse = async (decodedData, event) => {
     return {
       collection: _contractAddress,
       tokenId: _tokenId,
-      currency: _currencyAddress,
+      currencyAddress: _currencyAddress,
       price,
       ethPrice,
       usdPrice,
-      address: _bidder,
-      activity,
+      userAddress: _bidder,
+      eventType,
     };
-  } else if (activity === 'CancelAuction') {
+  } else if (eventType === 'CancelAuction') {
     const { _contractAddress, _tokenId, _auctionCreator } = decodedData;
 
     return {
       collection: _contractAddress,
       tokenId: _tokenId,
-      address: _auctionCreator,
-      activity,
+      userAddress: _auctionCreator,
+      eventType,
     };
-  } else if (['CancelOffer', 'OfferPlaced'].includes(activity)) {
+  } else if (['CancelOffer', 'OfferPlaced'].includes(eventType)) {
     const { _originContract, _bidder, _currencyAddress, _amount, _tokenId } =
       decodedData;
 
@@ -80,14 +80,14 @@ const parse = async (decodedData, event) => {
     return {
       collection: _originContract,
       tokenId: _tokenId,
-      currency: _currencyAddress,
-      address: _bidder,
+      currencyAddress: _currencyAddress,
+      userAddress: _bidder,
       price,
       ethPrice,
       usdPrice,
-      activity,
+      eventType,
     };
-  } else if (activity === 'NewAuction') {
+  } else if (eventType === 'NewAuction') {
     const {
       _contractAddress,
       _tokenId,
@@ -106,15 +106,15 @@ const parse = async (decodedData, event) => {
     return {
       collection: _contractAddress,
       tokenId: _tokenId,
-      address: _auctionCreator,
-      currency: _currencyAddress,
+      userAddress: _auctionCreator,
+      currencyAddress: _currencyAddress,
       startTime: _startingTime,
       price,
       ethPrice,
       usdPrice,
-      activity,
+      eventType,
     };
-  } else if (activity === 'SetSalePrice') {
+  } else if (eventType === 'SetSalePrice') {
     const {
       _originContract,
       _currencyAddress,
@@ -132,12 +132,12 @@ const parse = async (decodedData, event) => {
     return {
       collection: _originContract,
       tokenId: _tokenId,
-      address: _splitRecipients[0],
-      currency: _currencyAddress,
+      userAddress: _splitRecipients[0],
+      currencyAddress: _currencyAddress,
       price,
       ethPrice,
       usdPrice,
-      activity,
+      eventType,
     };
   }
 };

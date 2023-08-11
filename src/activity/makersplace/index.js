@@ -1,20 +1,22 @@
 const abi = require('../../adapters/makersplace/abi.json');
 const config = require('./config.json');
 
+const nullAddress = '0000000000000000000000000000000000000000';
+
 const parse = (decodedData, event) => {
-  const activity = config.events.find(
+  const eventType = config.events.find(
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;
 
-  if (activity === 'SaleCanceledEvent') {
+  if (eventType === 'SaleCanceledEvent') {
     const { tokenId, tokenContractAddress } = decodedData;
 
     return {
       tokenId,
       collection: tokenContractAddress,
-      activity,
+      eventType,
     };
-  } else if (activity === 'SaleCreatedEvent') {
+  } else if (eventType === 'SaleCreatedEvent') {
     const { tokenId, tokenContractAddress, priceInWei } = decodedData;
 
     const price = priceInWei.toString() / 1e18;
@@ -25,9 +27,10 @@ const parse = (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      activity,
+      currencyAddress: nullAddress,
+      eventType,
     };
-  } else if (activity === 'TokenBidCreatedEvent') {
+  } else if (eventType === 'TokenBidCreatedEvent') {
     const { tokenId, tokenAddress, bidId, bidPrice, bidder } = decodedData;
 
     const price = bidPrice.toString() / 1e18;
@@ -35,21 +38,22 @@ const parse = (decodedData, event) => {
     return {
       tokenId,
       collection: tokenAddress,
-      bidId,
+      eventId: bidId,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      address: bidder,
-      activity,
+      currencyAddress: nullAddress,
+      userAddress: bidder,
+      eventType,
     };
-  } else if (activity === 'TokenBidRemovedEvent') {
+  } else if (eventType === 'TokenBidRemovedEvent') {
     const { tokenId, tokenAddress, bidId } = decodedData;
 
     return {
       tokenId,
       collection: tokenAddress,
-      bidId,
-      activity,
+      eventId: bidId,
+      eventType,
     };
   }
 };
