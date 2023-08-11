@@ -1,0 +1,22 @@
+{
+  "exchangeName": "makersplace",
+  "contracts": ["0xa2707b069eebca7f8ae133162f19fe720d3aaa58"],
+  "events": [
+    {
+      "name": "SaleCanceledEvent",
+      "signatureHash": "0xa50b2d6faf84e88de164f615bc8daa8477ab67f677d72aef3a3122d26c6eae28"
+    },
+    {
+      "name": "SaleCreatedEvent",
+      "signatureHash": "0x6852391c228e56409f2046f8f5b68af9ab60392697a47efa0910cf05cfbcae42"
+    },
+    {
+      "name": "TokenBidCreatedEvent",
+      "signatureHash": "0x9525a453a215f02f1c5afee7ab8628c140dfa606cd034605e34b8850f2f6ef20"
+    },
+    {
+      "name": "TokenBidRemovedEvent",
+      "signatureHash": "0xf6b89ca1bccc679695ae3b928ee8c9335ecdfd739853cfe9e209a13e40cfacc0"
+    }
+  ]
+}
