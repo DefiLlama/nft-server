@@ -40,7 +40,7 @@ const argv = yargs.options({
   const time = () => Date.now() / 1000;
   const start = time();
 
-  const { abi, config, parse } = require(`../activity/${marketplace}`);
+  const { abi, config, parse } = require(`../history/${marketplace}`);
 
   const parseEvent = require('./parseEvent');
 
