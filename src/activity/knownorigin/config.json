@@ -27,34 +27,6 @@
       "signatureHash": "0x3ed14e51a13ebed8bcb36a692319d51c90603eef8a9b49835ed0f77909e6bdc6"
     },
     {
-      "name": "EditionBidPlaced",
-      "signatureHash": "0x823a6e5c949aae9db807fd853796d0cf551fda5395f20faa534a3a2ef7149b9b"
-    },
-    {
-      "name": "EditionBidRejected",
-      "signatureHash": "0xdd21daffb84ed4431b50ed9dedcd5e0cf1f96a4cc5976fefb4be54d43be37281"
-    },
-    {
-      "name": "EditionBidWithdrawn",
-      "signatureHash": "0x2ed9db6d233a11ddbebd6f8b9e9ee561a991b8ab9a839ad4eb724d8397b3cff6"
-    },
-    {
-      "name": "EditionConvertedFromOffersToBuyItNow",
-      "signatureHash": "0x4ee58f1b139dbfa3b12ee1fc57ad8d513b35c670477df6dfde35944346b1d194"
-    },
-    {
-      "name": "EditionSteppedAuctionUpdated",
-      "signatureHash": "0xca6f94d6cf7150ed49f5d1ccd677efd457310ccf201845261d9098a6877dcf3c"
-    },
-    {
-      "name": "EditionSteppedSaleBuy",
-      "signatureHash": "0x41820cf4351ec738da5f8ada46c5a38d78c6aeaa3039cb1dddcf1ea6853dd343"
-    },
-    {
-      "name": "EditionSteppedSaleListed",
-      "signatureHash": "0xde833f743c6e9e4ce17e0e6662f66d3af9ecba83780a7c10cd54ffa7b049562e"
-    },
-    {
       "name": "ListedForBuyNow",
       "signatureHash": "0x7fd7de54b3a4cc7952845fd3fa85208e0ba980067ead6d59721bebc8bd7ec414"
     },
