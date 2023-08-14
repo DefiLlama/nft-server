@@ -16,26 +16,49 @@ const getHistory = async (req, res) => {
   }
 
   const query = minify(`
-  SELECT
-    encode(h.transaction_hash, 'hex') AS transaction_hash,
-    h.log_index,
-    h.block_time,
-    h.block_number,
-    encode(h.exchange_name, 'escape') AS exchange_name,
-    encode(h.event_type, 'escape') AS event_type,
-    h.price,
-    h.eth_price,
-    h.usd_price,
-    encode(h.currency_address, 'hex') AS currency_address,
-    encode(h.event_id, 'escape') AS event_id,
+  WITH _uniq AS (
+    SELECT
+        DISTINCT contract_address,
+        event_id
+    FROM
+        ethereum.nft_history
+    WHERE
+        collection = $<collectionId>
+        AND token_id = $<tokenId>
+),
+combined AS (
+    SELECT
+        *
+    FROM
+        ethereum.nft_history
+    WHERE
+        collection = $<collectionId>
+        AND token_id = $<tokenId>
+    UNION
+    SELECT
+        h.*
+    FROM
+        ethereum.nft_history AS h
+        JOIN _uniq u ON h.contract_address = u.contract_address
+        AND h.event_id = u.event_id
+)
+SELECT
+    encode(transaction_hash, 'hex') AS transaction_hash,
+    log_index,
+    block_time,
+    block_number,
+    encode(exchange_name, 'escape') AS exchange_name,
+    encode(event_type, 'escape') AS event_type,
+    price,
+    eth_price,
+    usd_price,
+    encode(currency_address, 'hex') AS currency_address,
+    encode(event_id, 'escape') AS event_id,
     expiration
-  FROM
-    ethereum.nft_history AS h
-  WHERE
-    h.collection = $<collectionId>
-    AND h.token_id = $<tokenId>
-  ORDER BY
-    h.block_number DESC
+FROM
+    combined
+ORDER BY
+    block_number DESC;
     `);
 
   const response = await indexa.query(query, {
