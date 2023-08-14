@@ -1,4 +1,4 @@
-const abi = require('../../adapters/knownorigin/abi.json');
+const abi = require('../../trades/knownorigin/abi.json');
 const config = require('./config.json');
 
 const nullAddress = '0000000000000000000000000000000000000000';

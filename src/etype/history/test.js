@@ -1,6 +1,6 @@
 const yargs = require('yargs');
 
-const { getMaxBlock } = require('../adapters/queries');
+const { getMaxBlock } = require('../trades/queries');
 const { blockRangeTest } = require('../../utils/params');
 const { indexa } = require('../../utils/dbConnection');
 

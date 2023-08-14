@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const parseEvent = require('./parseEvent');
-const { getMaxBlock } = require('../adapters/queries');
+const { getMaxBlock } = require('../trades/queries');
 const { insertHistory } = require('./queries');
 const castTypes = require('../../utils/castTypesHistory');
 const { blockRange } = require('../../utils/params');

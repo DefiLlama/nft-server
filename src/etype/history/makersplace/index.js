@@ -1,4 +1,4 @@
-const abi = require('../../adapters/makersplace/abi.json');
+const abi = require('../../trades/makersplace/abi.json');
 const config = require('./config.json');
 
 const nullAddress = '0000000000000000000000000000000000000000';

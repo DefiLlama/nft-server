@@ -1,5 +1,5 @@
 const parseEvent = require('./parseEvent');
-const { getMaxBlock } = require('../adapters/queries');
+const { getMaxBlock } = require('../trades/queries');
 const { insertTransfers } = require('./queries');
 const castTypes = require('../../utils/castTypesTransfers');
 const { blockRange } = require('../../utils/params');

@@ -1,4 +1,4 @@
-const { getMaxBlock } = require('../etype/adapters/queries');
+const { getMaxBlock } = require('../etype/trades/queries');
 const sendMessage = require('../utils/discordWebhook');
 const { blockRangeMonitor } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');

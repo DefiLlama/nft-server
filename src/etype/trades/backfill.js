@@ -40,7 +40,7 @@ const blockStop = argv.blockStop;
 (async () => {
   console.log(`==== Refill ${marketplace} ====`);
 
-  const { abi, config, parse } = require(`../adapters/${marketplace}`);
+  const { abi, config, parse } = require(`../trades/${marketplace}`);
   const parseEvent =
     config.version === 'wyvern'
       ? require('./parseEventWyvern')

@@ -11,7 +11,7 @@ const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
 
 const exe = async () => {
   // load modules
-  const modulesDir = path.join(__dirname, '../adapters');
+  const modulesDir = path.join(__dirname, '../trades');
   const modules = [];
   fs.readdirSync(modulesDir)
     .filter((mplace) => !mplace.endsWith('.js'))

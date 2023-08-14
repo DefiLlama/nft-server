@@ -1,4 +1,4 @@
-const abi = require('../../adapters/superrare/abi.json');
+const abi = require('../../trades/superrare/abi.json');
 const config = require('./config.json');
 const getHistoricalTokenPrice = require('../../../utils/price');
 

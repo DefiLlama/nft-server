@@ -40,7 +40,7 @@ const argv = yargs.options({
   const time = () => Date.now() / 1000;
   const start = time();
 
-  const { abi, config, parse } = require(`../adapters/${marketplace}`);
+  const { abi, config, parse } = require(`../trades/${marketplace}`);
 
   const parseEvent =
     config.version === 'wyvern'

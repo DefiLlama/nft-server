@@ -1,4 +1,4 @@
-const abi = require('../../adapters/foundation/abi.json');
+const abi = require('../../trades/foundation/abi.json');
 const config = require('./config.json');
 
 const nullAddress = '0000000000000000000000000000000000000000';
