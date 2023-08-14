@@ -132,7 +132,7 @@ const parse = async (decodedData, event) => {
     return {
       collection: _originContract,
       tokenId: _tokenId,
-      userAddress: _splitRecipients[0],
+      userAddress: _splitRecipients.length ? _splitRecipients[0] : null,
       currencyAddress: _currencyAddress,
       price,
       ethPrice,
