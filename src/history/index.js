@@ -64,7 +64,7 @@ const exe = async () => {
       `synced blocks: ${startBlock}-${
         stale ? endBlock : blockEvents
       } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
-        stale ? 0 : Math.max(blockEvents - blockHistory, 0)
+        stale ? Math.max(blockEvents - blockHistory, 0) : 0
       } ]`
     );
   }
