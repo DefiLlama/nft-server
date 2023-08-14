@@ -1,6 +1,6 @@
 const minify = require('pg-minify');
 
-const { getMaxBlock } = require('../adapters/queries');
+const { getMaxBlock } = require('../etype/adapters/queries');
 const { indexa } = require('../utils/dbConnection');
 
 const insertWashTrades = async (start, stop) => {
