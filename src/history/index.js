@@ -61,9 +61,11 @@ const exe = async () => {
     stale = checkIfStale(blockEvents, endBlock);
     blockHistory = endBlock;
     console.log(
-      `synced blocks: ${startBlock}-${endBlock} [inserted: ${
-        response?.rowCount ?? 0
-      } | blocks remaining: ${Math.max(blockEvents - blockHistory, 0)} ]`
+      `synced blocks: ${startBlock}-${
+        stale ? endBlock : blockEvents
+      } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
+        stale ? 0 : Math.max(blockEvents - blockHistory, 0)
+      } ]`
     );
   }
 
