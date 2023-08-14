@@ -110,20 +110,6 @@ const parse = (decodedData, event) => {
       eventId: _editionId,
       eventType,
     };
-  } else if (eventType === 'ReserveAuctionResulted') {
-    const { _id, _finalPrice, _currentOwner, _winner, _resulter } = decodedData;
-
-    const price = _finalPrice.toString() / 1e18;
-
-    return {
-      eventId: _id,
-      eventType,
-      price,
-      ethPrice: price,
-      usdPrice: price * event.price,
-      currencyAddress: nullAddress,
-      userAddress: _winner,
-    };
   } else if (eventType === 'ReservePriceUpdated') {
     const { _id, _reservePrice } = decodedData;
 
