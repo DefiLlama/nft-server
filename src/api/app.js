@@ -5,6 +5,7 @@ const trades = require('./routes/trades');
 const floor = require('./routes/floor');
 const orderbook = require('./routes/orderbook');
 const transfers = require('./routes/transfers');
+const history = require('./routes/history');
 
 const app = express();
 if (process.env.NODE_ENV === 'development') {
@@ -12,6 +13,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 app.use(helmet());
 
-app.use('/', [trades, floor, orderbook, transfers]);
+app.use('/', [trades, floor, orderbook, transfers, history]);
 
 module.exports = app;
