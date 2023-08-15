@@ -53,6 +53,7 @@ SELECT
     eth_price,
     usd_price,
     encode(currency_address, 'hex') AS currency_address,
+    encode(user_address, 'hex') AS user_address,
     encode(event_id, 'escape') AS event_id,
     expiration
 FROM
