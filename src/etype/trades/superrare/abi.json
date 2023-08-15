@@ -1,326 +1,352 @@
 [
   {
-    "anonymous": false,
+    "constant": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_seller",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address payable[]",
-        "name": "_splitAddresses",
-        "type": "address[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8[]",
-        "name": "_splitRatios",
-        "type": "uint8[]"
-      }
+      { "name": "_uri", "type": "string" },
+      { "name": "_editions", "type": "uint256" },
+      { "name": "_salePrice", "type": "uint256" }
     ],
-    "name": "AcceptOffer",
+    "name": "addNewTokenWithEditions",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "_tokenId", "type": "uint256" },
+      { "name": "_salePrice", "type": "uint256" }
+    ],
+    "name": "setSalePrice",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [{ "name": "_name", "type": "string" }],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "_to", "type": "address" },
+      { "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "approve",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "currentBidDetailsOfToken",
+    "outputs": [
+      { "name": "", "type": "uint256" },
+      { "name": "", "type": "address" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "approvedFor",
+    "outputs": [{ "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "acceptBid",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_creator", "type": "address" }],
+    "name": "isWhitelisted",
+    "outputs": [{ "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "bid",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_owner", "type": "address" }],
+    "name": "tokensOf",
+    "outputs": [{ "name": "", "type": "uint256[]" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_percentage", "type": "uint256" }],
+    "name": "setMaintainerPercentage",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_creator", "type": "address" }],
+    "name": "whitelistCreator",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "ownerOf",
+    "outputs": [{ "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_uri", "type": "string" }],
+    "name": "originalTokenOfUri",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_owner", "type": "address" }],
+    "name": "balanceOf",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{ "name": "_symbol", "type": "string" }],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "cancelBid",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "salePriceOfToken",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "_to", "type": "address" },
+      { "name": "_tokenId", "type": "uint256" }
+    ],
+    "name": "transfer",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "takeOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_percentage", "type": "uint256" }],
+    "name": "setCreatorPercentage",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "tokenURI",
+    "outputs": [{ "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "creatorOfToken",
+    "outputs": [{ "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_tokenId", "type": "uint256" }],
+    "name": "buy",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "_uri", "type": "string" }],
+    "name": "addNewToken",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "creatorPercentage",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "maintainerPercentage",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "newOwner", "type": "address" }],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [{ "indexed": true, "name": "_creator", "type": "address" }],
+    "name": "WhitelistCreator",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_contractAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "_startedAuction",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_newAuctionLength",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_previousBidder",
-        "type": "address"
-      }
+      { "indexed": true, "name": "_bidder", "type": "address" },
+      { "indexed": true, "name": "_amount", "type": "uint256" },
+      { "indexed": true, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "AuctionBid",
+    "name": "Bid",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_contractAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_seller",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
+      { "indexed": true, "name": "_bidder", "type": "address" },
+      { "indexed": true, "name": "_seller", "type": "address" },
+      { "indexed": false, "name": "_amount", "type": "uint256" },
+      { "indexed": true, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "AuctionSettled",
+    "name": "AcceptBid",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_contractAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_auctionCreator",
-        "type": "address"
-      }
+      { "indexed": true, "name": "_bidder", "type": "address" },
+      { "indexed": true, "name": "_amount", "type": "uint256" },
+      { "indexed": true, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "CancelAuction",
+    "name": "CancelBid",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
+      { "indexed": true, "name": "_buyer", "type": "address" },
+      { "indexed": true, "name": "_seller", "type": "address" },
+      { "indexed": false, "name": "_amount", "type": "uint256" },
+      { "indexed": true, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "CancelOffer",
+    "name": "Sold",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_contractAddress",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_auctionCreator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_startingTime",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_minimumBid",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_lengthOfAuction",
-        "type": "uint256"
-      }
+      { "indexed": true, "name": "_tokenId", "type": "uint256" },
+      { "indexed": true, "name": "_price", "type": "uint256" }
     ],
-    "name": "NewAuction",
+    "name": "SalePriceSet",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "_convertible",
-        "type": "bool"
-      }
-    ],
-    "name": "OfferPlaced",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+      { "indexed": true, "name": "previousOwner", "type": "address" },
+      { "indexed": true, "name": "newOwner", "type": "address" }
     ],
     "name": "OwnershipTransferred",
     "type": "event"
@@ -328,532 +354,21 @@
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_target",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address payable[]",
-        "name": "_splitRecipients",
-        "type": "address[]"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint8[]",
-        "name": "_splitRatios",
-        "type": "uint8[]"
-      }
+      { "indexed": true, "name": "_from", "type": "address" },
+      { "indexed": true, "name": "_to", "type": "address" },
+      { "indexed": false, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "SetSalePrice",
+    "name": "Transfer",
     "type": "event"
   },
   {
     "anonymous": false,
     "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_buyer",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_seller",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
+      { "indexed": true, "name": "_owner", "type": "address" },
+      { "indexed": true, "name": "_approved", "type": "address" },
+      { "indexed": false, "name": "_tokenId", "type": "uint256" }
     ],
-    "name": "Sold",
+    "name": "Approval",
     "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "COLDIE_AUCTION",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "NO_AUCTION",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "SCHEDULED_AUCTION",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      {
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" },
-      {
-        "internalType": "address payable[]",
-        "name": "_splitAddresses",
-        "type": "address[]"
-      },
-      { "internalType": "uint8[]", "name": "_splitRatios", "type": "uint8[]" }
-    ],
-    "name": "acceptOffer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "approvedTokenRegistry",
-    "outputs": [
-      {
-        "internalType": "contract IApprovedTokenRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "auctionBids",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "bidder",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint8", "name": "marketplaceFee", "type": "uint8" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "auctionLengthExtension",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      {
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" }
-    ],
-    "name": "buy",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      {
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      }
-    ],
-    "name": "cancelOffer",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_marketplaceSettings",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_royaltyEngine",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_royaltyRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_spaceOperatorRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_approvedTokenRegistry",
-        "type": "address"
-      },
-      { "internalType": "address", "name": "_payments", "type": "address" },
-      {
-        "internalType": "address",
-        "name": "_stakingRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_networkBeneficiary",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "marketplaceSettings",
-    "outputs": [
-      {
-        "internalType": "contract IMarketplaceSettings",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "maxAuctionLength",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minimumBidIncreasePercentage",
-    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "networkBeneficiary",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      {
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_amount", "type": "uint256" },
-      { "internalType": "bool", "name": "_convertible", "type": "bool" }
-    ],
-    "name": "offer",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "offerCancelationDelay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "payments",
-    "outputs": [
-      { "internalType": "contract IPayments", "name": "", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_target", "type": "address" }
-    ],
-    "name": "removeSalePrice",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyEngine",
-    "outputs": [
-      {
-        "internalType": "contract IRoyaltyEngineV1",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyRegistry",
-    "outputs": [
-      {
-        "internalType": "contract IERC721CreatorRoyalty",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originContract",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      {
-        "internalType": "address",
-        "name": "_currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "_listPrice", "type": "uint256" },
-      { "internalType": "address", "name": "_target", "type": "address" },
-      {
-        "internalType": "address payable[]",
-        "name": "_splitAddresses",
-        "type": "address[]"
-      },
-      { "internalType": "uint8[]", "name": "_splitRatios", "type": "uint8[]" }
-    ],
-    "name": "setSalePrice",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "spaceOperatorRegistry",
-    "outputs": [
-      {
-        "internalType": "contract ISpaceOperatorRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "stakingRegistry",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "superRareAuctionHouse",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "superRareMarketplace",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "tokenAuctions",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "auctionCreator",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "creationBlock", "type": "uint256" },
-      { "internalType": "uint256", "name": "startingTime", "type": "uint256" },
-      {
-        "internalType": "uint256",
-        "name": "lengthOfAuction",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "minimumBid", "type": "uint256" },
-      { "internalType": "bytes32", "name": "auctionType", "type": "bytes32" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
-    "name": "tokenCurrentOffers",
-    "outputs": [
-      { "internalType": "address payable", "name": "buyer", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" },
-      { "internalType": "uint256", "name": "timestamp", "type": "uint256" },
-      { "internalType": "uint8", "name": "marketplaceFee", "type": "uint8" },
-      { "internalType": "bool", "name": "convertible", "type": "bool" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "", "type": "address" },
-      { "internalType": "uint256", "name": "", "type": "uint256" },
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
-    "name": "tokenSalePrices",
-    "outputs": [
-      {
-        "internalType": "address payable",
-        "name": "seller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "currencyAddress",
-        "type": "address"
-      },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   }
 ]
