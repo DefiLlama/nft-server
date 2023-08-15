@@ -615,7 +615,7 @@ const buildDeleteQ = (config) => {
   `;
 };
 
-const deleteTrades = async (config, startBlock, endBlock) => {
+const deleteEvents = async (startBlock, endBlock, config) => {
   const query = buildDeleteQ(config);
 
   // required for the delteteQ
@@ -639,7 +639,7 @@ const deleteTrades = async (config, startBlock, endBlock) => {
 };
 
 // --------- transaction query
-const deleteAndInsertTrades = async (payload, config, startBlock, endBlock) => {
+const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
   // build queries
   const deleteQuery = buildDeleteQ(config);
   const insertQuery = buildInsertQ(payload);
@@ -685,6 +685,6 @@ module.exports = {
   getMaxBlock,
   getTraces,
   insertTrades,
-  deleteTrades,
-  deleteAndInsertTrades,
+  deleteEvents,
+  deleteAndInsertEvents,
 };

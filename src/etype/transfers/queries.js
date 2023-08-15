@@ -89,15 +89,11 @@ const deleteQ = `
 DELETE FROM
     ethereum.nft_transfers
 WHERE
-    (
-        topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
-        OR topic_0 = '\\xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62'
-    )
-    AND block_number >= $<startBlock>
+    block_number >= $<startBlock>
     AND block_number <= $<endBlock>
   `;
 
-const deleteTransfers = async (startBlock, endBlock) => {
+const deleteEvents = async (startBlock, endBlock) => {
   const response = await indexa.result(deleteQ, {
     startBlock,
     endBlock,
@@ -111,7 +107,7 @@ const deleteTransfers = async (startBlock, endBlock) => {
 };
 
 // --------- transaction query
-const deleteAndInsertTransfers = async (payload, startBlock, endBlock) => {
+const deleteAndInsertEvents = async (payload, startBlock, endBlock) => {
   // build queries
   const deleteQuery = deleteQ;
   const insertQuery = buildInsertQ(payload);
@@ -147,6 +143,6 @@ const deleteAndInsertTransfers = async (payload, startBlock, endBlock) => {
 module.exports = {
   getEvents,
   insertTransfers,
-  deleteTransfers,
-  deleteAndInsertTransfers,
+  deleteEvents,
+  deleteAndInsertEvents,
 };

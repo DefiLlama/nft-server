@@ -106,7 +106,7 @@ const buildDeleteQ = () => {
   `;
 };
 
-const deleteHistory = async (config, startBlock, endBlock) => {
+const deleteEvents = async (startBlock, endBlock, config) => {
   const query = buildDeleteQ();
 
   // required for the delteteQ
@@ -130,12 +130,7 @@ const deleteHistory = async (config, startBlock, endBlock) => {
 };
 
 // --------- transaction query
-const deleteAndInsertHistory = async (
-  payload,
-  config,
-  startBlock,
-  endBlock
-) => {
+const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
   // build queries
   const deleteQuery = buildDeleteQ();
   const insertQuery = buildInsertQ(payload);
@@ -179,6 +174,6 @@ const deleteAndInsertHistory = async (
 module.exports = {
   getEvents,
   insertHistory,
-  deleteHistory,
-  deleteAndInsertHistory,
+  deleteEvents,
+  deleteAndInsertEvents,
 };
