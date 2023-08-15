@@ -15,10 +15,12 @@ SELECT
   e.block_time,
   e.block_number,
   encode(e.block_hash, 'hex') AS block_hash,
-  b.price
+  b.price,
+  encode(t.from_address, 'hex') AS from_address
 FROM
   ethereum.event_logs e
   LEFT JOIN ethereum.blocks b ON e.block_time = b.time
+  LEFT JOIN ethereum.transactions t ON e.transaction_hash = t.hash
 WHERE
   e.contract_address in ($<contractAddresses:csv>)
   AND e.topic_0 in ($<eventSignatureHashes:csv>)

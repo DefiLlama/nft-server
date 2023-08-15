@@ -1,0 +1,18 @@
+{
+  "exchangeName": "superrare",
+  "contracts": ["0x41A322b28D0fF354040e2CbC676F0320d8c8850d"],
+  "events": [
+    {
+      "name": "Bid",
+      "signatureHash": "0x19421268847f42dd61705778018ddfc43bcdce8517e7a630acb12f122c709481"
+    },
+    {
+      "name": "CancelBid",
+      "signatureHash": "0x09dcebe16a733e22cc47e4959c50d4f21624d9f1815db32c2e439fbbd7b3eda0"
+    },
+    {
+      "name": "SalePriceSet",
+      "signatureHash": "0xe23ea816dce6d7f5c0b85cbd597e7c3b97b2453791152c0b94e5e5c5f314d2f0"
+    }
+  ]
+}
