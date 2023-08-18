@@ -25,8 +25,10 @@ const castTypes = (nftHistory) => {
     user_address: nft.userAddress
       ? Buffer.from(nft.userAddress.replace('0x', ''), 'hex')
       : null,
-    event_id: nft.eventId ? Buffer.from(nft.eventId.toString()) : null,
-    expiration: nft.expiration ? Number(nft.expiration) : null,
+    event_id: nft.eventId?.toString()
+      ? Buffer.from(nft.eventId.toString())
+      : null,
+    expiration: nft.expiration?.toString() ? Number(nft.expiration) : null,
   }));
 };
 
