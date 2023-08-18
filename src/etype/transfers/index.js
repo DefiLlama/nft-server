@@ -44,22 +44,14 @@ const exe = async () => {
     }
 
     stale = checkIfStale(blockEvents, endBlock);
-    blockTransfers = await indexa.task(async (t) => {
-      return await getMaxBlock(t, 'ethereum.nft_transfers');
-    });
-
-    if (response) {
-      console.log(
-        `synced blocks: ${startBlock}-${blockTransfers} [inserted: ${
-          response.rowCount
-        } transfers | blocks remaining: ${Math.max(
-          blockEvents - blockTransfers,
-          0
-        )} ]`
-      );
-    } else {
-      console.log(`empty payload for: ${startBlock}-${blockTransfers}`);
-    }
+    blockTransfers = endBlock;
+    console.log(
+      `synced blocks: ${startBlock}-${
+        stale ? endBlock : blockEvents
+      } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
+        stale ? Math.max(blockEvents - blockTransfers, 0) : 0
+      } ]`
+    );
   }
 
   // once synced with event_logs, pausing for min 12 sec (1block) before next sync starts
