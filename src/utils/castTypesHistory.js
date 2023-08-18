@@ -11,7 +11,9 @@ const castTypes = (nftHistory) => {
     collection: nft.collection
       ? Buffer.from(nft.collection.replace('0x', ''), 'hex')
       : null,
-    token_id: nft.tokenId ? Buffer.from(nft.tokenId.toString()) : null,
+    token_id: nft.tokenId?.toString()
+      ? Buffer.from(nft.tokenId.toString())
+      : null,
     price: Number.isFinite(nft.price) ? Number(nft.price) : null,
     eth_price: Number.isFinite(nft.ethPrice) ? Number(nft.ethPrice) : null,
     usd_price: Number.isFinite(nft.usdPrice)
