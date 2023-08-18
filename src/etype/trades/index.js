@@ -57,22 +57,14 @@ const exe = async () => {
     }
 
     stale = checkIfStale(blockEvents, endBlock);
-    blockTrades = await indexa.task(async (t) => {
-      return await getMaxBlock(t, 'ethereum.nft_trades');
-    });
-
-    if (response) {
-      console.log(
-        `synced blocks: ${startBlock}-${blockTrades} [inserted: ${
-          response.rowCount
-        } trades | blocks remaining: ${Math.max(
-          blockEvents - blockTrades,
-          0
-        )} ]`
-      );
-    } else {
-      console.log(`empty payload for: ${startBlock}-${blockTrades}`);
-    }
+    blockTrades = endBlock;
+    console.log(
+      `synced blocks: ${startBlock}-${
+        stale ? endBlock : blockEvents
+      } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
+        stale ? Math.max(blockEvents - blockTrades, 0) : 0
+      } ]`
+    );
   }
 
   // once synced with event_logs, pausing for min 12 sec (1block) before next sync starts
