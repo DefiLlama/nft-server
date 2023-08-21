@@ -33,6 +33,8 @@ const parse = (decodedData, event, events) => {
             tf.topic_3.includes(event.from_address)
         );
 
+  if (!transferEventNFT) return {};
+
   const { amount } = decodedData;
   // price = in eth
   const salePrice = amount.toString() / 1e18;
