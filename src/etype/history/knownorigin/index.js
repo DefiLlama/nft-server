@@ -14,7 +14,7 @@ const parse = (decodedData, event) => {
     const price = _amount.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -27,7 +27,7 @@ const parse = (decodedData, event) => {
     const { _id, _bidder } = decodedData;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       userAddress: _bidder,
       eventType,
     };
@@ -37,7 +37,7 @@ const parse = (decodedData, event) => {
     const price = _price.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -48,7 +48,7 @@ const parse = (decodedData, event) => {
     const { _editionId } = decodedData;
 
     return {
-      eventId: _editionId,
+      tokenId: _editionId,
       eventType,
     };
   } else if (eventType === 'ConvertSteppedAuctionToBuyNow') {
@@ -57,7 +57,7 @@ const parse = (decodedData, event) => {
     const price = _listingPrice.toString() / 1e18;
 
     return {
-      eventId: _editionId,
+      tokenId: _editionId,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -70,7 +70,7 @@ const parse = (decodedData, event) => {
     const price = _price.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -83,7 +83,7 @@ const parse = (decodedData, event) => {
     const price = _reservePrice.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -96,7 +96,7 @@ const parse = (decodedData, event) => {
     const price = _listingPrice.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       price,
       ethPrice: price,
       usdPrice: price * event.price,
@@ -107,7 +107,7 @@ const parse = (decodedData, event) => {
     const { _editionId, _startDate } = decodedData;
 
     return {
-      eventId: _editionId,
+      tokenId: _editionId,
       eventType,
     };
   } else if (eventType === 'ReservePriceUpdated') {
@@ -116,7 +116,7 @@ const parse = (decodedData, event) => {
     const price = _reservePrice.toString() / 1e18;
 
     return {
-      eventId: _id,
+      tokenId: _id,
       eventType,
       price,
       ethPrice: price,
