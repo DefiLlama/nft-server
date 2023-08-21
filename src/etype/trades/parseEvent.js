@@ -22,7 +22,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
 
   // sudoswap specific
   let traces = [];
-  if (config.exchangeName === 'sudoswap') {
+  if (config.exchangeName === 'sudoswap' || config.version === 'manifold-v2') {
     marketplaceEvents = removeRedundantEvents(marketplaceEvents);
     traces = await getTraces(task, startBlock, endBlock, config, [
       ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),

@@ -1,0 +1,15 @@
+{
+  "exchangeName": "manifold",
+  "contracts": ["0x3a3548e060be10c2614d0a4cb0c03cc9093fd799"],
+  "events": [
+    {
+      "name": "PurchaseEvent",
+      "signatureHash": "0x0e0d473f43a9d8727e62653cce4cd80d0c870ffb83dc4c93c9db4cb8ffe7053e"
+    },
+    {
+      "name": "FinalizeListing",
+      "signatureHash": "0x7a64269d6d03ead41925c75675255493546f656ebb9cae4158fea2633d86c541"
+    }
+  ],
+  "version": "manifold-v2"
+}
