@@ -4,7 +4,7 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../../utils/params');
 
-const parse = (decodedData, event, events) => {
+const parse = (decodedData, event, events, interface, trace, traces) => {
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -35,9 +35,14 @@ const parse = (decodedData, event, events) => {
 
   if (!transferEventNFT) return {};
 
-  const { amount, count } = decodedData;
-  // price = in eth
-  const salePrice = amount.toString() / 1e18;
+  let seller;
+  let buyer;
+  let tokenId;
+  let amount;
+  let royaltyRecipient;
+  let royaltyFeeEth;
+  let royaltyFeeUsd;
+  let salePrice;
 
   if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
     seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
@@ -49,16 +54,25 @@ const parse = (decodedData, event, events) => {
     tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
     seller = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
     buyer = stripZerosLeft(`0x${transferEventNFT.topic_3}`);
+    amount = BigInt(`0x${transferEventNFT.data.slice(64)}`);
   }
 
-  let royaltyRecipient;
-  let royaltyFeeEth;
-  let royaltyFeeUsd;
+  const eventType = config.events.find(
+    (e) => e.signatureHash === `0x${event.topic_0}`
+  )?.name;
+
+  if (eventType === 'PurchaseEvent') {
+    const { amount } = decodedData;
+    // price = in eth
+    salePrice = amount.toString() / 1e18;
+  } else if (eventType === 'FinalizeListing') {
+    salePrice = trace.value.toString() / 1e18;
+  }
 
   return {
     collection: transferEventNFT.contract_address,
     tokenId,
-    amount: count,
+    amount: amount ?? 1,
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,

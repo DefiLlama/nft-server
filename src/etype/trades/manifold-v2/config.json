@@ -10,5 +10,6 @@
       "name": "FinalizeListing",
       "signatureHash": "0x7a64269d6d03ead41925c75675255493546f656ebb9cae4158fea2633d86c541"
     }
-  ]
+  ],
+  "version": "manifold-v2"
 }
