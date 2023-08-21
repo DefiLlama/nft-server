@@ -460,9 +460,13 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   );
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const q = ['zora', 'foundation', 'knownorigin', 'makersplace'].includes(
-    config.exchangeName
-  )
+  const q = [
+    'zora',
+    'foundation',
+    'knownorigin',
+    'makersplace',
+    'manifold',
+  ].includes(config.exchangeName)
     ? queryZora
     : config.version === 'wyvern'
     ? queryWyvern

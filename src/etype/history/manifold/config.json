@@ -1,0 +1,14 @@
+{
+  "exchangeName": "manifold",
+  "contracts": ["0x7ef865963D3A005670b8F8Df6aed23e456FA75e0"],
+  "events": [
+    {
+      "name": "BidEvent",
+      "signatureHash": "0x68debf84f0c6c4d7f73019f874d0f4f4b4c6d895ebce90dc010abac51d74d60a"
+    },
+    {
+      "name": "CancelListing",
+      "signatureHash": "0xe94376722784941abde69f1253384e4c041ea529a112b8378ad63f829124ad11"
+    }
+  ]
+}
