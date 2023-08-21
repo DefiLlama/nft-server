@@ -32,7 +32,7 @@ const argv = yargs.options({
   blockStop: {
     alias: 's',
     type: 'number',
-    demandOption: false,
+    demandOption: true,
     describe: 'block at which backfill will stop',
   },
 }).argv;
