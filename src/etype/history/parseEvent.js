@@ -26,7 +26,12 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         .filter(Boolean)
         .map((t) => `0x${t}`);
 
-      const decodedEvent = interface.decodeEventLog(topics[0], data, topics);
+      let decodedEvent;
+      try {
+        decodedEvent = interface.decodeEventLog(topics[0], data, topics);
+      } catch (err) {
+        console.log('incorrent/unavailable abi for', event.transaction_hash);
+      }
 
       const parsedEvent = await parse(decodedEvent, event);
 
