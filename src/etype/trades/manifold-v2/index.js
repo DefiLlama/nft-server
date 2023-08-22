@@ -57,6 +57,8 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     amount = BigInt(`0x${transferEventNFT.data.slice(64)}`);
   }
 
+  if (seller === '0x') return {};
+
   const eventType = config.events.find(
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;

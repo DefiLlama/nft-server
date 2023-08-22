@@ -52,6 +52,7 @@ const parse = (decodedData, event, events) => {
     seller = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
     buyer = stripZerosLeft(`0x${transferEventNFT.topic_3}`);
   }
+  if (seller === '0x') return {};
 
   let royaltyRecipient;
   let royaltyFeeEth;
