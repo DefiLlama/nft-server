@@ -65,6 +65,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     const { amount } = decodedData;
     // price = in eth
     salePrice = amount.toString() / 1e18;
+    if (salePrice === 1e-18) return {};
   } else if (eventType === 'FinalizeListing') {
     // note, tmp fix (need to read from erc20 transfers if trace value is null)
     salePrice = trace?.value?.toString() / 1e18;

@@ -38,6 +38,8 @@ const parse = (decodedData, event, events) => {
   const { amount } = decodedData;
   // price = in eth
   const salePrice = amount.toString() / 1e18;
+  // for mints and others (eg https://etherscan.io/tx/0xffc8d303733d30e15c4761c734996337b2e667b48bdf8c2739465e6ec54bc484)
+  if (salePrice === 1e-18) return {};
 
   if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
     seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
