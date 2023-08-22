@@ -1,6 +1,9 @@
 {
   "exchangeName": "makersplace",
-  "contracts": ["0xa2707b069eebca7f8ae133162f19fe720d3aaa58"],
+  "contracts": [
+    "0xa2707b069eebca7f8ae133162f19fe720d3aaa58",
+    "0x7e3abde9d9e80fa2d1a02c89e0eae91b233cde35"
+  ],
   "events": [
     {
       "name": "OBOSaleEvent",
