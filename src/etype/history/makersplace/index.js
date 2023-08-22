@@ -1,3 +1,5 @@
+const { stripZerosLeft } = require('ethers');
+
 const abi = require('../../trades/makersplace/abi.json');
 const config = require('./config.json');
 
@@ -53,6 +55,22 @@ const parse = (decodedData, event) => {
       tokenId,
       collection: tokenAddress,
       eventId: bidId,
+      eventType,
+    };
+  } else if (eventType === 'BidPH') {
+    const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
+    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const amount = BigInt(`0x${event.data.slice(128, 192)}`);
+
+    const price = amount.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      userAddress: event.from_address,
       eventType,
     };
   }

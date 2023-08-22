@@ -4,7 +4,55 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../../utils/params');
 
+const paymentToken = '0000000000000000000000000000000000000000';
+
 const parse = (decodedData, event, events) => {
+  const eventType = config.events.find(
+    (e) => e.signatureHash === `0x${event.topic_0}`
+  )?.name;
+
+  if (eventType === 'acceptBidPH') {
+    const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
+    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const price = BigInt(`0x${event.data.slice(192, 256)}`);
+    const buyer = stripZerosLeft(`0x${event.data.slice(256, 320)}`);
+    const seller = stripZerosLeft(`0x${event.data.slice(320, 384)}`);
+
+    const salePrice = price.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId,
+      amount: 1,
+      salePrice,
+      ethSalePrice: salePrice,
+      usdSalePrice: salePrice * event.price,
+      paymentToken,
+      seller,
+      buyer,
+    };
+  } else if (eventType === 'purchasePH') {
+    const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
+    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const price = BigInt(`0x${event.data.slice(128, 192)}`);
+    const buyer = stripZerosLeft(`0x${event.data.slice(192, 256)}`);
+    const seller = stripZerosLeft(`0x${event.data.slice(256, 320)}`);
+
+    const salePrice = price.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId,
+      amount: 1,
+      salePrice,
+      ethSalePrice: salePrice,
+      usdSalePrice: salePrice * event.price,
+      paymentToken,
+      seller,
+      buyer,
+    };
+  }
+
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -57,7 +105,6 @@ const parse = (decodedData, event, events) => {
   let royaltyFeeEth;
   let royaltyFeeUsd;
   let royaltyRecipient;
-  const paymentToken = '0000000000000000000000000000000000000000';
   const amount = 1;
   const collection = transferEventNFT.contract_address;
 

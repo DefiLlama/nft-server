@@ -16,6 +16,14 @@
     {
       "name": "TokenBidAccepted",
       "signatureHash": "0x1f742344121ee39367760387f62d61b3b3490773d72cd37a18fc135d27babfda"
+    },
+    {
+      "name": "acceptBidPH",
+      "signatureHash": "0xfc8d57c890a29ac7508080b26d7187224039062b525f377f0c7746193c59baa8"
+    },
+    {
+      "name": "purchasePH",
+      "signatureHash": "0xdf5790120e3a47a9af8b7221574bf9c40e96cf1e648723b28b93a73ba9dd68fd"
     }
   ]
 }
