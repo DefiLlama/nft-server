@@ -75,6 +75,7 @@ const parse = (decodedData, event) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: _currentOwner,
       eventType,
     };
   } else if (eventType === 'ListedForReserveAuction') {
