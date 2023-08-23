@@ -4,7 +4,9 @@ const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents } = require('../../../utils/params');
 
-const parse = (decodedData, event, events) => {
+const parse = (decodedData, event, events, interface, trace) => {
+  // ignoring trades not paid in eth
+  if (!trace.value) return {};
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );

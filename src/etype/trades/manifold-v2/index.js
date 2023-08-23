@@ -5,6 +5,8 @@ const config = require('./config.json');
 const { nftTransferEvents } = require('../../../utils/params');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
+  // ignoring trades not paid in eth
+  if (!trace.value) return {};
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
@@ -69,8 +71,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     salePrice = amount.toString() / 1e18;
     if (salePrice === 1e-18) return {};
   } else if (eventType === 'FinalizeListing') {
-    // note, tmp fix (need to read from erc20 transfers if trace value is null)
-    salePrice = trace?.value?.toString() / 1e18;
+    salePrice = trace.value.toString() / 1e18;
   }
 
   return {

@@ -531,10 +531,7 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
       endBlock,
       contractAddresses,
     });
-  } else if (
-    config.exchangeName === 'sudoswap' ||
-    config.version === 'manifold-v2'
-  ) {
+  } else if (['sudoswap', 'manifold'].includes(config.exchangeName)) {
     response = await task.query(
       minify(queryTracesSudoswap, { compress: false }),
       {
