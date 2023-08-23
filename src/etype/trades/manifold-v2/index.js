@@ -6,7 +6,7 @@ const { nftTransferEvents } = require('../../../utils/params');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
   // ignoring trades not paid in eth
-  if (!trace.value) return {};
+  if (!trace?.value) return {};
   const transfers = events.filter(
     (e) => e.transaction_hash === event.transaction_hash
   );
