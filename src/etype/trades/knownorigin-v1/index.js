@@ -11,7 +11,7 @@ const parse = (decodedData, event) => {
   const salePrice = _priceInWei.toString() / 1e18;
 
   return {
-    collection: event.contract_address,
+    collection: '0xFBeef911Dc5821886e1dda71586d90eD28174B7d',
     tokenId: _tokenId,
     amount: 1,
     salePrice,
