@@ -1,51 +1,27 @@
 {
   "exchangeName": "superrare",
-  "contracts": [
-    "0x2947F98C42597966a0ec25e92843c09ac17Fbaa7",
-    "0x8c9F364bf7a56Ed058fc63Ef81c6Cf09c833e656",
-    "0x65B49f7AEE40347f5A90b714be4eF086f3fe5E2C"
-  ],
+  "contracts": ["0x41A322b28D0fF354040e2CbC676F0320d8c8850d"],
   "events": [
     {
-      "name": "Sold",
-      "signatureHash": "0x5764dbcef91eb6f946584f4ea671217c686fa7e858ce4f9f42d08422b86556a9"
-    },
-    {
       "name": "AcceptBid",
-      "signatureHash": "0x2a9d06eec42acd217a17785dbec90b8b4f01a93ecd8c127edd36bfccf239f8b6"
+      "signatureHash": "0xd6deddb2e105b46d4644d24aac8c58493a0f107e7973b2fe8d8fa7931a2912be"
     },
     {
-      "name": "settleAuctionPH",
-      "signatureHash": "0xea6d16c6bfcad11577aef5cc6728231c9f069ac78393828f8ca96847405902a9"
+      "name": "Sold",
+      "signatureHash": "0x16dd16959a056953a63cf14bf427881e762e54f03d86b864efea8238dd3b822f"
     },
 
     {
-      "name": "SetSalePrice",
-      "signatureHash": "0xb0b0e4adf2724af8f1646eae3a16f45d696c9334594729d09bf192da1f783871"
-    },
-    {
       "name": "Bid",
-      "signatureHash": "0xd21fbaad97462831ad0c216f300fefb33a10b03bb18bb70ed668562e88d15d53"
+      "signatureHash": "0x19421268847f42dd61705778018ddfc43bcdce8517e7a630acb12f122c709481"
     },
     {
       "name": "CancelBid",
-      "signatureHash": "0x99a3761c98d7a0c3980cbeb3d8009b315a463f8020b43ca1e6901611b06547f9"
+      "signatureHash": "0x09dcebe16a733e22cc47e4959c50d4f21624d9f1815db32c2e439fbbd7b3eda0"
     },
     {
-      "name": "CancelAuction",
-      "signatureHash": "0x26d4510b556e779d6507640413e013206e44c8f5d018c7c74ed8926f3f024a9c"
-    },
-    {
-      "name": "bidPH",
-      "signatureHash": "0x5d22b2d23515fb6c26c46ebec88f4a8b503493be518661c852adf894344cbae7"
-    },
-    {
-      "name": "createColdieAuctionPH",
-      "signatureHash": "0x51d3615735f04b7ff33bfd9f5eb857d899bf9b848d3858cba7db855bc69fb914"
-    },
-    {
-      "name": "createScheduledAuctionPH",
-      "signatureHash": "0x97ef537a4a14d8899c80db7b0665dac266da778443e37e073ec2a11ec62bea5b"
+      "name": "SalePriceSet",
+      "signatureHash": "0xe23ea816dce6d7f5c0b85cbd597e7c3b97b2453791152c0b94e5e5c5f314d2f0"
     }
   ]
 }
