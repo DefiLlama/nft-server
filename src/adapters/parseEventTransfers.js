@@ -1,7 +1,7 @@
 const { stripZerosLeft } = require('ethers');
 
-const { getEvents } = require('./queries');
-const { nftTransferEvents } = require('../../utils/params');
+const { getEvents } = require('./queriesTransfers');
+const { nftTransferEvents } = require('../utils/params');
 
 const nullAddress = '0x0000000000000000000000000000000000000000';
 

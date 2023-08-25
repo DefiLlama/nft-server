@@ -1,6 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../../utils/priceHistory');
+const getPrice = require('../../utils/priceHistory');
 
 const parse = async (decodedData, event) => {
   const eventType = config.events.find(

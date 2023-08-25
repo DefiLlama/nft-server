@@ -3,9 +3,9 @@ const path = require('path');
 
 const parseEvent = require('./parseEvent');
 const { getMaxBlock, insertTrades } = require('./queries');
-const castTypes = require('../../utils/castTypes');
-const { blockRange, exclude } = require('../../utils/params');
-const { indexa } = require('../../utils/dbConnection');
+const castTypes = require('../utils/castTypes');
+const { blockRange, exclude } = require('../utils/params');
+const { indexa } = require('../utils/dbConnection');
 
 const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
 

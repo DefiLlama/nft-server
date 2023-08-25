@@ -2,8 +2,8 @@ const ethers = require('ethers');
 
 const { getEvents, getTraces } = require('./queries');
 const aggregators = require('./aggregators');
-const { nftTransferEvents } = require('../../utils/params');
-const removeRedundantEvents = require('../../utils/removeDupes');
+const { nftTransferEvents } = require('../utils/params');
+const removeRedundantEvents = require('../utils/removeDupes');
 
 const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
   // read events from db

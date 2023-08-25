@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../../utils/params');
+const { nftTransferEvents } = require('../../utils/params');
 
 const paymentToken = '0000000000000000000000000000000000000000';
 

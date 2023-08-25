@@ -2,8 +2,8 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../../utils/params');
-const getHistoricalTokenPrice = require('../../../utils/price');
+const { nftTransferEvents } = require('../../utils/params');
+const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event, events) => {
   // remove potential lazy mint and match on transaction_hash

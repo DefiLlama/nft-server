@@ -1,6 +1,6 @@
 const minify = require('pg-minify');
 
-const { pgp, indexa } = require('../../utils/dbConnection');
+const { pgp, indexa } = require('../utils/dbConnection');
 
 const query = `
 SELECT

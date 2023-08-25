@@ -1,4 +1,4 @@
-const abi = require('../../trades/opensea-0x1f52b87C3503e537853e160adBF7E330eA0Be7C4/abi.json');
+const abi = require('./abi.json');
 const config = require('./config.json');
 
 const parse = (decodedData, event) => {

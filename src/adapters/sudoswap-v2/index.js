@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../../utils/params');
+const { nftTransferEvents } = require('../../utils/params');
 
 const pairFactory = 'a020d57ab0448ef74115c112d18a9c231cc86000';
 

@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getHistoricalTokenPrice = require('../../../utils/price');
+const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event) => {
   const {

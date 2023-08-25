@@ -1,4 +1,4 @@
-const abi = require('../../trades/zora/abiAsksV1.1.json');
+const abi = require('./abi.json');
 const config = require('./config.json');
 const getPrice = require('../../utils/priceHistory');
 

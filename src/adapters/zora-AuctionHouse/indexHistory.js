@@ -1,6 +1,6 @@
-const abi = require('../../trades/zora/abiAuctionHouse.json');
+const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../../utils/priceHistory');
+const getPrice = require('../../utils/priceHistory');
 
 const nullAddress = '0000000000000000000000000000000000000000';
 

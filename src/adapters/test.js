@@ -1,6 +1,6 @@
 const yargs = require('yargs');
 
-const { getMaxBlock } = require('./trades/queries');
+const { getMaxBlock } = require('./queries');
 const { blockRangeTest } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
 
@@ -48,15 +48,23 @@ const argv = yargs.options({
   const time = () => Date.now() / 1000;
   const start = time();
 
+  const idxFile = ['trades', 'transfers'].includes(etype)
+    ? 'index'
+    : 'indexHistory';
+
   const { abi, config, parse } =
     etype !== 'transfers'
-      ? require(`./${etype}/${marketplace}`)
+      ? require(`./${marketplace}/${idxFile}.js`)
       : { undefined, undefined, undefined };
 
   const parseEvent =
     etype === 'trades' && config.version === 'wyvern'
-      ? require(`./${etype}/parseEventWyvern`)
-      : require(`./${etype}/parseEvent`);
+      ? require(`./parseEventWyvern`)
+      : etype === 'trades'
+      ? require(`./parseEvent`)
+      : etype === 'history'
+      ? require('./parseEventHistory')
+      : require('./parseEventTransfers');
 
   const endBlock = !block
     ? await indexa.task(async (t) => {

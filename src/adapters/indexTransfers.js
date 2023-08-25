@@ -1,9 +1,9 @@
-const parseEvent = require('./parseEvent');
-const { getMaxBlock } = require('../trades/queries');
-const { insertTransfers } = require('./queries');
-const castTypes = require('../../utils/castTypesTransfers');
-const { blockRange } = require('../../utils/params');
-const { indexa } = require('../../utils/dbConnection');
+const parseEvent = require('./parseEventTransfers');
+const { getMaxBlock } = require('./queries');
+const { insertTransfers } = require('./queriesTransfers');
+const castTypes = require('../utils/castTypesTransfers');
+const { blockRange } = require('../utils/params');
+const { indexa } = require('../utils/dbConnection');
 
 const checkIfStale = (blockEvents, blockTransfers) =>
   blockEvents > blockTransfers;

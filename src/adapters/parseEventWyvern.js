@@ -2,7 +2,7 @@ const ethers = require('ethers');
 
 const { getEvents, getTraces } = require('./queries');
 const aggregators = require('./aggregators');
-const { nftTransferEvents } = require('../../utils/params');
+const { nftTransferEvents } = require('../utils/params');
 
 const parseEventWyvern = async (
   task,

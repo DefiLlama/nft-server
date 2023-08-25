@@ -1,6 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getHistoricalTokenPrice = require('../../../utils/price');
+const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event) => {
   // https://docs.opensea.io/reference/create-an-order

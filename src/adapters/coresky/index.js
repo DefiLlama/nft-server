@@ -1,9 +1,8 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getHistoricalTokenPrice = require('../../../utils/price');
+const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event) => {
-
   const ethPaymentTokens = [
     '0000000000000000000000000000000000000000',
     'c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // weth

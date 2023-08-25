@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../../utils/params');
+const { nftTransferEvents } = require('../../utils/params');
 
 const parse = async (decodedData, event, events) => {
   const { collection, buyer, seller, tokenId } = decodedData;

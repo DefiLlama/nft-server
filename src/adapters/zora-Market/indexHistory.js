@@ -1,6 +1,6 @@
-const abi = require('../../trades/zora/abiMarket.json');
+const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../../utils/priceHistory');
+const getPrice = require('../../utils/priceHistory');
 
 const zoraMedia = '0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7';
 
