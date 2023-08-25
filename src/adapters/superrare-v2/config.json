@@ -1,0 +1,43 @@
+{
+  "exchangeName": "superrare",
+  "contracts": ["0x6D7c44773C52D396F43c2D511B81aa168E9a7a42"],
+  "events": [
+    {
+      "name": "Sold",
+      "signatureHash": "0x6f9e7bc841408072f4a49e469f90e1a634b85251803662bc8e5c220b28782472"
+    },
+    {
+      "name": "AcceptOffer",
+      "signatureHash": "0x97c3d2068ce177bc33d84acecc45eededcf298c4a9d4340ae03d4afbb3993f7b"
+    },
+    {
+      "name": "AuctionSettled",
+      "signatureHash": "0xef4e2262a841641690bb931801dc0d1923e6b417cd217f91f8049d8aa9f5f086"
+    },
+
+    {
+      "name": "AuctionBid",
+      "signatureHash": "0x189a468e632a450afd491f84aa9ae94addc6813c7e309a7b1b1223f88802a77d"
+    },
+    {
+      "name": "CancelAuction",
+      "signatureHash": "0x26d4510b556e779d6507640413e013206e44c8f5d018c7c74ed8926f3f024a9c"
+    },
+    {
+      "name": "CancelOffer",
+      "signatureHash": "0xb9a071fe7d38dc86fbc448d440311b6bd67e5e09de8b1b62c72f5fe344100453"
+    },
+    {
+      "name": "NewAuction",
+      "signatureHash": "0xdb89081d9a5399380ffbcc376a961ed023027fca462e08b3d23146e4c6ac62f2"
+    },
+    {
+      "name": "OfferPlaced",
+      "signatureHash": "0xacbe96367816f728b84abf006ca777225b704072592132845e9a3dbd7b023691"
+    },
+    {
+      "name": "SetSalePrice",
+      "signatureHash": "0xb6039ff1edf80efca6bc48b89f5415ba07fecb2d321058dae9ce6369b2ff964b"
+    }
+  ]
+}

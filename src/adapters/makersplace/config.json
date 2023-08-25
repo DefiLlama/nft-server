@@ -1,0 +1,50 @@
+{
+  "exchangeName": "makersplace",
+  "contracts": [
+    "0xa2707b069eebca7f8ae133162f19fe720d3aaa58",
+    "0x7e3abde9d9e80fa2d1a02c89e0eae91b233cde35"
+  ],
+  "events": [
+    {
+      "name": "OBOSaleEvent",
+      "signatureHash": "0x7657ffe1f72297f8773cec737634d73ad5d98a421b9f15dc99f3b792278d1396"
+    },
+    {
+      "name": "SaleSuccessfulEvent",
+      "signatureHash": "0x60364304ae1fda694c3be5cac0f507f6fcd2144b5d26870e8a26f7ac17df83bf"
+    },
+    {
+      "name": "TokenBidAccepted",
+      "signatureHash": "0x1f742344121ee39367760387f62d61b3b3490773d72cd37a18fc135d27babfda"
+    },
+    {
+      "name": "acceptBidPH",
+      "signatureHash": "0xfc8d57c890a29ac7508080b26d7187224039062b525f377f0c7746193c59baa8"
+    },
+    {
+      "name": "purchasePH",
+      "signatureHash": "0xdf5790120e3a47a9af8b7221574bf9c40e96cf1e648723b28b93a73ba9dd68fd"
+    },
+
+    {
+      "name": "SaleCanceledEvent",
+      "signatureHash": "0xa50b2d6faf84e88de164f615bc8daa8477ab67f677d72aef3a3122d26c6eae28"
+    },
+    {
+      "name": "SaleCreatedEvent",
+      "signatureHash": "0x6852391c228e56409f2046f8f5b68af9ab60392697a47efa0910cf05cfbcae42"
+    },
+    {
+      "name": "TokenBidCreatedEvent",
+      "signatureHash": "0x9525a453a215f02f1c5afee7ab8628c140dfa606cd034605e34b8850f2f6ef20"
+    },
+    {
+      "name": "TokenBidRemovedEvent",
+      "signatureHash": "0xf6b89ca1bccc679695ae3b928ee8c9335ecdfd739853cfe9e209a13e40cfacc0"
+    },
+    {
+      "name": "BidPH",
+      "signatureHash": "0xa1decd0961bf6d65a7d418a0bbb8c396454f25fdf821a5ecb7957b993ccc0f70"
+    }
+  ]
+}

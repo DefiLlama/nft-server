@@ -1,0 +1,35 @@
+{
+  "exchangeName": "knownorigin",
+  "contracts": ["0xc322cdd03f34b6d25633c2abbc8716a058c7fe9e"],
+  "events": [
+    {
+      "name": "TokenPurchased",
+      "signatureHash": "0x704cf6cb1221490022185412a0f82fd80ca9ccf7b5f84482727d0f6924265bd8"
+    },
+    {
+      "name": "BidAccepted",
+      "signatureHash": "0xe6d56779a392535d3a591e92b65ba36f2ecc424bbf5220d0176a7da29385b504"
+    },
+
+    {
+      "name": "TokenListed",
+      "signatureHash": "0x7765a1c07bdce3390c521eaeb86030b188b77cbaba2d76bd7c9c32d906bfbcba"
+    },
+    {
+      "name": "TokenDeListed",
+      "signatureHash": "0x6caa49919a8c0059b871ec5c8b81a13a285b53cd92216d310fcdcf9c893e5a45"
+    },
+    {
+      "name": "BidPlaced",
+      "signatureHash": "0x3d87e1d02e187b9fe1095bc12567b7485b6cf54c47eea3dc9b5fd64d03cb6750"
+    },
+    {
+      "name": "BidWithdrawn",
+      "signatureHash": "0x5e9c7ae3229b2cda5065d7058fcc05765c695c29ce05313fbe96cb2ca639231a"
+    },
+    {
+      "name": "BidRejected",
+      "signatureHash": "0x6d699e170cc72516120ba19fe48e744504798d1afc2ffb65ff1154a6f4fa4d15"
+    }
+  ]
+}
