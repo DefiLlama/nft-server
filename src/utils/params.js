@@ -10,4 +10,13 @@ module.exports = {
     looksrareV1RoyaltyPayment:
       '27c4f0403323142b599832f26acd21c74a9e5b809f2215726e244a4ac588cd7d',
   },
+  exclude: [
+    'looksrare',
+    'manifold',
+    'opensea-0x1f52b87C3503e537853e160adBF7E330eA0Be7C4',
+    'openseaWyvern',
+    'rarible-0x8c530A698B6E83d562DB09079BC458D4DaD4e6C5',
+    'rarible-0x131AEBbfe55bcA0C9EAAD4Ea24D386C5C082dD58',
+    'rarible-0xcd4EC7b66fbc029C116BA9Ffb3e59351c20B5B06',
+  ],
 };

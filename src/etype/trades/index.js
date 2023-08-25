@@ -4,18 +4,17 @@ const path = require('path');
 const parseEvent = require('./parseEvent');
 const { getMaxBlock, insertTrades } = require('./queries');
 const castTypes = require('../../utils/castTypes');
-const { blockRange } = require('../../utils/params');
+const { blockRange, exclude } = require('../../utils/params');
 const { indexa } = require('../../utils/dbConnection');
 
 const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
 
 const exe = async () => {
   // load modules
-  const modulesDir = path.join(__dirname, '../trades');
+  const modulesDir = path.join(__dirname, './');
   const modules = [];
   fs.readdirSync(modulesDir)
-    .filter((mplace) => !mplace.endsWith('.js'))
-    .filter((mplace) => !['openseaWyvern', 'looksrare'].includes(mplace))
+    .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
     .forEach((mplace) => {
       modules.push(require(path.join(modulesDir, mplace)));
     });

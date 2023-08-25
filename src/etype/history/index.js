@@ -5,17 +5,17 @@ const parseEvent = require('./parseEvent');
 const { getMaxBlock } = require('../trades/queries');
 const { insertHistory } = require('./queries');
 const castTypes = require('../../utils/castTypesHistory');
-const { blockRange } = require('../../utils/params');
+const { blockRange, exclude } = require('../../utils/params');
 const { indexa } = require('../../utils/dbConnection');
 
 const checkIfStale = (blockEvents, blockHistory) => blockEvents > blockHistory;
 
 const exe = async () => {
   // load modules
-  const modulesDir = path.join(__dirname, '../history');
+  const modulesDir = path.join(__dirname, './');
   const modules = [];
   fs.readdirSync(modulesDir)
-    .filter((mplace) => !mplace.endsWith('.js'))
+    .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
     .forEach((mplace) => {
       modules.push(require(path.join(modulesDir, mplace)));
     });
