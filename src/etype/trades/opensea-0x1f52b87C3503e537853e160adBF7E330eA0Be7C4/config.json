@@ -1,0 +1,11 @@
+{
+  "exchangeName": "opensea",
+  "contracts": ["0x1f52b87C3503e537853e160adBF7E330eA0Be7C4"],
+  "events": [
+    {
+      "name": "AuctionSuccessful",
+      "signatureHash": "0x6c00bb44a64da29b6a73920d50ff280237d277bda3e1f3cdf4e24392e6839efe"
+    }
+  ],
+  "version": "SaleClockAuction"
+}

@@ -531,7 +531,10 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
       endBlock,
       contractAddresses,
     });
-  } else if (['sudoswap', 'manifold'].includes(config.exchangeName)) {
+  } else if (
+    ['sudoswap', 'manifold'].includes(config.exchangeName) ||
+    config.version === 'SaleClockAuction'
+  ) {
     response = await task.query(
       minify(queryTracesSudoswap, { compress: false }),
       {

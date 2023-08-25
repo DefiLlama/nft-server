@@ -1,0 +1,15 @@
+{
+  "exchangeName": "opensea",
+  "contracts": ["0x1f52b87C3503e537853e160adBF7E330eA0Be7C4"],
+  "events": [
+    {
+      "name": "AuctionCreated",
+      "signatureHash": "0xb0c0552f858e630668cc4c58a1b7d1bd302efa77c15d8ec0f1fe725053c59801"
+    },
+    {
+      "name": "AuctionCancelled",
+      "signatureHash": "0x018b64b6242d32aa550e95d78985b938d71af5b3f10827b0683f55da16393048"
+    }
+  ],
+  "version": "SaleClockAuction"
+}
