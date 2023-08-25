@@ -3,6 +3,11 @@
   "contracts": ["0x6170b3c3a54c3d8c854934cbc314ed479b2b29a3"],
   "events": [
     {
+      "name": "AskFilled",
+      "signatureHash": "0x21a9d8e221211780696258a05c6225b1a24f428e2fd4d51708f1ab2be4224d39"
+    },
+
+    {
       "name": "AskCanceled",
       "signatureHash": "0x871956abf85befb7c955eacd40fcabe7e01b1702d75764bf7f54bf481933fd35"
     },
