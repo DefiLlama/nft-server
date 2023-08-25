@@ -1,0 +1,22 @@
+{
+  "exchangeName": "zora",
+  "contracts": ["0xE5BFAB544ecA83849c53464F85B7164375Bdaac1"],
+  "events": [
+    {
+      "name": "BidCreated",
+      "signatureHash": "0x327bc9021bfbee403a11b13dd6c819999006aff090cc129f07e9f2840af38dd5"
+    },
+    {
+      "name": "BidRemoved",
+      "signatureHash": "0xcbebd567b8a5c57f63ec61dc46746aab28daff6bdd1f4a6a0a305c17fa5465c9"
+    },
+    {
+      "name": "AskCreated",
+      "signatureHash": "0xf7347cb9e91d8cbe995b51920ba5f92cbf84a9e09cbed3cd7a739fef4d1d07cf"
+    },
+    {
+      "name": "AskRemoved",
+      "signatureHash": "0xbf58f6d6c7d7c6efc69e7444efa93ed26d7cdc0e82e12a37df96f36a367561df"
+    }
+  ]
+}
