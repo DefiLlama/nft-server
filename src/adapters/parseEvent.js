@@ -20,7 +20,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
     config.events.map((ev) => ev.signatureHash).includes(`0x${e.topic_0}`)
   );
 
-  // sudoswap specific
+  // fetch trace data for selected marketplaces/versions
   let traces = [];
   if (
     ['sudoswap', 'manifold'].includes(config.exchangeName) ||
@@ -30,6 +30,18 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
     traces = await getTraces(task, startBlock, endBlock, config, [
       ...new Set(marketplaceEvents.map((i) => i.transaction_hash)),
     ]);
+  } else if (config.version === 'wyvern') {
+    // traces are required to calc royalty fee in the context of
+    // tx originating from aggregators (the trace contains the individual os wallet amount.
+    // filter the mplace event array to aggregator events only
+    const aggregatorTransactions = marketplaceEvents.filter(
+      (i) => !config.contracts.includes(`0x${i.to_address}`)
+    );
+    traces = aggregatorTransactions.length
+      ? await getTraces(task, startBlock, endBlock, config, [
+          ...new Set(aggregatorTransactions.map((i) => i.transaction_hash)),
+        ])
+      : traces;
   }
 
   // will be empty for all marketplace for which we don't read nft transfer events
@@ -115,7 +127,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         ...rest
       } = event;
 
-      // for sudoswap (==array of objects instead of single object in case of multi swap)
+      // for sudoswap/wyvern bundle trades (==array of objects instead of single object in case of multi swap)
       if (parsedEvent.length) {
         return parsedEvent.map((e) => {
           return {

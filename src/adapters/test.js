@@ -58,9 +58,7 @@ const argv = yargs.options({
       : { undefined, undefined, undefined };
 
   const parseEvent =
-    etype === 'trades' && config.version === 'wyvern'
-      ? require(`./parseEventWyvern`)
-      : etype === 'trades'
+    etype === 'trades'
       ? require(`./parseEvent`)
       : etype === 'history'
       ? require('./parseEventHistory')

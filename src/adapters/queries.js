@@ -466,7 +466,6 @@ const getEvents = async (task, startBlock, endBlock, config) => {
     'knownorigin',
     'makersplace',
     'manifold',
-    'manifold-v2',
   ].includes(config.exchangeName)
     ? queryZora
     : config.version === 'wyvern'
