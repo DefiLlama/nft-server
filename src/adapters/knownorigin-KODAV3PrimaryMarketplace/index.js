@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../utils/params');
+const { nftTransferEvents, nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event, events) => {
   const transfers = events.filter(
@@ -39,7 +39,7 @@ const parse = (decodedData, event, events) => {
     (e) => e.signatureHash === `0x${event.topic_0}`
   )?.name;
 
-  const paymentToken = '0000000000000000000000000000000000000000';
+  const paymentToken = nullAddress;
   const amount = 1;
   const collection = transferEventNFT.contract_address;
 

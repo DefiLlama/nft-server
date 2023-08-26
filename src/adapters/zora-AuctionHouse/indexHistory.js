@@ -1,8 +1,7 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../utils/priceHistory');
-
-const nullAddress = '0000000000000000000000000000000000000000';
+const { getPrice } = require('../../utils/price');
+const { nullAddress } = require('../../utils/params');
 
 const parse = async (decodedData, event) => {
   const eventType = config.events.find(
@@ -21,9 +20,9 @@ const parse = async (decodedData, event) => {
     } = decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       auctionCurrency,
-      reservePrice,
-      event
+      reservePrice
     );
 
     return {

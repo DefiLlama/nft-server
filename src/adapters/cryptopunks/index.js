@@ -2,6 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event, events, interface) => {
   // we search for the matching erc20 transfer event which contains the buyer info
@@ -38,7 +39,7 @@ const parse = (decodedData, event, events, interface) => {
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
-    paymentToken: '0x0000000000000000000000000000000000000000',
+    paymentToken: nullAddress,
     seller: fromAddress,
     buyer,
   };

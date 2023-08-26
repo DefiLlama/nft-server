@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../utils/params');
+const { nftTransferEvents, nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
   // ignoring trades not paid in eth
@@ -81,7 +81,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
-    paymentToken: '0x0000000000000000000000000000000000000000',
+    paymentToken: nullAddress,
     seller,
     buyer,
     royaltyRecipient,

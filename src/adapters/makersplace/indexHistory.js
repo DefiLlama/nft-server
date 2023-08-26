@@ -2,8 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-
-const nullAddress = '0000000000000000000000000000000000000000';
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event) => {
   const eventType = config.events.find(

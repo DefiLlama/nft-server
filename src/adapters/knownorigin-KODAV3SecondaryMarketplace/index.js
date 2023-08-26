@@ -1,7 +1,7 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
-const nullAddress = '0x0000000000000000000000000000000000000000';
 const collection = '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B';
 
 const parse = (decodedData, event) => {

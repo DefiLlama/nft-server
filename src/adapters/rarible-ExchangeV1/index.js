@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../utils/params');
+const { nftTransferEvents, nullAddress } = require('../../utils/params');
 const getHistoricalTokenPrice = require('../../utils/price');
 
 const parse = async (decodedData, event, events) => {
@@ -89,8 +89,7 @@ const parse = async (decodedData, event, events) => {
   } else {
     salePrice = ethSalePrice = _price / 1e18;
     usdSalePrice = ethSalePrice * event.price;
-    paymentToken =
-      erc20 === weth ? weth : '0x0000000000000000000000000000000000000000';
+    paymentToken = erc20 === weth ? weth : nullAddress;
   }
 
   return {

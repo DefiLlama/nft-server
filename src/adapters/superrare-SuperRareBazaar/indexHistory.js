@@ -1,6 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../utils/priceHistory');
+const { getPrice } = require('../../utils/price');
 
 const parse = async (decodedData, event) => {
   const eventType = config.events.find(
@@ -12,9 +12,9 @@ const parse = async (decodedData, event) => {
       decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       _currencyAddress,
-      _amount,
-      event
+      _amount
     );
 
     return {
@@ -41,9 +41,9 @@ const parse = async (decodedData, event) => {
       decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       _currencyAddress,
-      _amount,
-      event
+      _amount
     );
 
     return {
@@ -67,9 +67,9 @@ const parse = async (decodedData, event) => {
     } = decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       _currencyAddress,
-      _minimumBid,
-      event
+      _minimumBid
     );
 
     return {
@@ -93,9 +93,9 @@ const parse = async (decodedData, event) => {
     } = decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       _currencyAddress,
-      _amount,
-      event
+      _amount
     );
 
     return {

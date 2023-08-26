@@ -1,5 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event) => {
   const eventType = config.events.find(
@@ -17,7 +18,7 @@ const parse = (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
-      paymentToken: '0000000000000000000000000000000000000000',
+      paymentToken: nullAddress,
       userAddress: event.from_address,
       eventType,
       expiration: duration,

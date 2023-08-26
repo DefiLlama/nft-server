@@ -2,8 +2,9 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
-const currencyAddress = '0000000000000000000000000000000000000000';
+const currencyAddress = nullAddress;
 
 const parse = async (decodedData, event) => {
   const eventType = config.events.find(

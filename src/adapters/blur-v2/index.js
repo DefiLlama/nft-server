@@ -2,7 +2,7 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
-const { nftTransferEvents } = require('../../utils/params');
+const { nftTransferEvents, nullAddress } = require('../../utils/params');
 
 const unpackTokenIdListingIndexTrader = (packedValue) => {
   /*
@@ -105,7 +105,7 @@ const parse = (decodedData, event, events) => {
   let royaltyRecipient;
   let royaltyFeeEth;
   let royaltyFeeUsd;
-  const paymentToken = '0000000000000000000000000000000000000000';
+  const paymentToken = nullAddress;
 
   if (
     `0x${event.topic_0}` ===

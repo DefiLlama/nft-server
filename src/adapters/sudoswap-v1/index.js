@@ -2,13 +2,14 @@ const { stripZerosLeft } = require('ethers');
 
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const pairFactory = 'b16c1342e617a5b6e4b631eb114483fdb289c0a4';
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
   if (!traces.length) return {};
 
-  const paymentToken = '0x0000000000000000000000000000000000000000';
+  const paymentToken = nullAddress;
   const amount = 1;
 
   // filter transfers to sudoswap only using info from traces

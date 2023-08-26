@@ -1,5 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event) => {
   const {
@@ -38,7 +39,7 @@ const parse = (decodedData, event) => {
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
-    paymentToken: '0x0000000000000000000000000000000000000000',
+    paymentToken: nullAddress,
     seller: maker,
     buyer: taker,
     royaltyRecipient,

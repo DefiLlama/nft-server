@@ -1,5 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
   const { nftAddress, tokenId, totalPrice, winner } = decodedData;
@@ -18,7 +19,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
-    paymentToken: '0000000000000000000000000000000000000000',
+    paymentToken: nullAddress,
     seller,
     buyer: winner,
   };

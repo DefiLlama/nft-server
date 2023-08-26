@@ -1,6 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getPrice = require('../../utils/priceHistory');
+const { getPrice } = require('../../utils/price');
 
 const zoraMedia = '0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7';
 
@@ -16,9 +16,9 @@ const parse = async (decodedData, event) => {
     } = decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       currency,
-      amount,
-      event
+      amount
     );
 
     return {
@@ -38,9 +38,9 @@ const parse = async (decodedData, event) => {
     } = decodedData;
 
     const { price, ethPrice, usdPrice } = await getPrice(
+      event,
       currency,
-      amount,
-      event
+      amount
     );
 
     return {

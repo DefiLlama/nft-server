@@ -1,14 +1,9 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 const getHistoricalTokenPrice = require('../../utils/price');
+const { nullAddress, ethPaymentTokens } = require('../../utils/params');
 
 const parse = async (decodedData, event) => {
-  const ethPaymentTokens = [
-    '0000000000000000000000000000000000000000',
-    'c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // weth
-    // '0000000000a39bb272e79075ade125fd351887ac', // blur bidding pool of eth
-  ].map((i) => `0x${i}`);
-
   const { zone, offerer, recipient, offer, consideration } = decodedData;
 
   // there are instances where required fields from offer and consideration are undefined
@@ -67,7 +62,7 @@ const parse = async (decodedData, event) => {
   } else if (iType === 2 || iType === 3) {
     // some cases have zone = null address. dropping these cause there is a "duplicated" event
     // which contains all relevant data
-    if (zone === '0x0000000000000000000000000000000000000000') return {};
+    if (zone === nullAddress) return {};
     const paymentInEth = ethPaymentTokens.includes(tokenC?.toLowerCase());
 
     if (paymentInEth) {
@@ -92,8 +87,6 @@ const parse = async (decodedData, event) => {
     seller = offerer;
     buyer = recipient;
   }
-
-  const nullAddress = '0x0000000000000000000000000000000000000000';
 
   let royaltyRecipient;
   let royaltyFeeEth;

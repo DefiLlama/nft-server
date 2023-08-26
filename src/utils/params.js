@@ -19,4 +19,10 @@ module.exports = {
     'rarible-ERC721Sale',
     'rarible-ExchangeV1',
   ],
+  nullAddress: '0x0000000000000000000000000000000000000000',
+  ethPaymentTokens: [
+    '0x0000000000000000000000000000000000000000',
+    '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // weth
+    '0x0000000000a39bb272e79075ade125fd351887ac', // blur bidding pool of eth
+  ],
 };

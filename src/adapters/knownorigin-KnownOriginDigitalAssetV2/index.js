@@ -1,7 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-
-const nullAddress = '0x0000000000000000000000000000000000000000';
+const { nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event) => {
   // the Purchase event on this contract seems to be lazy mints only

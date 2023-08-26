@@ -1,5 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
+const { nullAddress } = require('../../utils/params');
 
 const parse = async (decodedData, event) => {
   const { token, tokenId, owner, price, buyer, value } = decodedData;
@@ -9,11 +10,11 @@ const parse = async (decodedData, event) => {
   return {
     collection: token,
     tokenId,
-    amount: value, // erc1155 only
+    amount: value,
     salePrice,
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
-    paymentToken: '0x0000000000000000000000000000000000000000',
+    paymentToken: nullAddress,
     seller: owner,
     buyer,
   };

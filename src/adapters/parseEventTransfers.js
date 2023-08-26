@@ -1,9 +1,7 @@
 const { stripZerosLeft } = require('ethers');
 
 const { getEvents } = require('./queriesTransfers');
-const { nftTransferEvents } = require('../utils/params');
-
-const nullAddress = '0x0000000000000000000000000000000000000000';
+const { nftTransferEvents, nullAddress } = require('../utils/params');
 
 const parseEvent = async (task, startBlock, endBlock) => {
   const events = await getEvents(task, startBlock, endBlock);
