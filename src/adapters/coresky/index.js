@@ -1,6 +1,6 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
-const getHistoricalTokenPrice = require('../../utils/price');
+const { getHistoricalTokenPrice } = require('../../utils/price');
 const { nullAddress, ethPaymentTokens } = require('../../utils/params');
 
 const parse = async (decodedData, event) => {
