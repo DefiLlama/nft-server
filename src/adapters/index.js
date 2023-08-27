@@ -6,31 +6,29 @@ const { getMaxBlock, insertTrades } = require('./queries');
 const castTypes = require('../utils/castTypes');
 const { blockRange, exclude } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
+const checkIfStale = require('../utils/stale');
 
-const checkIfStale = (blockEvents, blockTrades) => blockEvents > blockTrades;
+// load modules
+const modulesDir = path.join(__dirname, './');
+let modules = [];
+fs.readdirSync(modulesDir)
+  .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
+  .forEach((mplace) => {
+    const p = path.join(modulesDir, mplace, 'index.js');
+    if (fs.existsSync(p)) {
+      modules.push(require(p));
+    }
+  });
+// filter config.events array to saleEvents
+modules = modules.map((m) => ({
+  ...m,
+  config: {
+    ...m.config,
+    events: m.config.events.filter((e) => e?.saleEvent === true),
+  },
+}));
 
 const exe = async () => {
-  // load modules
-  const modulesDir = path.join(__dirname, './');
-  let modules = [];
-  fs.readdirSync(modulesDir)
-    .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
-    .forEach((mplace) => {
-      const p = path.join(modulesDir, mplace, 'index.js');
-      if (fs.existsSync(p)) {
-        modules.push(require(p));
-      }
-    });
-
-  // filter config.events array to saleEvents
-  modules = modules.map((m) => ({
-    ...m,
-    config: {
-      ...m.config,
-      events: m.config.events.filter((e) => e?.saleEvent === true),
-    },
-  }));
-
   // get max blocks for each table
   let [blockEvents, blockTrades] = await indexa.task(async (t) => {
     return await Promise.all(

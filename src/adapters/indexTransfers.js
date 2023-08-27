@@ -4,9 +4,7 @@ const { insertTransfers } = require('./queriesTransfers');
 const castTypes = require('../utils/castTypesTransfers');
 const { blockRange } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
-
-const checkIfStale = (blockEvents, blockTransfers) =>
-  blockEvents > blockTransfers;
+const checkIfStale = require('../utils/stale');
 
 const exe = async () => {
   // get max blocks for each table
