@@ -4,9 +4,9 @@
   "events": [
     {
       "name": "AuctionEnded",
-      "signatureHash": "0x4f35fb3ea0081b3ccbe8df613cab0f9e1694d50a025e0aa09b88a86a3d07c2de"
+      "signatureHash": "0x4f35fb3ea0081b3ccbe8df613cab0f9e1694d50a025e0aa09b88a86a3d07c2de",
+      "saleEvent": true
     },
-
     {
       "name": "AuctionCreated",
       "signatureHash": "0x38c0b9047bd28fac9f420b967f6caf4a6260ba09d18940a9a502578a480c0900"

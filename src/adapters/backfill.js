@@ -46,15 +46,25 @@ const blockStop = argv.blockStop;
 (async () => {
   console.log(`==== Refill ${etype}:${marketplace} ====`);
 
+  const idxFile = ['trades', 'transfers'].includes(etype)
+    ? 'index'
+    : 'indexHistory';
+
   const { abi, config, parse } =
     etype !== 'transfers'
-      ? require(`./${etype}/${marketplace}`)
+      ? require(`./${marketplace}/${idxFile}.js`)
       : { undefined, undefined, undefined };
 
+  config.events = config.events.filter((e) =>
+    etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
+  );
+
   const parseEvent =
-    etype === 'trades' && config.version === 'wyvern'
-      ? require(`./${etype}/parseEventWyvern`)
-      : require(`./${etype}/parseEvent`);
+    etype === 'trades'
+      ? require(`./parseEvent`)
+      : etype === 'history'
+      ? require('./parseEventHistory')
+      : require('./parseEventTransfers');
 
   const castTypes =
     etype === 'trades'
@@ -63,7 +73,12 @@ const blockStop = argv.blockStop;
       ? require('../utils/castTypesHistory')
       : require('../utils/castTypesTransfers');
 
-  const { deleteAndInsertEvents, deleteEvents } = require(`./${etype}/queries`);
+  const { deleteAndInsertEvents, deleteEvents } =
+    etype === 'trades'
+      ? require('./queries')
+      : etype === 'history'
+      ? require('./queriesHistory')
+      : require('./queriesTransfers');
 
   let startBlock = endBlock - blockRange;
 

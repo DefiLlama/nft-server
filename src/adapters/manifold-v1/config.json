@@ -4,9 +4,9 @@
   "events": [
     {
       "name": "PurchaseEvent",
-      "signatureHash": "0xdc84c3c75a393011959e6391215e5b01982de6ad00f83b8b26ac7c52a5844b22"
+      "signatureHash": "0xdc84c3c75a393011959e6391215e5b01982de6ad00f83b8b26ac7c52a5844b22",
+      "saleEvent": true
     },
-
     {
       "name": "CreateListing",
       "signatureHash": "0xa480a00989f31e56f3512df0fb55f67327513869967a132833666b765c61be45"

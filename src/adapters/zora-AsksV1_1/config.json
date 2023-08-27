@@ -4,9 +4,9 @@
   "events": [
     {
       "name": "AskFilled",
-      "signatureHash": "0x21a9d8e221211780696258a05c6225b1a24f428e2fd4d51708f1ab2be4224d39"
+      "signatureHash": "0x21a9d8e221211780696258a05c6225b1a24f428e2fd4d51708f1ab2be4224d39",
+      "saleEvent": true
     },
-
     {
       "name": "AskCanceled",
       "signatureHash": "0x871956abf85befb7c955eacd40fcabe7e01b1702d75764bf7f54bf481933fd35"

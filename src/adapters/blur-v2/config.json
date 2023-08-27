@@ -4,19 +4,23 @@
   "events": [
     {
       "name": "Execution",
-      "signatureHash": "0xf2f66294df6fae7ac681cbe2f6d91c6904485929679dce263e8f6539b7d5c559"
+      "signatureHash": "0xf2f66294df6fae7ac681cbe2f6d91c6904485929679dce263e8f6539b7d5c559",
+      "saleEvent": true
     },
     {
       "name": "Execution721Packed",
-      "signatureHash": "0x1d5e12b51dee5e4d34434576c3fb99714a85f57b0fd546ada4b0bddd736d12b2"
+      "signatureHash": "0x1d5e12b51dee5e4d34434576c3fb99714a85f57b0fd546ada4b0bddd736d12b2",
+      "saleEvent": true
     },
     {
       "name": "Execution721TakerFeePacked",
-      "signatureHash": "0x0fcf17fac114131b10f37b183c6a60f905911e52802caeeb3e6ea210398b81ab"
+      "signatureHash": "0x0fcf17fac114131b10f37b183c6a60f905911e52802caeeb3e6ea210398b81ab",
+      "saleEvent": true
     },
     {
       "name": "Execution721MakerFeePacked",
-      "signatureHash": "0x7dc5c0699ac8dd5250cbe368a2fc3b4a2daadb120ad07f6cccea29f83482686e"
+      "signatureHash": "0x7dc5c0699ac8dd5250cbe368a2fc3b4a2daadb120ad07f6cccea29f83482686e",
+      "saleEvent": true
     }
   ],
   "version": "blur-v2"

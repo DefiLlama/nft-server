@@ -4,7 +4,8 @@
   "events": [
     {
       "name": "Buy",
-      "signatureHash": "0x7a212d757c7290587e1c8f7100a01a3d09466d58945058b6f22a179013475a90"
+      "signatureHash": "0x7a212d757c7290587e1c8f7100a01a3d09466d58945058b6f22a179013475a90",
+      "saleEvent": true
     }
   ]
 }

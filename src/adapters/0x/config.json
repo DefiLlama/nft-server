@@ -4,7 +4,8 @@
   "events": [
     {
       "name": "ERC721OrderFilled",
-      "signatureHash": "0x50273fa02273cceea9cf085b42de5c8af60624140168bd71357db833535877af"
+      "signatureHash": "0x50273fa02273cceea9cf085b42de5c8af60624140168bd71357db833535877af",
+      "saleEvent": true
     }
   ]
 }

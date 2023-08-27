@@ -7,25 +7,29 @@
   "events": [
     {
       "name": "OBOSaleEvent",
-      "signatureHash": "0x7657ffe1f72297f8773cec737634d73ad5d98a421b9f15dc99f3b792278d1396"
+      "signatureHash": "0x7657ffe1f72297f8773cec737634d73ad5d98a421b9f15dc99f3b792278d1396",
+      "saleEvent": true
     },
     {
       "name": "SaleSuccessfulEvent",
-      "signatureHash": "0x60364304ae1fda694c3be5cac0f507f6fcd2144b5d26870e8a26f7ac17df83bf"
+      "signatureHash": "0x60364304ae1fda694c3be5cac0f507f6fcd2144b5d26870e8a26f7ac17df83bf",
+      "saleEvent": true
     },
     {
       "name": "TokenBidAccepted",
-      "signatureHash": "0x1f742344121ee39367760387f62d61b3b3490773d72cd37a18fc135d27babfda"
+      "signatureHash": "0x1f742344121ee39367760387f62d61b3b3490773d72cd37a18fc135d27babfda",
+      "saleEvent": true
     },
     {
       "name": "acceptBidPH",
-      "signatureHash": "0xfc8d57c890a29ac7508080b26d7187224039062b525f377f0c7746193c59baa8"
+      "signatureHash": "0xfc8d57c890a29ac7508080b26d7187224039062b525f377f0c7746193c59baa8",
+      "saleEvent": true
     },
     {
       "name": "purchasePH",
-      "signatureHash": "0xdf5790120e3a47a9af8b7221574bf9c40e96cf1e648723b28b93a73ba9dd68fd"
+      "signatureHash": "0xdf5790120e3a47a9af8b7221574bf9c40e96cf1e648723b28b93a73ba9dd68fd",
+      "saleEvent": true
     },
-
     {
       "name": "SaleCanceledEvent",
       "signatureHash": "0xa50b2d6faf84e88de164f615bc8daa8477ab67f677d72aef3a3122d26c6eae28"

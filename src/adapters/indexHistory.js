@@ -13,12 +13,21 @@ const checkIfStale = (blockEvents, blockHistory) => blockEvents > blockHistory;
 const exe = async () => {
   // load modules
   const modulesDir = path.join(__dirname, './');
-  const modules = [];
+  let modules = [];
   fs.readdirSync(modulesDir)
     .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
     .forEach((mplace) => {
-      modules.push(require(path.join(modulesDir, mplace)));
+      modules.push(require(path.join(modulesDir, mplace, 'index.js')));
     });
+
+  // filter config.events array to non saleEvents
+  modules = modules.map((m) => ({
+    ...m,
+    config: {
+      ...m.config,
+      events: m.config.events.filter((e) => e?.saleEvent !== true),
+    },
+  }));
 
   // get max blocks for each table
   let [blockEvents, blockHistory] = await indexa.task(async (t) => {

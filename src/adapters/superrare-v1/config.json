@@ -4,13 +4,14 @@
   "events": [
     {
       "name": "AcceptBid",
-      "signatureHash": "0xd6deddb2e105b46d4644d24aac8c58493a0f107e7973b2fe8d8fa7931a2912be"
+      "signatureHash": "0xd6deddb2e105b46d4644d24aac8c58493a0f107e7973b2fe8d8fa7931a2912be",
+      "saleEvent": true
     },
     {
       "name": "Sold",
-      "signatureHash": "0x16dd16959a056953a63cf14bf427881e762e54f03d86b864efea8238dd3b822f"
+      "signatureHash": "0x16dd16959a056953a63cf14bf427881e762e54f03d86b864efea8238dd3b822f",
+      "saleEvent": true
     },
-
     {
       "name": "Bid",
       "signatureHash": "0x19421268847f42dd61705778018ddfc43bcdce8517e7a630acb12f122c709481"

@@ -4,13 +4,14 @@
   "events": [
     {
       "name": "TokenPurchased",
-      "signatureHash": "0x704cf6cb1221490022185412a0f82fd80ca9ccf7b5f84482727d0f6924265bd8"
+      "signatureHash": "0x704cf6cb1221490022185412a0f82fd80ca9ccf7b5f84482727d0f6924265bd8",
+      "saleEvent": true
     },
     {
       "name": "BidAccepted",
-      "signatureHash": "0xe6d56779a392535d3a591e92b65ba36f2ecc424bbf5220d0176a7da29385b504"
+      "signatureHash": "0xe6d56779a392535d3a591e92b65ba36f2ecc424bbf5220d0176a7da29385b504",
+      "saleEvent": true
     },
-
     {
       "name": "TokenListed",
       "signatureHash": "0x7765a1c07bdce3390c521eaeb86030b188b77cbaba2d76bd7c9c32d906bfbcba"

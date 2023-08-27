@@ -4,13 +4,14 @@
   "events": [
     {
       "name": "PurchaseEvent",
-      "signatureHash": "0x0e0d473f43a9d8727e62653cce4cd80d0c870ffb83dc4c93c9db4cb8ffe7053e"
+      "signatureHash": "0x0e0d473f43a9d8727e62653cce4cd80d0c870ffb83dc4c93c9db4cb8ffe7053e",
+      "saleEvent": true
     },
     {
       "name": "FinalizeListing",
-      "signatureHash": "0x7a64269d6d03ead41925c75675255493546f656ebb9cae4158fea2633d86c541"
+      "signatureHash": "0x7a64269d6d03ead41925c75675255493546f656ebb9cae4158fea2633d86c541",
+      "saleEvent": true
     },
-
     {
       "name": "CreateListing",
       "signatureHash": "0xa677084ea9aea69b2640d875bae622e3cf9d7c163f52d2f9d81daa1ed072c985"

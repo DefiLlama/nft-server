@@ -8,17 +8,19 @@
   "events": [
     {
       "name": "Sold",
-      "signatureHash": "0x5764dbcef91eb6f946584f4ea671217c686fa7e858ce4f9f42d08422b86556a9"
+      "signatureHash": "0x5764dbcef91eb6f946584f4ea671217c686fa7e858ce4f9f42d08422b86556a9",
+      "saleEvent": true
     },
     {
       "name": "AcceptBid",
-      "signatureHash": "0x2a9d06eec42acd217a17785dbec90b8b4f01a93ecd8c127edd36bfccf239f8b6"
+      "signatureHash": "0x2a9d06eec42acd217a17785dbec90b8b4f01a93ecd8c127edd36bfccf239f8b6",
+      "saleEvent": true
     },
     {
       "name": "settleAuctionPH",
-      "signatureHash": "0xea6d16c6bfcad11577aef5cc6728231c9f069ac78393828f8ca96847405902a9"
+      "signatureHash": "0xea6d16c6bfcad11577aef5cc6728231c9f069ac78393828f8ca96847405902a9",
+      "saleEvent": true
     },
-
     {
       "name": "SetSalePrice",
       "signatureHash": "0xb0b0e4adf2724af8f1646eae3a16f45d696c9334594729d09bf192da1f783871"
