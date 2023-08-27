@@ -57,9 +57,11 @@ const argv = yargs.options({
       ? require(`./${marketplace}/${idxFile}.js`)
       : { undefined, undefined, undefined };
 
-  config.events = config.events.filter((e) =>
-    etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
-  );
+  if (config) {
+    config.events = config.events.filter((e) =>
+      etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
+    );
+  }
 
   const parseEvent =
     etype === 'trades'
