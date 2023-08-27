@@ -2,76 +2,92 @@ const fs = require('fs');
 const path = require('path');
 
 const parseEvent = require('./parseEvent');
-const { getMaxBlock, insertTrades } = require('./queries');
-const castTypes = require('../utils/castTypes');
+const {
+  getMaxBlock,
+  insertTrades,
+  insertTradesHistoryTx,
+} = require('./queries');
+const { insertHistory } = require('./queriesHistory');
+const { castTypesTrades, castTypesHistory } = require('../utils/castTypes');
 const { blockRange, exclude } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
 const checkIfStale = require('../utils/stale');
 
 // load modules
 const modulesDir = path.join(__dirname, './');
-let modules = [];
+const modules = [];
 fs.readdirSync(modulesDir)
   .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
   .forEach((mplace) => {
-    const p = path.join(modulesDir, mplace, 'index.js');
-    if (fs.existsSync(p)) {
-      modules.push(require(p));
-    }
+    modules.push(require(path.join(modulesDir, mplace)));
   });
-// filter config.events array to saleEvents
-modules = modules.map((m) => ({
-  ...m,
-  config: {
-    ...m.config,
-    events: m.config.events.filter((e) => e?.saleEvent === true),
-  },
-}));
 
 const exe = async () => {
   // get max blocks for each table
-  let [blockEvents, blockTrades] = await indexa.task(async (t) => {
-    return await Promise.all(
-      ['event_logs', 'nft_trades'].map((table) =>
-        getMaxBlock(t, `ethereum.${table}`)
-      )
-    );
-  });
+  let [blockEvents, blockTrades, blockHistory] = await indexa.task(
+    async (t) => {
+      return await Promise.all(
+        ['event_logs', 'nft_trades', 'nft_history'].map((table) =>
+          getMaxBlock(t, `ethereum.${table}`)
+        )
+      );
+    }
+  );
+
+  // to prevent parsing the same event(s) multiple times which would lead to inserting duplicates into the db
+  // we take the max block of the two tables and use that as the starting point (+1 offset)
+  let blockNft = Math.max(blockTrades, blockHistory);
 
   console.log(
-    `syncing nft_trades, ${blockEvents - blockTrades} blocks behind event_logs`
+    `syncing nft tables, ${blockEvents - blockNft} blocks behind event_logs`
   );
 
   // check if stale
-  let stale = checkIfStale(blockEvents, blockTrades);
+  let stale = checkIfStale(blockEvents, blockNft);
 
   // forward fill
   while (stale) {
-    let startBlock = blockTrades + 1;
+    let startBlock = blockNft + 1;
     let endBlock = startBlock + blockRange;
 
-    const trades = await indexa.task(async (t) => {
-      return await Promise.all(
-        modules.map((m) =>
-          parseEvent(t, startBlock, endBlock, m.abi, m.config, m.parse)
-        )
-      );
-    });
-
-    const payload = castTypes(trades.flat());
+    const parsedEvents = (
+      await indexa.task(async (t) => {
+        return await Promise.all(
+          modules.map((m) =>
+            parseEvent(t, startBlock, endBlock, m.abi, m.config, m.parse)
+          )
+        );
+      })
+    ).flat();
 
     let response;
-    if (payload.length) {
-      response = await insertTrades(payload);
+    if (parsedEvents.length) {
+      const payloadTrades = [];
+      const payloadHistory = [];
+      for (const e of parsedEvents) {
+        if (e.eventType) {
+          payloadHistory.push(castTypesHistory(e));
+        } else {
+          payloadTrades.push(castTypesTrades(e));
+        }
+      }
+      process.exit();
+      if (payloadTrades.length && payloadHistory.length) {
+        response = await insertTradesHistoryTx(payloadTrades, payloadHistory);
+      } else if (payloadTrades.length) {
+        response = await insertTrades(payloadTrades);
+      } else {
+        response = await insertHistory(payloadHistory);
+      }
     }
 
     stale = checkIfStale(blockEvents, endBlock);
-    blockTrades = endBlock;
+    blockNft = endBlock;
     console.log(
       `synced blocks: ${startBlock}-${
         stale ? endBlock : blockEvents
       } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
-        stale ? Math.max(blockEvents - blockTrades, 0) : 0
+        stale ? Math.max(blockEvents - blockNft, 0) : 0
       } ]`
     );
   }

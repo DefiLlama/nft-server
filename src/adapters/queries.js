@@ -1,6 +1,7 @@
 const minify = require('pg-minify');
 
 const { pgp, indexa } = require('../utils/dbConnection');
+const { buildInsertQ: buildInsertQHistory } = require('./queriesHistory');
 
 const query = `
 SELECT
@@ -645,7 +646,7 @@ const deleteEvents = async (startBlock, endBlock, config) => {
   return response;
 };
 
-// --------- transaction query
+// --------- transaction queries
 const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
   // build queries
   const deleteQuery = buildDeleteQ(config);
@@ -687,6 +688,36 @@ const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
     });
 };
 
+const insertTradesHistoryTx = async (payloadTrades, payloadHistory) => {
+  // build queries
+  const insertQueryTrades = buildInsertQ(payloadTrades);
+  const insertQueryHistory = buildInsertQHistory(payloadHistory);
+
+  return indexa
+    .tx(async (t) => {
+      // sequence of queries:
+      // 1. insert trades
+      const q1 = await t.result(insertQueryTrades);
+
+      // 2. insert history
+      const q2 = await t.result(insertQueryHistory);
+
+      return [q1, q2];
+    })
+    .then((response) => {
+      // success, COMMIT was executed
+      return {
+        status: 'success',
+        data: response,
+      };
+    })
+    .catch((err) => {
+      // failure, ROLLBACK was executed
+      console.log(err);
+      return new Error('Transaction failed, rolling back', 404);
+    });
+};
+
 module.exports = {
   getEvents,
   getMaxBlock,
@@ -694,4 +725,5 @@ module.exports = {
   insertTrades,
   deleteEvents,
   deleteAndInsertEvents,
+  insertTradesHistoryTx,
 };

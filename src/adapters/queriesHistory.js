@@ -176,4 +176,5 @@ module.exports = {
   insertHistory,
   deleteEvents,
   deleteAndInsertEvents,
+  buildInsertQ,
 };
