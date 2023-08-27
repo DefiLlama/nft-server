@@ -27,10 +27,10 @@ const parse = (decodedData, event, events) => {
   let buyer;
   let seller;
 
-  if (eventType === 'takerBid') {
+  if (eventType === 'TakerBid') {
     buyer = event.from_address;
     seller = maker;
-  } else if (eventType === 'takerAsk') {
+  } else if (eventType === 'TakerAsk') {
     buyer = maker;
     seller = event.from_address;
   }

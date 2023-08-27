@@ -20,9 +20,9 @@ const parse = (decodedData, event) => {
     feeAmounts.reduce((acc, val) => acc + val, BigInt(0)).toString() / 1e18;
 
   const seller =
-    eventType === 'takerAsk'
+    eventType === 'TakerAsk'
       ? decodedData.askUser
-      : eventType === 'takerBid'
+      : eventType === 'TakerBid'
       ? decodedData.feeRecipients[0]
       : '';
 
