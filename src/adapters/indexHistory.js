@@ -17,7 +17,10 @@ const exe = async () => {
   fs.readdirSync(modulesDir)
     .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
     .forEach((mplace) => {
-      modules.push(require(path.join(modulesDir, mplace, 'index.js')));
+      const p = path.join(modulesDir, mplace, 'indexHistory.js');
+      if (fs.existsSync(p)) {
+        modules.push(require(p));
+      }
     });
 
   // filter config.events array to non saleEvents

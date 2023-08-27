@@ -14,14 +14,12 @@ const exe = async () => {
   const modulesDir = path.join(__dirname, './');
   let modules = [];
   fs.readdirSync(modulesDir)
-    .filter(
-      (mplace) =>
-        !mplace.endsWith('.js') &&
-        !exclude.includes(mplace) &&
-        mplace !== 'zora-Market' // no index
-    )
+    .filter((mplace) => !mplace.endsWith('.js') && !exclude.includes(mplace))
     .forEach((mplace) => {
-      modules.push(require(path.join(modulesDir, mplace, 'index.js')));
+      const p = path.join(modulesDir, mplace, 'index.js');
+      if (fs.existsSync(p)) {
+        modules.push(require(p));
+      }
     });
 
   // filter config.events array to saleEvents
@@ -29,7 +27,7 @@ const exe = async () => {
     ...m,
     config: {
       ...m.config,
-      events: m.config.events.filter((e) => e?.saleEvent),
+      events: m.config.events.filter((e) => e?.saleEvent === true),
     },
   }));
 
