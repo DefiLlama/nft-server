@@ -474,7 +474,7 @@ const getEvents = async (task, startBlock, endBlock, config) => {
     ? queryCryptopunks
     : config.version === 'looksrare-v1'
     ? queryLooksrareV1
-    : ['blur-lend', 'blur-v2'].includes(config.version)
+    : ['blur-blend', 'blur-v2'].includes(config.version)
     ? queryBlurBlend
     : config.exchangeName === 'rarible'
     ? queryRarible
