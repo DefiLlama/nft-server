@@ -1,13 +1,12 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nullAddress } = require('../../utils/params');
+const getEventType = require('../../utils/eventType');
 
 const collection = '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B';
 
 const parse = (decodedData, event) => {
-  const eventType = config.events.find(
-    (e) => e.signatureHash === `0x${event.topic_0}`
-  )?.name;
+  const eventType = getEventType(config, event);
 
   if (eventType === 'BuyNowPurchased') {
     const { _tokenId, _buyer, _currentOwner, _price } = decodedData;

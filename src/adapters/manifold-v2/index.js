@@ -3,11 +3,10 @@ const { stripZerosLeft } = require('ethers');
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
+const getEventType = require('../../utils/eventType');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
-  const eventType = config.events.find(
-    (e) => e.signatureHash === `0x${event.topic_0}`
-  )?.name;
+  const eventType = getEventType(config, event);
 
   if (['PurchaseEvent', 'FinalizeListing'].includes(eventType)) {
     // ignoring trades not paid in eth

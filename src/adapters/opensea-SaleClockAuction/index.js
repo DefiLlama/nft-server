@@ -1,11 +1,10 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nullAddress } = require('../../utils/params');
+const getEventType = require('../../utils/eventType');
 
 const parse = (decodedData, event, events, interface, trace, traces) => {
-  const eventType = config.events.find(
-    (e) => e.signatureHash === `0x${event.topic_0}`
-  )?.name;
+  const eventType = getEventType(config, event);
 
   if (eventType === 'AuctionSuccessful') {
     const { nftAddress, tokenId, totalPrice, winner } = decodedData;

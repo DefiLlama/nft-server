@@ -3,11 +3,10 @@ const { stripZerosLeft } = require('ethers');
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { getPrice } = require('../../utils/price');
+const getEventType = require('../../utils/eventType');
 
 const parse = async (decodedData, event) => {
-  const eventType = config.events.find(
-    (e) => e.signatureHash === `0x${event.topic_0}`
-  )?.name;
+  const eventType = getEventType(config, event);
 
   if (['Sold', 'AcceptOffer', 'AuctionSettled'].includes(eventType)) {
     const {
