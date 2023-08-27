@@ -1,7 +1,6 @@
 const minify = require('pg-minify');
 
 const { pgp, indexa } = require('../utils/dbConnection');
-const { buildInsertQ: buildInsertQHistory } = require('./queriesHistory');
 
 const query = `
 SELECT
@@ -550,8 +549,8 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
   return response;
 };
 
-const buildInsertQ = (payload) => {
-  const columns = [
+const columns = {
+  nft_trades: [
     'transaction_hash',
     'log_index',
     'contract_address',
@@ -573,13 +572,34 @@ const buildInsertQ = (payload) => {
     'royalty_recipient',
     'royalty_fee_eth',
     'royalty_fee_usd',
-  ];
+  ],
+  nft_history: [
+    'transaction_hash',
+    'log_index',
+    'contract_address',
+    'topic_0',
+    'block_time',
+    'block_number',
+    'exchange_name',
+    'event_type',
+    'collection',
+    'token_id',
+    'price',
+    'eth_price',
+    'usd_price',
+    'currency_address',
+    'user_address',
+    'event_id',
+    'expiration',
+  ],
+};
 
-  const cs = new pgp.helpers.ColumnSet(columns, {
-    // column set requries tablename if schema is not undefined
+const buildInsertQ = (payload, table) => {
+  const cs = new pgp.helpers.ColumnSet(columns[table], {
+    // column set requries tablename if schema is defined
     table: new pgp.helpers.TableName({
       schema: 'ethereum',
-      table: 'nft_trades',
+      table,
     }),
   });
 
@@ -588,25 +608,25 @@ const buildInsertQ = (payload) => {
   return query;
 };
 
-const insertTrades = async (payload) => {
-  const query = buildInsertQ(payload);
+const insertEvents = async (payload, table) => {
+  const query = buildInsertQ(payload, table);
 
   const response = await indexa.result(query);
 
   if (!response) {
-    return new Error(`Couldn't insert into ethereum.nft_trades`, 404);
+    return new Error(`Couldn't insert into ethereum.${table}`, 404);
   }
 
   return response;
 };
 
 // used when refilling (in case of adapter bug, missing events etc)
-// deletes trades in nft_trades for a given marketplace (its address(es), event signatures and block range)
+// deletes trades in table for a given marketplace (its address(es), event signatures and block range)
 const buildDeleteQ = (config) => {
   return config.exchangeName !== 'sudoswap'
     ? `
   DELETE FROM
-      ethereum.nft_trades
+      $<table:raw>
   WHERE
       contract_address in ($<contractAddresses:csv>)
       AND topic_0 in ($<eventSignatureHashes:csv>)
@@ -615,7 +635,7 @@ const buildDeleteQ = (config) => {
   `
     : `
   DELETE FROM
-      ethereum.nft_trades
+      $<table:raw>
   WHERE
       topic_0 in ($<eventSignatureHashes:csv>)
       AND block_number >= $<startBlock>
@@ -637,6 +657,7 @@ const deleteEvents = async (startBlock, endBlock, config) => {
     eventSignatureHashes,
     startBlock,
     endBlock,
+    table,
   });
 
   if (!response) {
@@ -647,10 +668,16 @@ const deleteEvents = async (startBlock, endBlock, config) => {
 };
 
 // --------- transaction queries
-const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
+const deleteAndInsertEvents = async (
+  payload,
+  startBlock,
+  endBlock,
+  config,
+  table
+) => {
   // build queries
   const deleteQuery = buildDeleteQ(config);
-  const insertQuery = buildInsertQ(payload);
+  const insertQuery = buildInsertQ(payload, table);
 
   // required for the delteteQ
   const eventSignatureHashes = config.events.map(
@@ -667,6 +694,7 @@ const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
         eventSignatureHashes,
         startBlock,
         endBlock,
+        table,
       });
 
       // 2. insert trades
@@ -690,8 +718,8 @@ const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
 
 const insertTradesHistoryTx = async (payloadTrades, payloadHistory) => {
   // build queries
-  const insertQueryTrades = buildInsertQ(payloadTrades);
-  const insertQueryHistory = buildInsertQHistory(payloadHistory);
+  const insertQueryTrades = buildInsertQ(payloadTrades, 'ndf_trades');
+  const insertQueryHistory = buildInsertQ(payloadHistory, 'nft_history');
 
   return indexa
     .tx(async (t) => {
@@ -722,7 +750,7 @@ module.exports = {
   getEvents,
   getMaxBlock,
   getTraces,
-  insertTrades,
+  insertEvents,
   deleteEvents,
   deleteAndInsertEvents,
   insertTradesHistoryTx,

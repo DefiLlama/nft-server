@@ -145,6 +145,16 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         });
       }
 
+      // history event
+      if (parsedEvent.eventType) {
+        return {
+          ...rest,
+          ...parsedEvent,
+          exchangeName: config.exchangeName,
+        };
+      }
+
+      // trade event
       return {
         ...rest,
         ...parsedEvent,
@@ -158,8 +168,10 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
     })
   );
 
-  // remove empty objects
-  return parsedEvents.flat().filter((event) => event.collection);
+  // remove empty objects (history events always include eventType and trade events collection)
+  return parsedEvents
+    .flat()
+    .filter((event) => event.eventType || event.collection);
 };
 
 module.exports = parseEvent;

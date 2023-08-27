@@ -4,10 +4,9 @@ const path = require('path');
 const parseEvent = require('./parseEvent');
 const {
   getMaxBlock,
-  insertTrades,
+  insertEvents,
   insertTradesHistoryTx,
 } = require('./queries');
-const { insertHistory } = require('./queriesHistory');
 const { castTypesTrades, castTypesHistory } = require('../utils/castTypes');
 const { blockRange, exclude } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
@@ -75,9 +74,9 @@ const exe = async () => {
       if (payloadTrades.length && payloadHistory.length) {
         response = await insertTradesHistoryTx(payloadTrades, payloadHistory);
       } else if (payloadTrades.length) {
-        response = await insertTrades(payloadTrades);
+        response = await insertEvents(payloadTrades, 'nft_trades');
       } else {
-        response = await insertHistory(payloadHistory);
+        response = await insertEvents(payloadHistory, 'nft_history');
       }
     }
 
