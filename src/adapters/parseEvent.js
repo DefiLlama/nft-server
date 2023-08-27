@@ -1,7 +1,7 @@
 const ethers = require('ethers');
 
 const { getEvents, getTraces } = require('./queries');
-const aggregators = require('./aggregators');
+const aggregators = require('../utils/aggregators');
 const { nftTransferEvents } = require('../utils/params');
 const removeRedundantEvents = require('../utils/removeDupes');
 
