@@ -1,0 +1,11 @@
+{
+  "exchangeName": "blur",
+  "contracts": ["0x000000000000ad05ccc4f10045630fb830b95127"],
+  "events": [
+    {
+      "name": "OrdersMatched",
+      "signatureHash": "0x61cbb2a3dee0b6064c2e681aadd61677fb4ef319f0b547508d495626f5a62f64",
+      "saleEvent": true
+    }
+  ]
+}

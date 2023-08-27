@@ -1,6 +1,6 @@
 # nft-server
 
 - set database urls in `config.env`
-- test with: `node src/etype/test.js --etype=trades --marketplace=blur`
+- test with: `node src/adapters/test.js --etype=trades --marketplace=blur-v1`
 - to backfill:
-  `node src/etype/backfill.js --etype=trades --marketplace=blur --block=16797031 --blockRange=100`
+  `node src/adapters/backfill.js --etype=trades --marketplace=blur-v1 --block=16797031 --blockRange=100 --blockStop=16790000`

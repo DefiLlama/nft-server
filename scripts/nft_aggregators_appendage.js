@@ -1,5 +1,5 @@
 const { pgp, indexa } = require('../src/utils/dbConnection');
-const aggregatorData = require('../src/etype/trades/aggregators');
+const aggregatorData = require('../src/utils/aggregators');
 
 const schema = 'ethereum';
 const table = 'nft_aggregators_appendage';

@@ -1,0 +1,11 @@
+{
+  "exchangeName": "rarible",
+  "contracts": ["0x131AEBbfe55bcA0C9EAAD4Ea24D386C5C082dD58"],
+  "events": [
+    {
+      "name": "Buy",
+      "signatureHash": "0x7a212d757c7290587e1c8f7100a01a3d09466d58945058b6f22a179013475a90",
+      "saleEvent": true
+    }
+  ]
+}

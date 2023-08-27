@@ -1,0 +1,45 @@
+{
+  "exchangeName": "manifold",
+  "contracts": ["0x3a3548e060be10c2614d0a4cb0c03cc9093fd799"],
+  "events": [
+    {
+      "name": "PurchaseEvent",
+      "signatureHash": "0x0e0d473f43a9d8727e62653cce4cd80d0c870ffb83dc4c93c9db4cb8ffe7053e",
+      "saleEvent": true
+    },
+    {
+      "name": "FinalizeListing",
+      "signatureHash": "0x7a64269d6d03ead41925c75675255493546f656ebb9cae4158fea2633d86c541",
+      "saleEvent": true
+    },
+    {
+      "name": "CreateListing",
+      "signatureHash": "0xa677084ea9aea69b2640d875bae622e3cf9d7c163f52d2f9d81daa1ed072c985"
+    },
+    {
+      "name": "CreateListingTokenDetails",
+      "signatureHash": "0xc43fa59bf811b406292f853c5888b214b0e868c12884ca93b4956648caa6938a"
+    },
+    {
+      "name": "BidEvent",
+      "signatureHash": "0xd12be072db02c5c389af56d30a7ef86f64b7b60048f3875c6d00fc240d2d92b6"
+    },
+    {
+      "name": "OfferEvent",
+      "signatureHash": "0x73535bde202cd31a2fe12c1b9e7903a1b273e46e0dbc7d55dc586af898543701"
+    },
+    {
+      "name": "RescindOfferEvent",
+      "signatureHash": "0x3d13f7b5271fd88ba34bfa097c4b522a61f0cfeb1621d43bfae01034fa421e4f"
+    },
+    {
+      "name": "ModifyListing",
+      "signatureHash": "0xde38900f75163598713718d539a09596c3c1b9bacd1432ea1be04fa658d0cada"
+    },
+    {
+      "name": "CancelListing",
+      "signatureHash": "0x19ef8c897f0ad4be12bac96be8f4a3984059ae9566f02163b0e48cf00f9aa338"
+    }
+  ],
+  "version": "manifold-v2"
+}

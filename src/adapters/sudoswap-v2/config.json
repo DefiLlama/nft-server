@@ -1,0 +1,17 @@
+{
+  "exchangeName": "sudoswap",
+  "contracts": [],
+  "events": [
+    {
+      "name": "SwapNFTInPair",
+      "signatureHash": "0x7a0e7e58d91fd23a96b0008604db1b2d1cee4aae434e3aad9a20fdd7c0995f89",
+      "saleEvent": true
+    },
+    {
+      "name": "SwapNFTOutPair",
+      "signatureHash": "0xa13c46268c53408442d94eb370f2e476cb7f0fbe027ae5bad73ce13d4469c8b9",
+      "saleEvent": true
+    }
+  ],
+  "version": "sudoswap-v2"
+}

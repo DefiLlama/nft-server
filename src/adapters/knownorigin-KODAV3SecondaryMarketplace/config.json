@@ -1,0 +1,53 @@
+{
+  "exchangeName": "knownorigin",
+  "contracts": ["0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A"],
+  "events": [
+    {
+      "name": "BuyNowPurchased",
+      "signatureHash": "0x25a395eca5bca1a1ca0c1543a3e87384fabcf63100e03535276da15f838805b2",
+      "saleEvent": true
+    },
+    {
+      "name": "ReserveAuctionResulted",
+      "signatureHash": "0xa0a548bb147d15d7de045c333ab8b0ec3d0cc790775d009185aa0e009437507e",
+      "saleEvent": true
+    },
+    {
+      "name": "TokenBidAccepted",
+      "signatureHash": "0xb330606c91034d5d9c44a6ab77647051ac1bce131b5b98cddcdab6a66d2d9648",
+      "saleEvent": true
+    },
+    {
+      "name": "BidPlacedOnReserveAuction",
+      "signatureHash": "0x0dacabc07ffe733bf314aba914422a6efa538ba8f6885bbd1ee3275c3b3f389d"
+    },
+    {
+      "name": "BuyNowPriceChanged",
+      "signatureHash": "0x2acf0b64eca25e79ecb9831cce1c9045dce27614bb88deb1cc5b435e87278cdb"
+    },
+    {
+      "name": "ListedForBuyNow",
+      "signatureHash": "0x7fd7de54b3a4cc7952845fd3fa85208e0ba980067ead6d59721bebc8bd7ec414"
+    },
+    {
+      "name": "ListedForReserveAuction",
+      "signatureHash": "0xcd712ccc5669f36ad4dfb9acf905087c4b438eabe53e24c858c72bfa0515cb98"
+    },
+    {
+      "name": "ReservePriceUpdated",
+      "signatureHash": "0x87c77544fe96aeb9a3a6398d27ed891f9532d66ef82444a0a56aab18a58bbece"
+    },
+    {
+      "name": "TokenBidPlaced",
+      "signatureHash": "0xefb62db28a02134884fb028815b1bafb7dd0f1251e8a595ea94c3b4180f954de"
+    },
+    {
+      "name": "TokenBidWithdrawn",
+      "signatureHash": "0xc8ba6fa570e0742f98985499c36c47fe428ca4547a07e7e2e6991cc11e4817cc"
+    },
+    {
+      "name": "TokenDeListed",
+      "signatureHash": "0x6caa49919a8c0059b871ec5c8b81a13a285b53cd92216d310fcdcf9c893e5a45"
+    }
+  ]
+}

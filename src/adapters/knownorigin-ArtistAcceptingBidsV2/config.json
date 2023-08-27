@@ -1,0 +1,11 @@
+{
+  "exchangeName": "knownorigin",
+  "contracts": ["0x848b0EA643e5a352D78e2c0c12A2dD8c96feC639"],
+  "events": [
+    {
+      "name": "BidAccepted",
+      "signatureHash": "0x77273c2a169296530c120eb6f1142012378aad0ed4337eac090eaf4223a1a2f1",
+      "saleEvent": true
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "exchangeName": "manifold",
+  "contracts": ["0x7ef865963D3A005670b8F8Df6aed23e456FA75e0"],
+  "events": [
+    {
+      "name": "PurchaseEvent",
+      "signatureHash": "0xdc84c3c75a393011959e6391215e5b01982de6ad00f83b8b26ac7c52a5844b22",
+      "saleEvent": true
+    },
+    {
+      "name": "CreateListing",
+      "signatureHash": "0xa480a00989f31e56f3512df0fb55f67327513869967a132833666b765c61be45"
+    },
+    {
+      "name": "CreateListingTokenDetails",
+      "signatureHash": "0xf560c51209e077c5824d9fa05788bec442ed7b4033815e855d0906c6a713a7f5"
+    },
+    {
+      "name": "BidEvent",
+      "signatureHash": "0x68debf84f0c6c4d7f73019f874d0f4f4b4c6d895ebce90dc010abac51d74d60a"
+    },
+    {
+      "name": "CancelListing",
+      "signatureHash": "0xe94376722784941abde69f1253384e4c041ea529a112b8378ad63f829124ad11"
+    }
+  ]
+}
