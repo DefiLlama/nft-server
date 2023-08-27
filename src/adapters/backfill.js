@@ -1,6 +1,7 @@
 const yargs = require('yargs');
 
 const { indexa } = require('../utils/dbConnection');
+const castTypes = require('../utils/castTypes');
 
 const argv = yargs.options({
   etype: {
@@ -57,26 +58,25 @@ const blockStop = argv.blockStop;
     );
   }
 
-  const parseEvent =
-    etype === 'trades'
-      ? require(`./parseEvent`)
-      : etype === 'history'
-      ? require('./parseEventHistory')
-      : require('./parseEventTransfers');
+  const parseEvent = ['trades', 'history'].includes(etype)
+    ? require(`./parseEvent`)
+    : require('./parseEventTransfers');
 
-  const castTypes =
+  const castDataTypes =
     etype === 'trades'
-      ? require('../utils/castTypes')
+      ? castTypes.castTypesTrades
       : etype === 'history'
-      ? require('../utils/castTypesHistory')
-      : require('../utils/castTypesTransfers');
+      ? castTypes.castTypesHistory
+      : castTypes.castTypesTransfers;
 
-  const { deleteAndInsertEvents, deleteEvents } =
-    etype === 'trades'
-      ? require('./queries')
-      : etype === 'history'
-      ? require('./queriesHistory')
-      : require('./queriesTransfers');
+  const { deleteAndInsertEvents, deleteEvents } = [
+    'trades',
+    'history',
+  ].includes(etype)
+    ? require('./queriesHistory')
+    : require('./queriesTransfers');
+
+  const table = `ethereum.nft_${etype}`;
 
   let startBlock = endBlock - blockRange;
 
@@ -87,19 +87,20 @@ const blockStop = argv.blockStop;
     });
 
     if (pEvents.length) {
-      const payload = castTypes(pEvents);
+      const payload = pEvents.map((e) => castDataTypes(e));
       const response = await deleteAndInsertEvents(
         payload,
         startBlock,
         endBlock,
-        config
+        config,
+        table
       );
 
       console.log(
         `filled ${startBlock}-${endBlock} [deleted: ${response.data[0].rowCount} inserted: ${response.data[1].rowCount}]`
       );
     } else {
-      const response = await deleteEvents(startBlock, endBlock, config);
+      const response = await deleteEvents(startBlock, endBlock, config, table);
       console.log(
         `filled ${startBlock}-${endBlock} [deleted:  ${response.rowCount} inserted: 0]`
       );

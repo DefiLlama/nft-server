@@ -9,8 +9,9 @@ const argv = yargs.options({
     alias: 'e',
     type: 'string',
     demandOption: true,
-    describe: 'event type, eg trades',
-    choices: ['trades', 'transfers', 'history'],
+    describe:
+      'event type, eg trades, if `both` test will run parse all events defined in config',
+    choices: ['trades', 'history', 'both', 'transfers'],
   },
   marketplace: {
     alias: 'm',
@@ -55,16 +56,17 @@ const argv = yargs.options({
 
   if (config) {
     config.events = config.events.filter((e) =>
-      etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
+      etype === 'trades'
+        ? e?.saleEvent
+        : etype === 'history'
+        ? e?.saleEvent !== true
+        : e
     );
   }
 
-  const parseEvent =
-    etype === 'trades'
-      ? require(`./parseEvent`)
-      : etype === 'history'
-      ? require('./parseEventHistory')
-      : require('./parseEventTransfers');
+  const parseEvent = ['trades', 'history'].includes(etype)
+    ? require(`./parseEvent`)
+    : require('./parseEventTransfers');
 
   const endBlock = !block
     ? await indexa.task(async (t) => {

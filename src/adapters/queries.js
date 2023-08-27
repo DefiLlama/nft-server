@@ -550,7 +550,7 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
 };
 
 const columns = {
-  nft_trades: [
+  'ethereum.nft_trades': [
     'transaction_hash',
     'log_index',
     'contract_address',
@@ -573,7 +573,7 @@ const columns = {
     'royalty_fee_eth',
     'royalty_fee_usd',
   ],
-  nft_history: [
+  'ethereum.nft_history': [
     'transaction_hash',
     'log_index',
     'contract_address',
@@ -598,7 +598,6 @@ const buildInsertQ = (payload, table) => {
   const cs = new pgp.helpers.ColumnSet(columns[table], {
     // column set requries tablename if schema is defined
     table: new pgp.helpers.TableName({
-      schema: 'ethereum',
       table,
     }),
   });
@@ -643,7 +642,7 @@ const buildDeleteQ = (config) => {
   `;
 };
 
-const deleteEvents = async (startBlock, endBlock, config) => {
+const deleteEvents = async (startBlock, endBlock, config, table) => {
   const query = buildDeleteQ(config);
 
   // required for the delteteQ
@@ -661,7 +660,7 @@ const deleteEvents = async (startBlock, endBlock, config) => {
   });
 
   if (!response) {
-    return new Error(`Couldn't delete from ethereum.nft_trades`, 404);
+    return new Error(`Couldn't delete from ${table}`, 404);
   }
 
   return response;
@@ -718,17 +717,17 @@ const deleteAndInsertEvents = async (
 
 const insertTradesHistoryTx = async (payloadTrades, payloadHistory) => {
   // build queries
-  const insertQueryTrades = buildInsertQ(payloadTrades, 'ndf_trades');
-  const insertQueryHistory = buildInsertQ(payloadHistory, 'nft_history');
+  const insertQTrades = buildInsertQ(payloadTrades, 'ethereum.nft_trades');
+  const insertQHistory = buildInsertQ(payloadHistory, 'ethereum.nft_history');
 
   return indexa
     .tx(async (t) => {
       // sequence of queries:
       // 1. insert trades
-      const q1 = await t.result(insertQueryTrades);
+      const q1 = await t.result(insertQTrades);
 
       // 2. insert history
-      const q2 = await t.result(insertQueryHistory);
+      const q2 = await t.result(insertQHistory);
 
       return [q1, q2];
     })
