@@ -46,13 +46,9 @@ const blockStop = argv.blockStop;
 (async () => {
   console.log(`==== Refill ${etype}:${marketplace} ====`);
 
-  const idxFile = ['trades', 'transfers'].includes(etype)
-    ? 'index'
-    : 'indexHistory';
-
   const { abi, config, parse } =
     etype !== 'transfers'
-      ? require(`./${marketplace}/${idxFile}.js`)
+      ? require(`./${marketplace}`)
       : { undefined, undefined, undefined };
 
   if (config) {

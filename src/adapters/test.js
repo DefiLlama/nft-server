@@ -48,13 +48,9 @@ const argv = yargs.options({
   const time = () => Date.now() / 1000;
   const start = time();
 
-  const idxFile = ['trades', 'transfers'].includes(etype)
-    ? 'index'
-    : 'indexHistory';
-
   const { abi, config, parse } =
     etype !== 'transfers'
-      ? require(`./${marketplace}/${idxFile}.js`)
+      ? require(`./${marketplace}`)
       : { undefined, undefined, undefined };
 
   if (config) {
