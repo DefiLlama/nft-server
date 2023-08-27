@@ -5,87 +5,198 @@ const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
 
 const parse = (decodedData, event, events) => {
-  let collection;
-  let tokenId;
-  let buyer;
+  const eventType = config.events.find(
+    (e) => e.signatureHash === `0x${event.topic_0}`
+  )?.name;
 
-  // transfer events are only required for ReserveAuctionFinalized event
-  let transferEventNFT;
-  const ReserveAuctionFinalizedSigHash = config.events
-    .find((e) => e.name === 'ReserveAuctionFinalized')
-    .signatureHash.replace('0x', '');
+  if (
+    ['BuyPriceAccepted', 'OfferAccepted', 'ReserveAuctionFinalized'].includes(
+      eventType
+    )
+  ) {
+    let collection;
+    let tokenId;
+    let buyer;
 
-  if (event.topic_0 === ReserveAuctionFinalizedSigHash) {
-    const transfersNFT = events.filter(
-      (e) => e.transaction_hash === event.transaction_hash
-    );
+    // transfer events are only required for ReserveAuctionFinalized event
+    let transferEventNFT;
+    const ReserveAuctionFinalizedSigHash = config.events
+      .find((e) => e.name === 'ReserveAuctionFinalized')
+      .signatureHash.replace('0x', '');
 
-    if (!transfersNFT.length) return {};
+    if (event.topic_0 === ReserveAuctionFinalizedSigHash) {
+      const transfersNFT = events.filter(
+        (e) => e.transaction_hash === event.transaction_hash
+      );
 
-    transferEventNFT =
-      transfersNFT?.length === 1
-        ? transfersNFT[0]
-        : transfersNFT.find(
-            (tf) =>
-              tf.topic_1.includes(event.from_address) ||
-              tf.topic_2.includes(event.from_address) ||
-              tf.topic_3.includes(event.from_address)
-          );
+      if (!transfersNFT.length) return {};
 
-    if (!transferEventNFT) return {};
+      transferEventNFT =
+        transfersNFT?.length === 1
+          ? transfersNFT[0]
+          : transfersNFT.find(
+              (tf) =>
+                tf.topic_1.includes(event.from_address) ||
+                tf.topic_2.includes(event.from_address) ||
+                tf.topic_3.includes(event.from_address)
+            );
 
-    collection = stripZerosLeft(`0x${transferEventNFT.contract_address}`);
+      if (!transferEventNFT) return {};
 
-    if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
-      tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
-    } else if (
-      transferEventNFT.topic_0 === nftTransferEvents['erc1155_TransferSingle']
-    ) {
-      tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
+      collection = stripZerosLeft(`0x${transferEventNFT.contract_address}`);
+
+      if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
+        tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
+      } else if (
+        transferEventNFT.topic_0 === nftTransferEvents['erc1155_TransferSingle']
+      ) {
+        tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
+      }
     }
+
+    const {
+      seller,
+      nftContract,
+      tokenId: token,
+      buyer: buyerAddress,
+      bidder,
+      creatorRev,
+      sellerRev,
+      totalFees,
+    } = decodedData;
+
+    tokenId =
+      event.topic_0 === ReserveAuctionFinalizedSigHash ? tokenId : token;
+    collection =
+      event.topic_0 === ReserveAuctionFinalizedSigHash
+        ? collection
+        : nftContract;
+    buyer =
+      event.topic_0 === ReserveAuctionFinalizedSigHash ? bidder : buyerAddress;
+
+    const salePrice = (creatorRev + sellerRev + totalFees).toString() / 1e18;
+
+    let royaltyRecipient;
+    let royaltyFeeEth;
+    let royaltyFeeUsd;
+
+    if (creatorRev > 0 && sellerRev > 0) {
+      royaltyFeeEth = creatorRev.toString() / 1e18;
+      royaltyFeeUsd = royaltyFeeEth * event.price;
+    }
+    return {
+      collection,
+      tokenId,
+      amount: 1,
+      salePrice,
+      ethSalePrice: salePrice,
+      usdSalePrice: salePrice * event.price,
+      paymentToken: nullAddress,
+      seller,
+      buyer,
+      royaltyRecipient,
+      royaltyFeeEth,
+      royaltyFeeUsd,
+    };
+  } else if (eventType === 'BuyPriceSet') {
+    const { nftContract, tokenId, seller, price: _price } = decodedData;
+
+    const price = _price.toString() / 1e18;
+
+    return {
+      collection: nftContract,
+      tokenId,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      userAddress: seller,
+      eventType,
+    };
+  } else if (
+    ['BuyPriceCanceled', 'BuyPriceInvalidated', 'OfferInvalidated'].includes(
+      eventType
+    )
+  ) {
+    const { nftContract, tokenId } = decodedData;
+
+    return {
+      collection: nftContract,
+      tokenId,
+      eventType,
+    };
+  } else if (eventType === 'OfferMade') {
+    const { nftContract, tokenId, buyer, amount, expiration } = decodedData;
+
+    const price = amount.toString() / 1e18;
+
+    return {
+      collection: nftContract,
+      tokenId,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      userAddress: buyer,
+      eventType,
+      expiration,
+    };
+  } else if (eventType === 'ReserveAuctionBidPlaced') {
+    const { auctionId, bidder, amount, endTime } = decodedData;
+
+    const price = amount.toString() / 1e18;
+
+    return {
+      eventId: auctionId,
+      userAddress: bidder,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      eventType,
+      expiration: endTime,
+    };
+  } else if (
+    ['ReserveAuctionCanceled', 'ReserveAuctionInvalidated'].includes(eventType)
+  ) {
+    const { auctionId } = decodedData;
+
+    return {
+      eventId: auctionId,
+      eventType,
+    };
+  } else if (eventType === 'ReserveAuctionCreated') {
+    const { seller, nftContract, tokenId, duration, reservePrice, auctionId } =
+      decodedData;
+
+    const price = reservePrice.toString() / 1e18;
+
+    return {
+      eventId: auctionId,
+      userAddress: seller,
+      collection: nftContract,
+      tokenId,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      eventType,
+      duration,
+    };
+  } else if (eventType === 'ReserveAuctionUpdated') {
+    const { auctionId, reservePrice } = decodedData;
+
+    const price = reservePrice.toString() / 1e18;
+
+    return {
+      eventId: auctionId,
+      eventType,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+    };
   }
-
-  const {
-    seller,
-    nftContract,
-    tokenId: token,
-    buyer: buyerAddress,
-    bidder,
-    creatorRev,
-    sellerRev,
-    totalFees,
-  } = decodedData;
-
-  tokenId = event.topic_0 === ReserveAuctionFinalizedSigHash ? tokenId : token;
-  collection =
-    event.topic_0 === ReserveAuctionFinalizedSigHash ? collection : nftContract;
-  buyer =
-    event.topic_0 === ReserveAuctionFinalizedSigHash ? bidder : buyerAddress;
-
-  const salePrice = (creatorRev + sellerRev + totalFees).toString() / 1e18;
-
-  let royaltyRecipient;
-  let royaltyFeeEth;
-  let royaltyFeeUsd;
-
-  if (creatorRev > 0 && sellerRev > 0) {
-    royaltyFeeEth = creatorRev.toString() / 1e18;
-    royaltyFeeUsd = royaltyFeeEth * event.price;
-  }
-  return {
-    collection,
-    tokenId,
-    amount: 1,
-    salePrice,
-    ethSalePrice: salePrice,
-    usdSalePrice: salePrice * event.price,
-    paymentToken: nullAddress,
-    seller,
-    buyer,
-    royaltyRecipient,
-    royaltyFeeEth,
-    royaltyFeeUsd,
-  };
 };
 
 module.exports = { abi, config, parse };

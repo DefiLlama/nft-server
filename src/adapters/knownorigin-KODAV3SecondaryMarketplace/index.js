@@ -57,6 +57,110 @@ const parse = (decodedData, event) => {
       seller: _currentOwner,
       buyer: _bidder,
     };
+  } else if (eventType === 'BidPlacedOnReserveAuction') {
+    const { _id, _currentOwner, _bidder, _amount } = decodedData;
+
+    const price = _amount.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _id,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      userAddress: _bidder,
+      eventType,
+    };
+  } else if (eventType === 'BuyNowPriceChanged') {
+    const { _id, _price } = decodedData;
+
+    const price = _price.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _id,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      eventType,
+    };
+  } else if (eventType === 'ListedForBuyNow') {
+    const { _id, _price, _currentOwner, _startDate } = decodedData;
+
+    const price = _price.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _id,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      userAddress: _currentOwner,
+      eventType,
+    };
+  } else if (eventType === 'ListedForReserveAuction') {
+    const { _id, _reservePrice, _startDate } = decodedData;
+
+    const price = _reservePrice.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _id,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      eventType,
+    };
+  } else if (eventType === 'ReservePriceUpdated') {
+    const { _id, _reservePrice } = decodedData;
+
+    const price = _reservePrice.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _id,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      eventType,
+    };
+  } else if (eventType === 'TokenBidPlaced') {
+    const { _tokenId, _currentOwner, _bidder, _amount } = decodedData;
+
+    const price = _amount.toString() / 1e18;
+
+    return {
+      collection,
+      tokenId: _tokenId,
+      price,
+      ethPrice: price,
+      usdPrice: price * event.price,
+      currencyAddress: nullAddress,
+      userAddress: _bidder,
+      eventType,
+    };
+  } else if (eventType === 'TokenBidWithdrawn') {
+    const { _tokenId, _bidder } = decodedData;
+
+    return {
+      collection,
+      tokenId: _tokenId,
+      userAddress: _bidder,
+      eventType,
+    };
+  } else if (eventType === 'TokenDeListed') {
+    const { _tokenId } = decodedData;
+
+    return {
+      collection,
+      tokenId: _tokenId,
+      eventType,
+    };
   }
 };
 
