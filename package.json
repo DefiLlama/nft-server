@@ -6,12 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "node-pg-migrate",
-    "start:sync_nft_trades": "node src/etype/trades/index",
+    "start:sync_nft_trades": "node src/adapters/index",
     "start:api": "node src/api/server",
     "start:jobs": "node src/jobs/index",
     "start:monitor": "node src/jobs/indexMonitor",
-    "start:sync_nft_transfers": "node src/etype/transfers/index",
-    "start:sync_nft_history": "node src/etype/history/index"
+    "start:sync_nft_transfers": "node src/adapters/indexTransfers",
+    "start:sync_nft_history": "node src/adapters/indexHistory"
   },
   "author": "",
   "license": "ISC",
