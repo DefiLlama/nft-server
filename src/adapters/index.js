@@ -59,9 +59,10 @@ const exe = async () => {
       })
     ).flat();
 
-    let response;
     let payloadTrades = [];
     let payloadHistory = [];
+    let countTrades = 0;
+    let countHistory = 0;
     if (parsedEvents.length) {
       for (const e of parsedEvents) {
         if (e.eventType) {
@@ -70,12 +71,17 @@ const exe = async () => {
           payloadTrades.push(castTypesTrades(e));
         }
       }
+      let response;
       if (payloadTrades.length && payloadHistory.length) {
         response = await insertTradesHistoryTx(payloadTrades, payloadHistory);
+        countTrades = response.data[0].rowCount;
+        countHistory = response.data[1].rowCount;
       } else if (payloadTrades.length) {
         response = await insertEvents(payloadTrades, 'ethereum.nft_trades');
+        countTrades = response?.rowCount ?? 0;
       } else {
         response = await insertEvents(payloadHistory, 'ethereum.nft_history');
+        countHistory = response?.rowCount ?? 0;
       }
     }
 
@@ -84,9 +90,9 @@ const exe = async () => {
     console.log(
       `synced blocks: ${startBlock}-${
         stale ? endBlock : blockEvents
-      } [inserted: ${response?.rowCount ?? 0} (trades: ${
-        payloadTrades.length
-      } history: ${payloadHistory.length}) | blocks remaining: ${
+      } [inserted: ${
+        countTrades + countHistory
+      } (trades: ${countTrades} history: ${countHistory}) | blocks remaining: ${
         stale ? Math.max(blockEvents - blockNft, 0) : 0
       } ]`
     );
