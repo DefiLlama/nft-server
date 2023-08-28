@@ -5,6 +5,8 @@ const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
 const getEventType = require('../../utils/eventType');
 
+const collection = '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B';
+
 const parse = (decodedData, event, events) => {
   const eventType = getEventType(config, event);
 
@@ -51,7 +53,6 @@ const parse = (decodedData, event, events) => {
 
     const paymentToken = nullAddress;
     const amount = 1;
-    const collection = transferEventNFT.contract_address;
 
     let tokenId;
     let salePrice;
@@ -108,6 +109,7 @@ const parse = (decodedData, event, events) => {
     const price = _amount.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       price,
       ethPrice: price,
@@ -121,6 +123,7 @@ const parse = (decodedData, event, events) => {
     const { _id, _bidder } = decodedData;
 
     return {
+      collection,
       tokenId: _id,
       userAddress: _bidder,
       eventType,
@@ -131,6 +134,7 @@ const parse = (decodedData, event, events) => {
     const price = _price.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       price,
       ethPrice: price,
@@ -142,6 +146,7 @@ const parse = (decodedData, event, events) => {
     const { _editionId } = decodedData;
 
     return {
+      collection,
       tokenId: _editionId,
       eventType,
     };
@@ -151,6 +156,7 @@ const parse = (decodedData, event, events) => {
     const price = _listingPrice.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _editionId,
       price,
       ethPrice: price,
@@ -164,6 +170,7 @@ const parse = (decodedData, event, events) => {
     const price = _price.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       price,
       ethPrice: price,
@@ -178,6 +185,7 @@ const parse = (decodedData, event, events) => {
     const price = _reservePrice.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       price,
       ethPrice: price,
@@ -191,6 +199,7 @@ const parse = (decodedData, event, events) => {
     const price = _listingPrice.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       price,
       ethPrice: price,
@@ -202,6 +211,7 @@ const parse = (decodedData, event, events) => {
     const { _editionId, _startDate } = decodedData;
 
     return {
+      collection,
       tokenId: _editionId,
       eventType,
     };
@@ -211,6 +221,7 @@ const parse = (decodedData, event, events) => {
     const price = _reservePrice.toString() / 1e18;
 
     return {
+      collection,
       tokenId: _id,
       eventType,
       price,
