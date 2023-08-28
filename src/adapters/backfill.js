@@ -56,6 +56,11 @@ const blockStop = argv.blockStop;
     config.events = config.events.filter((e) =>
       etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
     );
+
+    if (!config.events.length) {
+      console.error(`no config events for selected ${etype}:${marketplace}!`);
+      process.exit(0);
+    }
   }
 
   const parseEvent = ['trades', 'history'].includes(etype)
@@ -73,7 +78,7 @@ const blockStop = argv.blockStop;
     'trades',
     'history',
   ].includes(etype)
-    ? require('./queriesHistory')
+    ? require('./queries')
     : require('./queriesTransfers');
 
   const table = `ethereum.nft_${etype}`;

@@ -63,10 +63,11 @@ const argv = yargs.options({
           ? e?.saleEvent !== true
           : e // both
     );
-  }
-  if (!config.events.length) {
-    console.error(`no config events for selected ${etype}:${marketplace}!`);
-    process.exit(0);
+
+    if (!config.events.length) {
+      console.error(`no config events for selected ${etype}:${marketplace}!`);
+      process.exit(0);
+    }
   }
 
   const parseEvent = ['trades', 'history', 'both'].includes(etype)

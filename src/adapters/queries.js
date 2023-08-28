@@ -598,7 +598,8 @@ const buildInsertQ = (payload, table) => {
   const cs = new pgp.helpers.ColumnSet(columns[table], {
     // column set requries tablename if schema is defined
     table: new pgp.helpers.TableName({
-      table,
+      schema: 'ethereum',
+      table: table.split('.')[1],
     }),
   });
 
