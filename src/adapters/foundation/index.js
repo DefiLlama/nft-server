@@ -17,20 +17,14 @@ const parse = (decodedData, event, events) => {
     let tokenId;
     let buyer;
 
-    // transfer events are only required for ReserveAuctionFinalized event
-    let transferEventNFT;
-    const ReserveAuctionFinalizedSigHash = config.events
-      .find((e) => e.name === 'ReserveAuctionFinalized')
-      .signatureHash.replace('0x', '');
-
-    if (event.topic_0 === ReserveAuctionFinalizedSigHash) {
+    if (eventType === 'ReserveAuctionFinalized') {
       const transfersNFT = events.filter(
         (e) => e.transaction_hash === event.transaction_hash
       );
 
       if (!transfersNFT.length) return {};
 
-      transferEventNFT =
+      let transferEventNFT =
         transfersNFT?.length === 1
           ? transfersNFT[0]
           : transfersNFT.find(
@@ -64,14 +58,10 @@ const parse = (decodedData, event, events) => {
       totalFees,
     } = decodedData;
 
-    tokenId =
-      event.topic_0 === ReserveAuctionFinalizedSigHash ? tokenId : token;
+    tokenId = eventType === 'ReserveAuctionFinalized' ? tokenId : token;
     collection =
-      event.topic_0 === ReserveAuctionFinalizedSigHash
-        ? collection
-        : nftContract;
-    buyer =
-      event.topic_0 === ReserveAuctionFinalizedSigHash ? bidder : buyerAddress;
+      eventType === 'ReserveAuctionFinalized' ? collection : nftContract;
+    buyer = eventType === 'ReserveAuctionFinalized' ? bidder : buyerAddress;
 
     const salePrice = (creatorRev + sellerRev + totalFees).toString() / 1e18;
 
