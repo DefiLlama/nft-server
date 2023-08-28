@@ -9,8 +9,9 @@ const argv = yargs.options({
     alias: 'e',
     type: 'string',
     demandOption: true,
-    describe: 'event type, eg trades',
-    choices: ['trades', 'transfers', 'history'],
+    describe:
+      'event type, eg trades, if `both` test will run parse all events defined in config',
+    choices: ['trades', 'history', 'both', 'transfers'],
   },
   marketplace: {
     alias: 'm',
@@ -48,27 +49,30 @@ const argv = yargs.options({
   const time = () => Date.now() / 1000;
   const start = time();
 
-  const idxFile = ['trades', 'transfers'].includes(etype)
-    ? 'index'
-    : 'indexHistory';
-
   const { abi, config, parse } =
     etype !== 'transfers'
-      ? require(`./${marketplace}/${idxFile}.js`)
+      ? require(`./${marketplace}`)
       : { undefined, undefined, undefined };
 
   if (config) {
-    config.events = config.events.filter((e) =>
-      etype === 'trades' ? e?.saleEvent : e?.saleEvent !== true
+    config.events = config.events.filter(
+      (e) =>
+        etype === 'trades'
+          ? e?.saleEvent
+          : etype === 'history'
+          ? e?.saleEvent !== true
+          : e // both
     );
+
+    if (!config.events.length) {
+      console.error(`no config events for selected ${etype}:${marketplace}!`);
+      process.exit(0);
+    }
   }
 
-  const parseEvent =
-    etype === 'trades'
-      ? require(`./parseEvent`)
-      : etype === 'history'
-      ? require('./parseEventHistory')
-      : require('./parseEventTransfers');
+  const parseEvent = ['trades', 'history', 'both'].includes(etype)
+    ? require(`./parseEvent`)
+    : require('./parseEventTransfers');
 
   const endBlock = !block
     ? await indexa.task(async (t) => {

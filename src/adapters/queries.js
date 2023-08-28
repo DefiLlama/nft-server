@@ -549,8 +549,8 @@ const getTraces = async (task, startBlock, endBlock, config, txHashes) => {
   return response;
 };
 
-const buildInsertQ = (payload) => {
-  const columns = [
+const columns = {
+  'ethereum.nft_trades': [
     'transaction_hash',
     'log_index',
     'contract_address',
@@ -572,13 +572,34 @@ const buildInsertQ = (payload) => {
     'royalty_recipient',
     'royalty_fee_eth',
     'royalty_fee_usd',
-  ];
+  ],
+  'ethereum.nft_history': [
+    'transaction_hash',
+    'log_index',
+    'contract_address',
+    'topic_0',
+    'block_time',
+    'block_number',
+    'exchange_name',
+    'event_type',
+    'collection',
+    'token_id',
+    'price',
+    'eth_price',
+    'usd_price',
+    'currency_address',
+    'user_address',
+    'event_id',
+    'expiration',
+  ],
+};
 
-  const cs = new pgp.helpers.ColumnSet(columns, {
-    // column set requries tablename if schema is not undefined
+const buildInsertQ = (payload, table) => {
+  const cs = new pgp.helpers.ColumnSet(columns[table], {
+    // column set requries tablename if schema is defined
     table: new pgp.helpers.TableName({
       schema: 'ethereum',
-      table: 'nft_trades',
+      table: table.split('.')[1],
     }),
   });
 
@@ -587,25 +608,25 @@ const buildInsertQ = (payload) => {
   return query;
 };
 
-const insertTrades = async (payload) => {
-  const query = buildInsertQ(payload);
+const insertEvents = async (payload, table) => {
+  const query = buildInsertQ(payload, table);
 
   const response = await indexa.result(query);
 
   if (!response) {
-    return new Error(`Couldn't insert into ethereum.nft_trades`, 404);
+    return new Error(`Couldn't insert into ethereum.${table}`, 404);
   }
 
   return response;
 };
 
 // used when refilling (in case of adapter bug, missing events etc)
-// deletes trades in nft_trades for a given marketplace (its address(es), event signatures and block range)
+// deletes trades in table for a given marketplace (its address(es), event signatures and block range)
 const buildDeleteQ = (config) => {
   return config.exchangeName !== 'sudoswap'
     ? `
   DELETE FROM
-      ethereum.nft_trades
+      $<table:raw>
   WHERE
       contract_address in ($<contractAddresses:csv>)
       AND topic_0 in ($<eventSignatureHashes:csv>)
@@ -614,7 +635,7 @@ const buildDeleteQ = (config) => {
   `
     : `
   DELETE FROM
-      ethereum.nft_trades
+      $<table:raw>
   WHERE
       topic_0 in ($<eventSignatureHashes:csv>)
       AND block_number >= $<startBlock>
@@ -622,7 +643,7 @@ const buildDeleteQ = (config) => {
   `;
 };
 
-const deleteEvents = async (startBlock, endBlock, config) => {
+const deleteEvents = async (startBlock, endBlock, config, table) => {
   const query = buildDeleteQ(config);
 
   // required for the delteteQ
@@ -636,20 +657,27 @@ const deleteEvents = async (startBlock, endBlock, config) => {
     eventSignatureHashes,
     startBlock,
     endBlock,
+    table,
   });
 
   if (!response) {
-    return new Error(`Couldn't delete from ethereum.nft_trades`, 404);
+    return new Error(`Couldn't delete from ${table}`, 404);
   }
 
   return response;
 };
 
-// --------- transaction query
-const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
+// --------- transaction queries
+const deleteAndInsertEvents = async (
+  payload,
+  startBlock,
+  endBlock,
+  config,
+  table
+) => {
   // build queries
   const deleteQuery = buildDeleteQ(config);
-  const insertQuery = buildInsertQ(payload);
+  const insertQuery = buildInsertQ(payload, table);
 
   // required for the delteteQ
   const eventSignatureHashes = config.events.map(
@@ -666,6 +694,7 @@ const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
         eventSignatureHashes,
         startBlock,
         endBlock,
+        table,
       });
 
       // 2. insert trades
@@ -687,11 +716,42 @@ const deleteAndInsertEvents = async (payload, startBlock, endBlock, config) => {
     });
 };
 
+const insertTradesHistoryTx = async (payloadTrades, payloadHistory) => {
+  // build queries
+  const insertQTrades = buildInsertQ(payloadTrades, 'ethereum.nft_trades');
+  const insertQHistory = buildInsertQ(payloadHistory, 'ethereum.nft_history');
+
+  return indexa
+    .tx(async (t) => {
+      // sequence of queries:
+      // 1. insert trades
+      const q1 = await t.result(insertQTrades);
+
+      // 2. insert history
+      const q2 = await t.result(insertQHistory);
+
+      return [q1, q2];
+    })
+    .then((response) => {
+      // success, COMMIT was executed
+      return {
+        status: 'success',
+        data: response,
+      };
+    })
+    .catch((err) => {
+      // failure, ROLLBACK was executed
+      console.log(err);
+      return new Error('Transaction failed, rolling back', 404);
+    });
+};
+
 module.exports = {
   getEvents,
   getMaxBlock,
   getTraces,
-  insertTrades,
+  insertEvents,
   deleteEvents,
   deleteAndInsertEvents,
+  insertTradesHistoryTx,
 };

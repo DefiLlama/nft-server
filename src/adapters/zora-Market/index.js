@@ -1,13 +1,12 @@
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { getPrice } = require('../../utils/price');
+const getEventType = require('../../utils/eventType');
 
 const zoraMedia = '0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7';
 
 const parse = async (decodedData, event) => {
-  const eventType = config.events.find(
-    (e) => e.signatureHash === `0x${event.topic_0}`
-  )?.name;
+  const eventType = getEventType(config, event);
 
   if (['BidCreated', 'BidRemoved'].includes(eventType)) {
     const {

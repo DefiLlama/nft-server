@@ -1,49 +1,88 @@
-const castTypes = (nftTrades) => {
-  return nftTrades.map((nft) => ({
-    transaction_hash: Buffer.from(nft.transaction_hash, 'hex'),
-    log_index: Number(nft.log_index),
-    contract_address: Buffer.from(nft.contract_address, 'hex'),
-    topic_0: Buffer.from(nft.topic_0, 'hex'),
-    block_time: new Date(nft.block_time),
-    block_number: Number(nft.block_number),
-    exchange_name: Buffer.from(nft.exchangeName),
-    collection: nft.collection
-      ? Buffer.from(nft.collection.replace('0x', ''), 'hex')
+const castTypesTrades = (e) => {
+  return {
+    transaction_hash: Buffer.from(e.transaction_hash, 'hex'),
+    log_index: Number(e.log_index),
+    contract_address: Buffer.from(e.contract_address, 'hex'),
+    topic_0: Buffer.from(e.topic_0, 'hex'),
+    block_time: new Date(e.block_time),
+    block_number: Number(e.block_number),
+    exchange_name: Buffer.from(e.exchangeName),
+    collection: e.collection
+      ? Buffer.from(e.collection.replace('0x', ''), 'hex')
       : null,
-    token_id: nft.tokenId?.toString()
-      ? Buffer.from(nft.tokenId.toString())
+    token_id: e.tokenId?.toString() ? Buffer.from(e.tokenId.toString()) : null,
+    amount: e.amount ? Number(e.amount) : null,
+    sale_price: Number.isFinite(e.salePrice) ? Number(e.salePrice) : null,
+    eth_sale_price: Number.isFinite(e.ethSalePrice)
+      ? Number(e.ethSalePrice)
       : null,
-    amount: nft.amount ? Number(nft.amount) : null,
-    sale_price: Number.isFinite(nft.salePrice) ? Number(nft.salePrice) : null,
-    eth_sale_price: Number.isFinite(nft.ethSalePrice)
-      ? Number(nft.ethSalePrice)
+    usd_sale_price: Number.isFinite(e.usdSalePrice)
+      ? Number(e.usdSalePrice.toFixed(5))
       : null,
-    usd_sale_price: Number.isFinite(nft.usdSalePrice)
-      ? Number(nft.usdSalePrice.toFixed(5))
+    payment_token: e.paymentToken
+      ? Buffer.from(e.paymentToken.replace('0x', ''), 'hex')
       : null,
-    payment_token: nft.paymentToken
-      ? Buffer.from(nft.paymentToken.replace('0x', ''), 'hex')
+    seller: e.seller ? Buffer.from(e.seller.replace('0x', ''), 'hex') : null,
+    buyer: e.buyer ? Buffer.from(e.buyer.replace('0x', ''), 'hex') : null,
+    aggregator_name: e.aggregatorName ? Buffer.from(e.aggregatorName) : null,
+    aggregator_address: e.aggregatorAddress
+      ? Buffer.from(e.aggregatorAddress.replace('0x', ''), 'hex')
       : null,
-    seller: nft.seller
-      ? Buffer.from(nft.seller.replace('0x', ''), 'hex')
+    royalty_recipient: e.royaltyRecipient
+      ? Buffer.from(e.royaltyRecipient.replace('0x', ''), 'hex')
       : null,
-    buyer: nft.buyer ? Buffer.from(nft.buyer.replace('0x', ''), 'hex') : null,
-    aggregator_name: nft.aggregatorName
-      ? Buffer.from(nft.aggregatorName)
+    royalty_fee_eth: Number.isFinite(e.royaltyFeeEth)
+      ? Number(e.royaltyFeeEth.toFixed(10))
       : null,
-    aggregator_address: nft.aggregatorAddress
-      ? Buffer.from(nft.aggregatorAddress.replace('0x', ''), 'hex')
+    royalty_fee_usd: Number.isFinite(e.royaltyFeeUsd)
+      ? Number(e.royaltyFeeUsd.toFixed(5))
       : null,
-    royalty_recipient: nft.royaltyRecipient
-      ? Buffer.from(nft.royaltyRecipient.replace('0x', ''), 'hex')
-      : null,
-    royalty_fee_eth: Number.isFinite(nft.royaltyFeeEth)
-      ? Number(nft.royaltyFeeEth.toFixed(10))
-      : null,
-    royalty_fee_usd: Number.isFinite(nft.royaltyFeeUsd)
-      ? Number(nft.royaltyFeeUsd.toFixed(5))
-      : null,
-  }));
+  };
 };
 
-module.exports = castTypes;
+const castTypesHistory = (e) => {
+  return {
+    transaction_hash: Buffer.from(e.transaction_hash, 'hex'),
+    log_index: Number(e.log_index),
+    contract_address: Buffer.from(e.contract_address, 'hex'),
+    topic_0: Buffer.from(e.topic_0, 'hex'),
+    block_time: new Date(e.block_time),
+    block_number: Number(e.block_number),
+    exchange_name: Buffer.from(e.exchangeName),
+    event_type: Buffer.from(e.eventType),
+    collection: e.collection
+      ? Buffer.from(e.collection.replace('0x', ''), 'hex')
+      : null,
+    token_id: e.tokenId?.toString() ? Buffer.from(e.tokenId.toString()) : null,
+    price: Number.isFinite(e.price) ? Number(e.price) : null,
+    eth_price: Number.isFinite(e.ethPrice) ? Number(e.ethPrice) : null,
+    usd_price: Number.isFinite(e.usdPrice)
+      ? Number(e.usdPrice.toFixed(5))
+      : null,
+    currency_address: e.currencyAddress
+      ? Buffer.from(e.currencyAddress.replace('0x', ''), 'hex')
+      : null,
+    user_address: e.userAddress
+      ? Buffer.from(e.userAddress.replace('0x', ''), 'hex')
+      : null,
+    event_id: e.eventId?.toString() ? Buffer.from(e.eventId.toString()) : null,
+    expiration: e.expiration?.toString() ? Number(e.expiration) : null,
+  };
+};
+
+const castTypesTransfers = (e) => {
+  return {
+    transaction_hash: Buffer.from(e.transaction_hash, 'hex'),
+    log_index: Number(e.log_index),
+    topic_0: Buffer.from(e.topic_0, 'hex'),
+    block_time: new Date(e.block_time),
+    block_number: Number(e.block_number),
+    collection: Buffer.from(e.collection.replace('0x', ''), 'hex'),
+    token_id: Buffer.from(e.tokenId.toString()),
+    from_address: Buffer.from(e.fromAddress.replace('0x', ''), 'hex'),
+    to_address: Buffer.from(e.toAddress.replace('0x', ''), 'hex'),
+    amount: Number(e.amount),
+  };
+};
+
+module.exports = { castTypesTrades, castTypesHistory, castTypesTransfers };

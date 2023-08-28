@@ -1,7 +1,7 @@
 const parseEvent = require('./parseEventTransfers');
 const { getMaxBlock } = require('./queries');
 const { insertTransfers } = require('./queriesTransfers');
-const castTypes = require('../utils/castTypesTransfers');
+const { castTypesTransfers } = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
 const checkIfStale = require('../utils/stale');
@@ -34,10 +34,9 @@ const exe = async () => {
       return await parseEvent(t, startBlock, endBlock);
     });
 
-    const payload = castTypes(transfers);
-
     let response;
-    if (payload.length) {
+    if (transfers.length) {
+      const payload = transfers.map((e) => castTypesTransfers(e));
       response = await insertTransfers(payload);
     }
 
