@@ -55,16 +55,21 @@ const argv = yargs.options({
       : { undefined, undefined, undefined };
 
   if (config) {
-    config.events = config.events.filter((e) =>
-      etype === 'trades'
-        ? e?.saleEvent
-        : etype === 'history'
-        ? e?.saleEvent !== true
-        : e
+    config.events = config.events.filter(
+      (e) =>
+        etype === 'trades'
+          ? e?.saleEvent
+          : etype === 'history'
+          ? e?.saleEvent !== true
+          : e // both
     );
   }
+  if (!config.events.length) {
+    console.error(`no config events for selected ${etype}:${marketplace}!`);
+    process.exit(0);
+  }
 
-  const parseEvent = ['trades', 'history'].includes(etype)
+  const parseEvent = ['trades', 'history', 'both'].includes(etype)
     ? require(`./parseEvent`)
     : require('./parseEventTransfers');
 
