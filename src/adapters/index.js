@@ -70,13 +70,12 @@ const exe = async () => {
           payloadTrades.push(castTypesTrades(e));
         }
       }
-      process.exit();
       if (payloadTrades.length && payloadHistory.length) {
         response = await insertTradesHistoryTx(payloadTrades, payloadHistory);
       } else if (payloadTrades.length) {
-        response = await insertEvents(payloadTrades, 'nft_trades');
+        response = await insertEvents(payloadTrades, 'ethereum.nft_trades');
       } else {
-        response = await insertEvents(payloadHistory, 'nft_history');
+        response = await insertEvents(payloadHistory, 'ethereum.nft_history');
       }
     }
 
