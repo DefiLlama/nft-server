@@ -60,9 +60,9 @@ const exe = async () => {
     ).flat();
 
     let response;
+    let payloadTrades = [];
+    let payloadHistory = [];
     if (parsedEvents.length) {
-      const payloadTrades = [];
-      const payloadHistory = [];
       for (const e of parsedEvents) {
         if (e.eventType) {
           payloadHistory.push(castTypesHistory(e));
@@ -84,7 +84,9 @@ const exe = async () => {
     console.log(
       `synced blocks: ${startBlock}-${
         stale ? endBlock : blockEvents
-      } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
+      } [inserted: ${response?.rowCount ?? 0} (trades: ${
+        payloadTrades.length
+      } history: ${payloadHistory.length}) | blocks remaining: ${
         stale ? Math.max(blockEvents - blockNft, 0) : 0
       } ]`
     );
