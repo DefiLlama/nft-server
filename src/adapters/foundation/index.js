@@ -113,6 +113,7 @@ const parse = (decodedData, event, events) => {
       collection: nftContract,
       tokenId,
       eventType,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'OfferMade') {
     const { nftContract, tokenId, buyer, amount, expiration } = decodedData;
@@ -153,6 +154,7 @@ const parse = (decodedData, event, events) => {
     return {
       eventId: auctionId,
       eventType,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'ReserveAuctionCreated') {
     const { seller, nftContract, tokenId, duration, reservePrice, auctionId } =
@@ -184,6 +186,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
     };
   }
 };
