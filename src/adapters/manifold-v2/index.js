@@ -99,6 +99,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
       usdPrice: price * event.price,
       expiration: endTime,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'CreateListingTokenDetails') {
@@ -109,6 +110,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
       eventId: listingId,
       collection: address_,
       tokenId: id,
+      userAddress: event.from_address,
     };
   } else if (
     [
@@ -142,6 +144,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'CancelListing') {
     const { listingId, requestor } = decodedData;

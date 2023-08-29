@@ -130,6 +130,7 @@ const parse = (decodedData, event, events) => {
     return {
       tokenId,
       collection: tokenContractAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'SaleCreatedEvent') {
@@ -144,6 +145,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'TokenBidCreatedEvent') {
@@ -170,6 +172,7 @@ const parse = (decodedData, event, events) => {
       collection: tokenAddress,
       eventId: bidId,
       eventType,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'BidPH') {
     const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);

@@ -140,6 +140,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ConvertFromBuyNowToOffers') {
@@ -148,6 +149,7 @@ const parse = (decodedData, event, events) => {
     return {
       collection,
       tokenId: _editionId,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ConvertSteppedAuctionToBuyNow') {
@@ -162,6 +164,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ListedForBuyNow') {
@@ -191,6 +194,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ReserveAuctionConvertedToBuyItNow') {
@@ -205,6 +209,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ReserveAuctionConvertedToOffers') {
@@ -228,6 +233,7 @@ const parse = (decodedData, event, events) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
     };
   }
 };

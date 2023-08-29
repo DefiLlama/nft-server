@@ -83,6 +83,7 @@ const parse = (decodedData, event) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ListedForBuyNow') {
@@ -112,6 +113,7 @@ const parse = (decodedData, event) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ReservePriceUpdated') {
@@ -126,6 +128,7 @@ const parse = (decodedData, event) => {
       ethPrice: price,
       usdPrice: price * event.price,
       currencyAddress: nullAddress,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'TokenBidPlaced') {

@@ -90,6 +90,7 @@ const parse = (decodedData, event, events, interface, trace) => {
       expiration: endTime,
       currencyAddress: nullAddress,
       eventType,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'CreateListingTokenDetails') {
     const { listingId, id, address_ } = decodedData;
@@ -99,6 +100,7 @@ const parse = (decodedData, event, events, interface, trace) => {
       eventId: listingId,
       collection: address_,
       tokenId: id,
+      userAddress: event.from_address,
     };
   } else if (eventType === 'BidEvent') {
     const { listingId, bidder, amount } = decodedData;
