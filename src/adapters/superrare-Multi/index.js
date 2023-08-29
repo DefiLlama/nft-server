@@ -5,6 +5,8 @@ const config = require('./config.json');
 const { nullAddress } = require('../../utils/params');
 const getEventType = require('../../utils/eventType');
 
+const currencyAddress = nullAddress;
+
 const parse = async (decodedData, event) => {
   const eventType = getEventType(config, event);
 
@@ -80,6 +82,7 @@ const parse = async (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      currencyAddress,
       eventType,
     };
   } else if (eventType === 'createColdieAuctionPH') {
@@ -97,6 +100,7 @@ const parse = async (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      currencyAddress,
       eventType,
     };
   } else if (eventType === 'createScheduledAuctionPH') {
@@ -114,6 +118,7 @@ const parse = async (decodedData, event) => {
       price,
       ethPrice: price,
       usdPrice: price * event.price,
+      currencyAddress,
       eventType,
     };
   }
