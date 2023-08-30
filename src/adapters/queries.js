@@ -31,7 +31,7 @@ WHERE
   AND e.block_number <= $<endBlock>
 `;
 
-const queryZora = `
+const queryExtended = `
 SELECT
     encode(e.transaction_hash, 'hex') AS transaction_hash,
     e.log_index,
@@ -198,7 +198,7 @@ WHERE
 	    )
 `;
 
-// like queryZora but:
+// like queryExtended but:
 // + tx input data (tx_data)
 // + however cryptopunks = erc20 (we filter for cryptpunks emitted erc20's transfer events)
 // so we read erc20 transfer events
@@ -460,29 +460,32 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   );
   const contractAddresses = config.contracts.map((c) => `\\${c.slice(1)}`);
 
-  const q = [
-    'zora',
-    'foundation',
-    'knownorigin',
-    'makersplace',
-    'manifold',
-  ].includes(config.exchangeName)
-    ? queryZora
-    : config.version === 'wyvern'
-    ? queryWyvern
-    : config.exchangeName === 'cryptopunks'
-    ? queryCryptopunks
-    : config.version === 'looksrare-v1'
-    ? queryLooksrareV1
-    : ['blur-blend', 'blur-v2'].includes(config.version)
-    ? queryBlurBlend
-    : config.exchangeName === 'rarible'
-    ? queryRarible
-    : config.exchangeName === 'sudoswap'
-    ? querySudoswap
-    : config.version === 'sudoswap-v2'
-    ? querySudoswapV2
-    : query;
+  const q =
+    // to speedup backfilling if --etype=history (filter on saleEvent will be empty),
+    // i'm using `query` only instead of the actual adapter `query`
+    // which would also pull all other required data for sale events
+    // (zora sale events don't require any extended data)
+    config.events.filter((e) => e.saleEvent).length === 0
+      ? query
+      : ['foundation', 'knownorigin', 'makersplace', 'manifold'].includes(
+          config.exchangeName
+        )
+      ? queryExtended
+      : config.version === 'wyvern'
+      ? queryWyvern
+      : config.exchangeName === 'cryptopunks'
+      ? queryCryptopunks
+      : config.version === 'looksrare-v1'
+      ? queryLooksrareV1
+      : ['blur-blend', 'blur-v2'].includes(config.version)
+      ? queryBlurBlend
+      : config.exchangeName === 'rarible'
+      ? queryRarible
+      : config.exchangeName === 'sudoswap'
+      ? querySudoswap
+      : config.version === 'sudoswap-v2'
+      ? querySudoswapV2
+      : query;
 
   const response = await task.query(minify(q, { compress: false }), {
     startBlock,
