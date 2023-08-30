@@ -74,7 +74,13 @@ ORDER BY
   res
     .set(customHeaderFixedCache(300))
     .status(200)
-    .json(response.map((c) => convertKeysToCamelCase(c)));
+    .json(
+      response
+        .sort(
+          (a, b) => b.block_time - a.block_time || b.log_index - a.log_index
+        )
+        .map((c) => convertKeysToCamelCase(c))
+    );
 };
 
 module.exports = {
