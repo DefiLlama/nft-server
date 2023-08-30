@@ -26,5 +26,7 @@ CREATE INDEX IF NOT EXISTS ethereum_nft_trades_block_number_idx ON ethereum.nft_
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_collection_idx ON ethereum.nft_trades (collection);
 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ethereum_nft_trades_token_id_idx ON ethereum.nft_trades (token_id);
+
 -- testing
 CREATE INDEX IF NOT EXISTS ethereum_nft_trades_seller_buyer_token_id_transaction_hash ON ethereum.nft_trades (seller, buyer, token_id, transaction_hash);

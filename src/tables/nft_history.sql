@@ -21,3 +21,5 @@ CREATE TABLE IF NOT EXISTS ethereum.nft_history (
 CREATE INDEX IF NOT EXISTS ethereum_nft_history_block_number_idx ON ethereum.nft_history (block_number);
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_history_collection_idx ON ethereum.nft_history (collection);
+
+CREATE INDEX IF NOT EXISTS ethereum_nft_history_token_id_idx ON ethereum.nft_history (token_id);
