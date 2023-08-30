@@ -164,30 +164,49 @@ const getAllOnSale = async (req, res) => {
       FROM
           filtered
   )
-  SELECT
-      encode(transaction_hash, 'hex') AS transaction_hash,
-      log_index,
-      encode(contract_address, 'hex') AS contract_address,
-      encode(topic_0, 'hex') AS topic_0,
-      block_time,
-      block_number,
-      encode(exchange_name, 'escape') AS exchange_name,
-      encode(event_type, 'escape') AS event_type,
-      price,
-      eth_price,
-      usd_price,
-      encode(currency_address, 'hex') AS currency_address,
-      encode(user_address, 'hex') AS user_address,
-      encode(event_id, 'escape') AS event_id,
-      expiration,
-      encode(collection, 'hex') AS collection,
-      encode(token_id, 'hex') AS token_id
-  FROM
-      final
-  limit 10
+    SELECT
+        encode(transaction_hash, 'hex') AS transaction_hash,
+        log_index,
+        encode(contract_address, 'hex') AS contract_address,
+        encode(topic_0, 'hex') AS topic_0,
+        block_time,
+        block_number,
+        encode(exchange_name, 'escape') AS exchange_name,
+        encode(event_type, 'escape') AS event_type,
+        price,
+        eth_price,
+        usd_price,
+        encode(currency_address, 'hex') AS currency_address,
+        encode(user_address, 'hex') AS user_address,
+        encode(event_id, 'escape') AS event_id,
+        expiration,
+        encode(collection, 'hex') AS collection,
+        encode(token_id, 'hex') AS token_id
+    FROM
+        final
+    WHERE
+        event_type NOT IN ($<event_type_exclusion:csv>)
+    LIMIT 10
       `);
 
-  const response = await indexa.query(query, {});
+  // if the last event is of event_type from this list then we remove it
+  // ->  delisted
+  const excludeEventType = {
+    foundation: ['BuyPriceCanceled', 'ReserveAuctionCanceled'],
+    'knownorigin-KODAV3PrimaryMarketplace': ['BuyNowDeListed'],
+    'knownorigin-KODAV3SecondaryMarketplace': ['TokenDeListed'],
+    'knownorigin-TokenMarketplaceV2': ['TokenDeListed'],
+    'manifold-v1': ['CancelListing'],
+    'manifold-v2': ['CancelListing'],
+    'opensea-SaleClockAuction': ['AuctionCancelled'],
+    'superrare-Multi': ['CancelAuction'],
+    'superrare-SuperRareBazaar': ['CancelAuction'],
+    'zora-AuctionHouse': ['AuctionCanceled'],
+  };
+
+  const response = await indexa.query(query, {
+    event_type_exclusion: [...new Set(Object.values(excludeEventType).flat())],
+  });
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
