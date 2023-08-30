@@ -155,8 +155,7 @@ const getAllOnSale = async (req, res) => {
               FROM
                   ethereum.nft_trades t
               WHERE
-                  -- the date filter is temporary, (nft_trades > 50mil entries)
-                  t.block_time >= CURRENT_DATE - INTERVAL '90 day'
+                  exchange_name IN ($<one_of_one_exchanges:csv>)
                   AND t.collection = h.collection
                   AND t.token_id = h.token_id
                   AND t.block_number >= h.block_number
@@ -171,28 +170,12 @@ const getAllOnSale = async (req, res) => {
           filtered
   )
     SELECT
-        encode(transaction_hash, 'hex') AS transaction_hash,
-        log_index,
-        encode(contract_address, 'hex') AS contract_address,
-        encode(topic_0, 'hex') AS topic_0,
-        block_time,
-        block_number,
-        encode(exchange_name, 'escape') AS exchange_name,
-        encode(event_type, 'escape') AS event_type,
-        price,
-        eth_price,
-        usd_price,
-        encode(currency_address, 'hex') AS currency_address,
-        encode(user_address, 'hex') AS user_address,
-        encode(event_id, 'escape') AS event_id,
-        expiration,
         encode(collection, 'hex') AS collection,
         encode(token_id, 'hex') AS token_id
     FROM
         final
     WHERE
         event_type NOT IN ($<event_type_exclusion:csv>)
-    LIMIT 10
       `);
 
   // if the last event is of event_type from this list then we remove it
@@ -210,18 +193,35 @@ const getAllOnSale = async (req, res) => {
     'zora-AuctionHouse': ['AuctionCanceled'],
   };
 
-  const response = await indexa.query(query, {
+  const one_of_one_exchanges = [
+    'foundation',
+    'superrare',
+    'zora',
+    'knownorigin',
+    'makersplace',
+    'manifold',
+    'rarible',
+  ];
+
+  let response = await indexa.query(query, {
     event_type_exclusion: [...new Set(Object.values(excludeEventType).flat())],
+    one_of_one_exchanges,
   });
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeaderFixedCache(3600))
-    .status(200)
-    .json(response.map((c) => convertKeysToCamelCase(c)));
+  response = response.reduce((acc, obj) => {
+    const { collection, token_id } = obj;
+    if (!acc[collection]) {
+      acc[collection] = [];
+    }
+    acc[collection].push(token_id);
+    return acc;
+  }, {});
+
+  res.set(customHeaderFixedCache(3600)).status(200).json(response);
 };
 
 module.exports = {
