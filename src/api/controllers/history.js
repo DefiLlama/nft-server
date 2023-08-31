@@ -155,33 +155,27 @@ const getAllOnSale = async (req, res) => {
               FROM
                   ethereum.nft_trades t
               WHERE
-                  exchange_name IN ($<one_of_one_exchanges:csv>)
+                  exchange_name IN ($<oneOfoneExchanges:csv>)
                   AND t.collection = h.collection
                   AND t.token_id = h.token_id
                   AND t.block_number >= h.block_number
           )
-  ),
+  )
   -- remove rows with event_types from which we can infer that the nft isn't listed anylonger (eg AuctionCanceled)
   -- remove rows with collections which aren't 1/1
-  final AS (
-      SELECT
-          *
-      FROM
-          filtered
-  )
     SELECT
         encode(collection, 'hex') AS collection,
-        encode(token_id, 'hex') AS token_id
+        encode(token_id, 'escape') AS token_id
     FROM
-        final
+        filtered
     WHERE
-        event_type NOT IN ($<event_type_exclusion:csv>)
+        event_type NOT IN ($<exclude:csv>)
       `);
 
   // if the last event is of event_type from this list then we remove it
   // ->  delisted
   const excludeEventType = {
-    foundation: ['BuyPriceCanceled', 'ReserveAuctionCanceled'],
+    foundation: ['ReserveAuctionCanceled'],
     'knownorigin-KODAV3PrimaryMarketplace': ['BuyNowDeListed'],
     'knownorigin-KODAV3SecondaryMarketplace': ['TokenDeListed'],
     'knownorigin-TokenMarketplaceV2': ['TokenDeListed'],
@@ -193,7 +187,7 @@ const getAllOnSale = async (req, res) => {
     'zora-AuctionHouse': ['AuctionCanceled'],
   };
 
-  const one_of_one_exchanges = [
+  const oneOfoneExchanges = [
     'foundation',
     'superrare',
     'zora',
@@ -204,8 +198,8 @@ const getAllOnSale = async (req, res) => {
   ];
 
   let response = await indexa.query(query, {
-    event_type_exclusion: [...new Set(Object.values(excludeEventType).flat())],
-    one_of_one_exchanges,
+    exclude: [...new Set(Object.values(excludeEventType).flat())],
+    oneOfoneExchanges,
   });
 
   if (!response) {
