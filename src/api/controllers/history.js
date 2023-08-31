@@ -83,94 +83,100 @@ ORDER BY
     );
 };
 
-const getAllOnSale = async (req, res) => {
+const getAvailable = async (req, res) => {
   const query = minify(`
 -- get most recent row per contract_address, event_id where collection is not null (this is what we use
-  -- for filling missing values)
-  WITH most_recent_non_null AS (
-      SELECT
-          DISTINCT ON (contract_address, event_id) contract_address,
-          event_id,
-          collection,
-          token_id
-      FROM
-          ethereum.nft_history
-      WHERE
-          collection IS NOT NULL
-          AND token_id IS NOT NULL
-          AND event_id IS NOT NULL
-      ORDER BY
-          contract_address,
-          event_id,
-          block_number DESC,
-          log_index DESC
-  ),
-  -- using the above to fill nft_history
-  nft_history_filled AS (
-      SELECT
-          h.transaction_hash,
-          h.log_index,
-          h.contract_address,
-          h.topic_0,
-          h.block_time,
-          h.block_number,
-          h.exchange_name,
-          h.event_type,
-          h.price,
-          h.eth_price,
-          h.usd_price,
-          h.currency_address,
-          h.user_address,
-          h.event_id,
-          h.expiration,
-          COALESCE(h.collection, m.collection) AS collection,
-          COALESCE(h.token_id, m.token_id) AS token_id
-      FROM
-          ethereum.nft_history h
-          LEFT JOIN most_recent_non_null m ON h.contract_address = m.contract_address
-          AND h.event_id = m.event_id
-  ),
-  -- return the most recent entry per collection, token_id
-  most_recent AS (
-      SELECT
-          DISTINCT ON (collection, token_id) *
-      FROM
-          nft_history_filled
-      ORDER BY
-          collection,
-          token_id,
-          block_number DESC,
-          log_index DESC
-  ),
-  -- remove rows in history if trades contains a sale even with block_number >= the last entry from history
-  filtered AS (
-      SELECT
-          *
-      FROM
-          most_recent h
-      WHERE
-          NOT EXISTS (
-              SELECT
-                  1
-              FROM
-                  ethereum.nft_trades t
-              WHERE
-                  exchange_name IN ($<oneOfoneExchanges:csv>)
-                  AND t.collection = h.collection
-                  AND t.token_id = h.token_id
-                  AND t.block_number >= h.block_number
-          )
-  )
-  -- remove rows with event_types from which we can infer that the nft isn't listed anylonger (eg AuctionCanceled)
-  -- remove rows with collections which aren't 1/1
+-- for filling missing values)
+WITH most_recent_non_null AS (
     SELECT
-        encode(collection, 'hex') AS collection,
-        encode(token_id, 'escape') AS token_id
+        DISTINCT ON (contract_address, event_id) contract_address,
+        event_id,
+        collection,
+        token_id
     FROM
-        filtered
+        ethereum.nft_history
     WHERE
-        event_type NOT IN ($<exclude:csv>)
-      `);
+        collection IS NOT NULL
+        AND token_id IS NOT NULL
+        AND event_id IS NOT NULL
+    ORDER BY
+        contract_address,
+        event_id,
+        block_number DESC,
+        log_index DESC
+),
+collection_is_null AS (
+    SELECT
+        *
+    FROM
+        ethereum.nft_history
+    WHERE
+        collection IS NULL
+        AND token_id IS NULL
+),
+nft_history_filled AS (
+    SELECT
+        t.contract_address,
+        t.event_id,
+        t.event_type,
+        t.block_number,
+        t.log_index,
+        COALESCE(t.collection, m.collection) AS collection,
+        COALESCE(t.token_id, m.token_id) AS token_id
+    FROM
+        collection_is_null t
+        LEFT JOIN most_recent_non_null m ON t.contract_address = m.contract_address
+        AND t.event_id = m.event_id
+    UNION
+    ALL
+    SELECT
+        contract_address,
+        event_id,
+        event_type,
+        block_number,
+        log_index,
+        collection,
+        token_id
+    FROM
+        ethereum.nft_history
+    WHERE
+        collection IS NOT NULL
+        AND token_id IS NOT NULL
+),
+-- return the most recent entry per collection, token_id
+most_recent AS (
+    SELECT
+        DISTINCT ON (collection, token_id) *
+    FROM
+        nft_history_filled
+    ORDER BY
+        collection,
+        token_id,
+        block_number DESC,
+        log_index DESC
+) 
+-- remove rows in history if trades contains a sale event with block_number >= the last entry from history
+-- remove rows with event_types from which we can infer that the nft isn't listed anylonger (eg AuctionCanceled)
+-- remove rows with collections which aren't 1/1
+SELECT
+    encode(collection, 'hex') AS collection,
+    encode(token_id, 'escape') AS token_id
+FROM
+    most_recent h
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            ethereum.nft_trades t
+        WHERE
+            exchange_name IN ($<oneOfoneExchanges:csv>)
+            AND t.collection = h.collection
+            AND t.token_id = h.token_id
+            AND t.block_number >= h.block_number
+    )
+    AND event_type NOT IN ($<exclude:csv>)
+`);
 
   // if the last event is of event_type from this list then we remove it
   // ->  delisted
@@ -220,5 +226,5 @@ const getAllOnSale = async (req, res) => {
 
 module.exports = {
   getHistory,
-  getAllOnSale,
+  getAvailable,
 };
