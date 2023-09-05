@@ -85,4 +85,17 @@ const castTypesTransfers = (e) => {
   };
 };
 
-module.exports = { castTypesTrades, castTypesHistory, castTypesTransfers };
+const castTypesCreator = (e) => {
+  return {
+    collection: Buffer.from(e.collection.replace('0x', ''), 'hex'),
+    token_id: Buffer.from(e.tokenId.toString()),
+    creator: Buffer.from(e.creator.replace('0x', ''), 'hex'),
+  };
+};
+
+module.exports = {
+  castTypesTrades,
+  castTypesHistory,
+  castTypesTransfers,
+  castTypesCreator,
+};

@@ -1,10 +1,38 @@
-const { getCollectionWithoutCreator } = require('./queries');
+const {
+  getCollectionWithoutCreator,
+  insertCreator,
+  limit,
+} = require('./queries');
+const { parse } = require('./fetchShared');
+const { castTypesCreator } = require('../utils/castTypes');
 
 const exe = async () => {
-  const newCollections = await getCollectionWithoutCreator();
-  const nb = newCollections.length;
-  if (nb) {
-    // - for each row, fetch creator address based on marketplace logic
+  let stale = true;
+
+  while (stale) {
+    const newCollections = await getCollectionWithoutCreator();
+
+    const nb = newCollections.length;
+
+    if (nb) {
+      let creators = await Promise.all(
+        newCollections.map(async (row) => ({
+          collection: row.collection,
+          tokenId: row.tokenId,
+          creator: await parse(row),
+        }))
+      );
+      creators = creators.filter((c) => c.creator);
+
+      let response;
+      if (creators.length) {
+        // insert
+        const payload = creators.map((e) => castTypesCreator(e));
+        response = await insertCreator(payload);
+        console.log(`inserted ${response?.rowCount ?? 0}`);
+      }
+    }
+    stale = nb === limit;
   }
 
   // once synced, pausing for N sec before next run

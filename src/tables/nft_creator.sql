@@ -1,9 +1,4 @@
 CREATE TABLE IF NOT EXISTS ethereum.nft_creator (
-    transaction_hash bytea,
-    contract_address bytea,
-    block_time timestamp,
-    block_number numeric,
-    exchange_name bytea,
     collection bytea,
     token_id bytea,
     creator bytea
