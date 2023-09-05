@@ -1,6 +1,10 @@
 {
   "exchangeName": "rarible",
-  "contracts": ["0xc9154424b823b10579895ccbe442d41b9abd96ed"],
+  "contracts": [
+    "0xc9154424b823b10579895ccbe442d41b9abd96ed",
+    "0xf6793da657495ffeff9ee6350824910abc21356c",
+    "0xb66a603f4cfe17e3d27b87a8bfcad319856518b8"
+  ],
   "events": [
     {
       "name": "Creators",
