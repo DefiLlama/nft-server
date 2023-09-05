@@ -38,3 +38,7 @@ const getCollectionWithoutCreator = async () => {
 
   return response.map((c) => convertKeysToCamelCase(c));
 };
+
+module.exports = {
+  getCollectionWithoutCreator,
+};
