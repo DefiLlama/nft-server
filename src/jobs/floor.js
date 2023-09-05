@@ -146,6 +146,9 @@ const job = async () => {
     collectionDetails = [...collectionDetails, ...collections];
   }
 
+  // remove null slug
+  collectionDetails = collectionDetails.filter((c) => c.slug);
+
   const timestamp = new Date(Date.now());
   const seen = new Set();
   const payload = [];
