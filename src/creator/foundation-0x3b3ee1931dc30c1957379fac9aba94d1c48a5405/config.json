@@ -1,0 +1,10 @@
+{
+  "exchangeName": "foundation",
+  "contracts": ["0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405"],
+  "events": [
+    {
+      "name": "TokenCreatorUpdated",
+      "signatureHash": "0xebd529444fe852bfccb40075e8f8cae7612ea20edebdf5143c72718ccb157f75"
+    }
+  ]
+}
