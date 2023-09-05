@@ -45,10 +45,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         topic_2,
         topic_3,
         data: dataEncoded,
-        price,
-        tx_data,
         block_hash,
-        aggregator_name,
         ...rest
       } = event;
 
