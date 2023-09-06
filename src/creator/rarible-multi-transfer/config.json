@@ -1,6 +1,9 @@
 {
   "exchangeName": "rarible",
-  "contracts": ["0x60f80121c31a0d46b5279700f9df786054aa5ee5"],
+  "contracts": [
+    "0x60f80121c31a0d46b5279700f9df786054aa5ee5",
+    "0x6A5Ff3CEEcaE9CeB96E6ac6c76B82aF8B39f0Eb3"
+  ],
   "events": [
     {
       "name": "Transfer",
