@@ -1,0 +1,10 @@
+{
+  "exchangeName": "zora",
+  "contracts": ["0xA6C5f2DE915240270DaC655152C3f6A91748cb85"],
+  "events": [
+    {
+      "name": "SetupNewContract",
+      "signatureHash": "0xa45800684f65ae010ceb4385eceaed88dec7f6a6bcbe11f7ffd8bd24dd2653f4"
+    }
+  ]
+}
