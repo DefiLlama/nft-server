@@ -25,7 +25,7 @@ WHERE
   AND e.block_number <= $<endBlock>
 `;
 
-const raribleMultiTransfer = `
+const specific = `
 SELECT
   encode(e.transaction_hash, 'hex') AS transaction_hash,
   e.log_index,
@@ -50,7 +50,9 @@ WHERE
 
 const getEvents = async (task, startBlock, endBlock, config) => {
   const query =
-    config.version === 'rarible-transfer' ? raribleMultiTransfer : generic;
+    config.version === 'rarible-transfer' || config.exchangeName === 'superrare'
+      ? specific
+      : generic;
 
   const eventSignatureHashes = config.events.map(
     (e) => `\\${e.signatureHash.slice(1)}`
