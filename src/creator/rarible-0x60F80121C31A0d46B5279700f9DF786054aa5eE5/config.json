@@ -1,0 +1,11 @@
+{
+  "exchangeName": "rarible",
+  "contracts": ["0x60f80121c31a0d46b5279700f9df786054aa5ee5"],
+  "events": [
+    {
+      "name": "Transfer",
+      "signatureHash": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+    }
+  ],
+  "version": "rarible-transfer"
+}

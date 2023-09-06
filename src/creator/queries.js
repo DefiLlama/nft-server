@@ -3,28 +3,56 @@ const minify = require('pg-minify');
 const { convertKeysToCamelCase } = require('../utils/keyConversion');
 const { pgp, indexa } = require('../utils/dbConnection');
 
+const generic = `
+SELECT
+  encode(e.transaction_hash, 'hex') AS transaction_hash,
+  e.log_index,
+  encode(e.contract_address, 'hex') AS contract_address,
+  encode(e.topic_0, 'hex') AS topic_0,
+  encode(e.topic_1, 'hex') AS topic_1,
+  encode(e.topic_2, 'hex') AS topic_2,
+  encode(e.topic_3, 'hex') AS topic_3,
+  encode(e.data, 'hex') AS data,
+  e.block_time,
+  e.block_number,
+  encode(e.block_hash, 'hex') AS block_hash
+FROM
+  ethereum.event_logs e
+WHERE
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.block_number >= $<startBlock>
+  AND e.block_number <= $<endBlock>
+`;
+
+const rarible0x60f80121c31a0d46b5279700f9df786054aa5ee5 = `
+SELECT
+  encode(e.transaction_hash, 'hex') AS transaction_hash,
+  e.log_index,
+  encode(e.contract_address, 'hex') AS contract_address,
+  encode(e.topic_0, 'hex') AS topic_0,
+  encode(e.topic_1, 'hex') AS topic_1,
+  encode(e.topic_2, 'hex') AS topic_2,
+  encode(e.topic_3, 'hex') AS topic_3,
+  encode(e.data, 'hex') AS data,
+  e.block_time,
+  e.block_number,
+  encode(e.block_hash, 'hex') AS block_hash
+FROM
+  ethereum.event_logs e
+WHERE
+  e.contract_address in ($<contractAddresses:csv>)
+  AND e.topic_0 in ($<eventSignatureHashes:csv>)
+  AND e.topic_1 = '\\x0000000000000000000000000000000000000000000000000000000000000000'
+  AND e.block_number >= $<startBlock>
+  AND e.block_number <= $<endBlock>
+`;
+
 const getEvents = async (task, startBlock, endBlock, config) => {
-  const query = `
-  SELECT
-    encode(e.transaction_hash, 'hex') AS transaction_hash,
-    e.log_index,
-    encode(e.contract_address, 'hex') AS contract_address,
-    encode(e.topic_0, 'hex') AS topic_0,
-    encode(e.topic_1, 'hex') AS topic_1,
-    encode(e.topic_2, 'hex') AS topic_2,
-    encode(e.topic_3, 'hex') AS topic_3,
-    encode(e.data, 'hex') AS data,
-    e.block_time,
-    e.block_number,
-    encode(e.block_hash, 'hex') AS block_hash
-  FROM
-    ethereum.event_logs e
-  WHERE
-    e.contract_address in ($<contractAddresses:csv>)
-    AND e.topic_0 in ($<eventSignatureHashes:csv>)
-    AND e.block_number >= $<startBlock>
-    AND e.block_number <= $<endBlock>
-  `;
+  const query =
+    config.version === 'rarible-transfer'
+      ? rarible0x60f80121c31a0d46b5279700f9df786054aa5ee5
+      : generic;
 
   const eventSignatureHashes = config.events.map(
     (e) => `\\${e.signatureHash.slice(1)}`
