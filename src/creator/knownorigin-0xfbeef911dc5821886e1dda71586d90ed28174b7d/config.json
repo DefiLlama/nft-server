@@ -1,0 +1,10 @@
+{
+  "exchangeName": "knownorigin",
+  "contracts": ["0xFBeef911Dc5821886e1dda71586d90eD28174B7d"],
+  "events": [
+    {
+      "name": "Minted",
+      "signatureHash": "0x259eb7b480b3d449f506927269e4665c83c69e4cd797143eaa8f84632dc7a02b"
+    }
+  ]
+}
