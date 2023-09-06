@@ -1,42 +1,76 @@
-const {
-  getCollectionWithoutCreator,
-  insertCreator,
-  limit,
-} = require('./queries');
-const { parse } = require('./fetchShared');
+const fs = require('fs');
+const path = require('path');
+
+const parseEvent = require('./parseEvent');
+const { getMaxBlock } = require('../adapters/queries');
 const { castTypesCreator } = require('../utils/castTypes');
+const { blockRange } = require('../utils/params');
+const { indexa } = require('../utils/dbConnection');
+const checkIfStale = require('../utils/stale');
+const { insertCreator } = require('./queries');
+
+// load modules
+const modulesDir = path.join(__dirname, './');
+const modules = [];
+fs.readdirSync(modulesDir)
+  .filter((mplace) => !mplace.endsWith('.js'))
+  .forEach((mplace) => {
+    modules.push(require(path.join(modulesDir, mplace)));
+  });
 
 const exe = async () => {
-  let stale = true;
+  // get max blocks for each table
+  let [blockEvents, blockCreator] = await indexa.task(async (t) => {
+    return await Promise.all(
+      ['event_logs', 'nft_creator'].map((table) =>
+        getMaxBlock(t, `ethereum.${table}`)
+      )
+    );
+  });
 
+  console.log(
+    `syncing nft_creator, ${
+      blockEvents - blockCreator
+    } blocks behind event_logs`
+  );
+
+  // check if stale
+  let stale = checkIfStale(blockEvents, blockCreator);
+
+  // forward fill
   while (stale) {
-    const newCollections = await getCollectionWithoutCreator();
+    let startBlock = blockCreator + 1;
+    let endBlock = startBlock + blockRange;
 
-    const nb = newCollections.length;
+    const parsedEvents = (
+      await indexa.task(async (t) => {
+        return await Promise.all(
+          modules.map((m) =>
+            parseEvent(t, startBlock, endBlock, m.abi, m.config, m.parse)
+          )
+        );
+      })
+    ).flat();
 
-    if (nb) {
-      let creators = await Promise.all(
-        newCollections.map(async (row) => ({
-          collection: row.collection,
-          tokenId: row.tokenId,
-          creator: await parse(row),
-        }))
-      );
-      creators = creators.filter((c) => c.creator);
-
-      let response;
-      if (creators.length) {
-        // insert
-        const payload = creators.map((e) => castTypesCreator(e));
-        response = await insertCreator(payload);
-        console.log(`inserted ${response?.rowCount ?? 0}`);
-      }
+    let response;
+    if (parsedEvents.length) {
+      const payload = parsedEvents.map((e) => castTypesCreator(e));
+      response = await insertCreator(payload);
     }
-    stale = nb === limit;
+
+    stale = checkIfStale(blockEvents, endBlock);
+    blockCreator = endBlock;
+    console.log(
+      `synced blocks: ${startBlock}-${
+        stale ? endBlock : blockEvents
+      } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
+        stale ? Math.max(blockEvents - blockTransfers, 0) : 0
+      } ]`
+    );
   }
 
-  // once synced, pausing for N sec before next run
-  const pause = 60 * 1e3;
+  // once synced with event_logs, pausing for min 12 sec (1block) before next sync starts
+  const pause = 15 * 1e3;
   console.log(`pausing exe for ${pause / 1e3}sec...\n`);
   await new Promise((resolve) => setTimeout(resolve, pause));
   await exe();
