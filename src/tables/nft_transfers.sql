@@ -15,6 +15,8 @@ CREATE INDEX IF NOT EXISTS ethereum_nft_transfers_block_number_idx ON ethereum.n
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_transfers_collection_idx ON ethereum.nft_transfers (collection);
 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS ethereum_nft_transfers_token_id_idx ON ethereum.nft_transfers (token_id);
+
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ethereum_nft_transfers_to_address_idx ON ethereum.nft_transfers (to_address);
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS ethereum_nft_transfers_from_address_idx ON ethereum.nft_transfers (from_address);
