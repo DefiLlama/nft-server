@@ -33,7 +33,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
         console.log('incorrent/unavailable abi for', event.transaction_hash);
       }
 
-      const parsedEvent = await parse(decodedEvent);
+      const parsedEvent = await parse(decodedEvent, event);
 
       if (Object.keys(parsedEvent).length === 0) {
         return {};
