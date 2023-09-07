@@ -12,16 +12,59 @@ const getCreatedNfts = async (req, res) => {
     return res.status(400).json('invalid address!');
 
   const query = minify(`
+WITH creator_collections AS (
+    SELECT
+        collection,
+        token_id
+    FROM
+        ethereum.nft_creator
+    WHERE
+        creator = $<creator>
+),
+sovereign_collections AS (
+    SELECT
+        *
+    FROM
+        creator_collections
+    WHERE
+        token_id IS NULL
+),
+sovereign_collections_expanded AS (
+    SELECT
+        DISTINCT t.token_id,
+        t.collection
+    FROM
+        ethereum.nft_transfers t
+    JOIN sovereign_collections c ON t.collection = c.collection
+    WHERE
+        t.collection IN (
+            SELECT
+                collection
+            FROM
+                sovereign_collections
+        )
+),
+joined AS (
+    SELECT
+        collection, token_id
+    FROM
+        sovereign_collections_expanded
+    UNION
+    SELECT
+        collection, token_id
+    FROM
+        creator_collections
+    WHERE
+        token_id IS NOT NULL
+)
 SELECT
-  concat(
-      encode(collection, 'hex'),
-      ':',
-      encode(token_id, 'escape')
-  ) AS nft
+    concat(
+        encode(collection, 'hex'),
+        ':',
+        encode(token_id, 'escape')
+    ) AS nft
 FROM
-  ethereum.nft_creator
-WHERE
-  creator = $<creator>
+    joined
 ORDER BY
     nft
 `);
