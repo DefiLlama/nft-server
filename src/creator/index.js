@@ -7,13 +7,13 @@ const { castTypesCreator } = require('../utils/castTypes');
 const { blockRange } = require('../utils/params');
 const { indexa } = require('../utils/dbConnection');
 const checkIfStale = require('../utils/stale');
-const { insertCreator } = require('./queries');
+const { insertEvents } = require('../adapters/queries');
 
 // load modules
 const modulesDir = path.join(__dirname, './');
 const modules = [];
 fs.readdirSync(modulesDir)
-  .filter((mplace) => !mplace.endsWith('.js'))
+  .filter((mplace) => !mplace.endsWith('.js') && mplace !== 'opensea-shared') // tmp disable opensea-shared
   .forEach((mplace) => {
     modules.push(require(path.join(modulesDir, mplace)));
   });
@@ -55,7 +55,7 @@ const exe = async () => {
     let response;
     if (parsedEvents.length) {
       const payload = parsedEvents.map((e) => castTypesCreator(e));
-      response = await insertCreator(payload);
+      response = await insertEvents(payload, 'ethereum.nft_creator');
     }
 
     stale = checkIfStale(blockEvents, endBlock);
@@ -64,7 +64,7 @@ const exe = async () => {
       `synced blocks: ${startBlock}-${
         stale ? endBlock : blockEvents
       } [inserted: ${response?.rowCount ?? 0} | blocks remaining: ${
-        stale ? Math.max(blockEvents - blockTransfers, 0) : 0
+        stale ? Math.max(blockEvents - blockCreator, 0) : 0
       } ]`
     );
   }
