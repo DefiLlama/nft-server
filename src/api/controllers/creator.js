@@ -79,10 +79,12 @@ FROM
     ethereum.nft_creator
 WHERE 
     (collection, token_id) IN (VALUES ${values})
+    OR (collection IN ($<collections:csv>) AND token_id IS NULL)
     `);
 
   const response = await indexa.query(query, {
     values,
+    collections: nfts.map((nft) => `\\${nft.split(':')[0].slice(1)}`),
   });
 
   if (!response) {
