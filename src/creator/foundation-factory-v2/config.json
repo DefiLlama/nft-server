@@ -1,0 +1,10 @@
+{
+  "exchangeName": "foundation",
+  "contracts": ["0x612E2DadDc89d91409e40f946f9f7CfE422e777E"],
+  "events": [
+    {
+      "name": "NFTCollectionCreated",
+      "signatureHash": "0x22bd5d982c942d99c12bfa4feda7e796b2b9d6a1b8097c890871b12de29963eb"
+    }
+  ]
+}

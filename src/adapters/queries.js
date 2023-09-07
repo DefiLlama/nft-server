@@ -595,6 +595,18 @@ const columns = {
     'event_id',
     'expiration',
   ],
+  'ethereum.nft_creator': [
+    'transaction_hash',
+    'log_index',
+    'contract_address',
+    'topic_0',
+    'block_time',
+    'block_number',
+    'exchange_name',
+    'collection',
+    'token_id',
+    'creator',
+  ],
 };
 
 const buildInsertQ = (payload, table) => {

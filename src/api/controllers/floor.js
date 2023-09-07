@@ -1,6 +1,6 @@
 const minify = require('pg-minify');
 
-const checkCollection = require('../../utils/checkAddress');
+const { checkCollection } = require('../../utils/checkAddress');
 const { customHeader } = require('../../utils/customHeader');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
 const { nft } = require('../../utils/dbConnection');

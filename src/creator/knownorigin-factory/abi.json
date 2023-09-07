@@ -1,0 +1,660 @@
+[
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+  { "inputs": [], "name": "DuplicateIdentifier", "type": "error" },
+  { "inputs": [], "name": "DuplicateImplementation", "type": "error" },
+  { "inputs": [], "name": "EmptyString", "type": "error" },
+  { "inputs": [], "name": "OnlyAdmin", "type": "error" },
+  { "inputs": [], "name": "OnlyVerifiedArtist", "type": "error" },
+  { "inputs": [], "name": "ZeroAddress", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousAdmin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "AdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beacon",
+        "type": "address"
+      }
+    ],
+    "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "ContractDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_contract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_banned",
+        "type": "bool"
+      }
+    ],
+    "name": "CreatorContractBanned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_identifier",
+        "type": "string"
+      }
+    ],
+    "name": "DefaultImplementationUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_handler",
+        "type": "address"
+      }
+    ],
+    "name": "FundsHandlerDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_identifier",
+        "type": "string"
+      }
+    ],
+    "name": "NewImplementationAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "deployer",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "artist",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "selfSovereignNFT",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "fundsHandler",
+        "type": "address"
+      }
+    ],
+    "name": "SelfSovereignERC721Deployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "accessControls",
+    "outputs": [
+      {
+        "internalType": "contract IKOAccessControlsLookup",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_implementation",
+        "type": "address"
+      },
+      { "internalType": "string", "name": "_identifier", "type": "string" }
+    ],
+    "name": "addCreatorImplementation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "name": "contractImplementations",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultSelfSovereignContractName",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyaltyPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
+      },
+      { "internalType": "uint256", "name": "_artistIndex", "type": "uint256" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_artistProof",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "deployCreatorContractAndFundsHandler",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_artist", "type": "address" },
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyaltyPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "deployCreatorContractAndFundsHandlerOnBehalfOfArtist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyaltyPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
+      },
+      { "internalType": "address", "name": "_fundsHandler", "type": "address" },
+      { "internalType": "uint256", "name": "_artistIndex", "type": "uint256" },
+      {
+        "internalType": "bytes32[]",
+        "name": "_artistProof",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "deployCreatorContractWithCustomFundsHandler",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_artist", "type": "address" },
+      {
+        "components": [
+          { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "string", "name": "symbol", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyaltyPercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
+      },
+      { "internalType": "address", "name": "_fundsHandler", "type": "address" }
+    ],
+    "name": "deployCreatorContractWithCustomFundsHandlerOnBehalfOfArtist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "deployFundsHandler",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "deployedHandler",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_contract", "type": "address" },
+      { "internalType": "bool", "name": "_banned", "type": "bool" }
+    ],
+    "name": "flagBannedContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "flaggedContracts",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getHandler",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getHandlerId",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "name": "implementationIdentifiers",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_erc721ImplementationName",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_erc721Implementation",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_receiverImplementation",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IKOAccessControlsLookup",
+        "name": "_accessControls",
+        "type": "address"
+      },
+      {
+        "internalType": "contract KODASettings",
+        "name": "_settings",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platformSettings",
+    "outputs": [
+      { "internalType": "contract KODASettings", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_nftIdentifier", "type": "string" },
+      { "internalType": "address", "name": "_artist", "type": "address" },
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_symbol", "type": "string" }
+    ],
+    "name": "predictDeterministicAddressOfSelfSovereignNFT",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "receiverImplementation",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IKOAccessControlsLookup",
+        "name": "_access",
+        "type": "address"
+      }
+    ],
+    "name": "updateAccessControls",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "string", "name": "_default", "type": "string" }
+    ],
+    "name": "updateDefaultCreatorIdentifier",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_receiver", "type": "address" }
+    ],
+    "name": "updateReceiverImplementation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_newSettings", "type": "address" }
+    ],
+    "name": "updateSettingsContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      },
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
+    ],
+    "name": "upgradeToAndCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+]

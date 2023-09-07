@@ -1,0 +1,15 @@
+{
+  "exchangeName": "makersplace",
+  "contracts": [
+    "0xcd51b81Ac1572707B7f3051aa97A31e2Afb27d45",
+    "0x2963ba471e265e5f51cafafca78310fe87f8e6d1",
+    "0x2a46f2ffd99e19a89476e2f62270e0a35bbf0756",
+    "0x2d9e5de7d36f3830c010a28b29b3bdf5ca73198e"
+  ],
+  "events": [
+    {
+      "name": "DigitalMediaReleaseCreateEvent",
+      "signatureHash": "0x775f53e4c75ce0c74e611f7f0bb660e4cd647e0522ef0f8aefd4ecef373c5df9"
+    }
+  ]
+}

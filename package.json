@@ -10,7 +10,8 @@
     "start:api": "node src/api/server",
     "start:jobs": "node src/jobs/index",
     "start:monitor": "node src/jobs/indexMonitor",
-    "start:sync_nft_transfers": "node src/adapters/indexTransfers"
+    "start:sync_nft_transfers": "node src/adapters/indexTransfers",
+    "start:sync_nft_creator": "node src/creator/index"
   },
   "author": "",
   "license": "ISC",

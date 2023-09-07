@@ -1,0 +1,11 @@
+{
+  "exchangeName": "rarible",
+  "contracts": ["0xDA5BFe0bD4443d63833C8f4E3284357299eaE6BC"],
+  "events": [
+    {
+      "name": "Create1155RaribleUserProxy",
+      "signatureHash": "0x5b961e37212df9fe72e2c84d894099793a4569a883f97d6413c4362e68c644b5"
+    }
+  ],
+  "version": "specific3"
+}

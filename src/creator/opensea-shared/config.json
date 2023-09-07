@@ -1,0 +1,10 @@
+{
+  "exchangeName": "opensea",
+  "contracts": ["0x495f947276749ce646f68ac8c248420045cb7b5e"],
+  "events": [
+    {
+      "name": "TransferSingle",
+      "signatureHash": "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62"
+    }
+  ]
+}
