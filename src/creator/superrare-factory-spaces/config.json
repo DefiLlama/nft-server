@@ -1,0 +1,10 @@
+{
+  "exchangeName": "superrare",
+  "contracts": ["0x3B2d699110aa1788B2B1cae336E0bA8ff942A390"],
+  "events": [
+    {
+      "name": "RareSpaceNFTContractCreated",
+      "signatureHash": "0xabe0dd57947693bae591655c14bbe6fd911ea23c65899a1882a49ac2ce5f1f55"
+    }
+  ]
+}

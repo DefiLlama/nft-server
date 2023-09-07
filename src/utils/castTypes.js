@@ -96,7 +96,7 @@ const castTypesCreator = (e) => {
     exchange_name: Buffer.from(e.exchangeName),
     collection: Buffer.from(e.collection.replace('0x', ''), 'hex'),
     token_id: e.tokenId?.toString() ? Buffer.from(e.tokenId.toString()) : null,
-    creator: Buffer.from(e.creator.replace('0x', ''), 'hex'),
+    creator: e.creator ? Buffer.from(e.creator.replace('0x', ''), 'hex') : null,
   };
 };
 
