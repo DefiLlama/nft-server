@@ -87,8 +87,15 @@ const castTypesTransfers = (e) => {
 
 const castTypesCreator = (e) => {
   return {
+    transaction_hash: Buffer.from(e.transaction_hash, 'hex'),
+    log_index: Number(e.log_index),
+    contract_address: Buffer.from(e.contract_address, 'hex'),
+    topic_0: Buffer.from(e.topic_0, 'hex'),
+    block_time: new Date(e.block_time),
+    block_number: Number(e.block_number),
+    exchange_name: Buffer.from(e.exchangeName),
     collection: Buffer.from(e.collection.replace('0x', ''), 'hex'),
-    token_id: Buffer.from(e.tokenId.toString()),
+    token_id: e.tokenId?.toString() ? Buffer.from(e.tokenId.toString()) : null,
     creator: Buffer.from(e.creator.replace('0x', ''), 'hex'),
   };
 };

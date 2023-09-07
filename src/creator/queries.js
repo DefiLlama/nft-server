@@ -1,7 +1,5 @@
 const minify = require('pg-minify');
 
-const { pgp, indexa } = require('../utils/dbConnection');
-
 const queries = {
   generic: `
 SELECT
@@ -115,46 +113,6 @@ const getEvents = async (task, startBlock, endBlock, config) => {
   return response;
 };
 
-const buildInsertQ = (payload) => {
-  const columns = [
-    'transaction_hash',
-    'log_index',
-    'contract_address',
-    'topic_0',
-    'block_time',
-    'block_number',
-    'collection',
-    'token_id',
-    'creator',
-    'exchange_name',
-  ];
-
-  const cs = new pgp.helpers.ColumnSet(columns, {
-    // column set requries tablename if schema is not undefined
-    table: new pgp.helpers.TableName({
-      schema: 'ethereum',
-      table: 'nft_creator',
-    }),
-  });
-
-  const query = pgp.helpers.insert(payload, cs);
-
-  return query;
-};
-
-const insertCreator = async (payload) => {
-  const query = buildInsertQ(payload);
-
-  const response = await indexa.result(query);
-
-  if (!response) {
-    return new Error(`Couldn't insert into ethereum.nft_creator`, 404);
-  }
-
-  return response;
-};
-
 module.exports = {
   getEvents,
-  insertCreator,
 };
