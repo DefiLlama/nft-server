@@ -13,19 +13,17 @@ const getCreatedNfts = async (req, res) => {
 
   const query = minify(`
 SELECT
-  encode(transaction_hash, 'hex') AS transaction_hash,
-  log_index,
-  encode(contract_address, 'hex') AS contract_address,
-  encode(topic_0, 'hex') AS topic_0,
-  block_time,
-  block_number,
-  encode(exchange_name, 'escape') AS exchange_name,
-  encode(collection, 'hex') AS collection,
-  encode(token_id, 'escape') AS token_id
+  concat(
+      encode(collection, 'hex'),
+      ':',
+      encode(token_id, 'escape')
+  ) AS nft
 FROM
   ethereum.nft_creator
 WHERE
   creator = $<creator>
+ORDER BY
+    nft
 `);
 
   const response = await indexa.query(query, {
@@ -39,13 +37,7 @@ WHERE
   res
     .set(customHeaderFixedCache(300))
     .status(200)
-    .json(
-      response
-        .sort(
-          (a, b) => b.block_time - a.block_time || b.log_index - a.log_index
-        )
-        .map((c) => convertKeysToCamelCase(c))
-    );
+    .json(response.map((i) => i.nft));
 };
 
 // get creators of a set of nfts
