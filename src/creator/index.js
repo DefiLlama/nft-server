@@ -13,7 +13,7 @@ const { insertEvents } = require('../adapters/queries');
 const modulesDir = path.join(__dirname, './');
 const modules = [];
 fs.readdirSync(modulesDir)
-  .filter((mplace) => !mplace.endsWith('.js') && mplace !== 'opensea-shared') // tmp disable opensea-shared
+  .filter((mplace) => !mplace.endsWith('.js'))
   .forEach((mplace) => {
     modules.push(require(path.join(modulesDir, mplace)));
   });
