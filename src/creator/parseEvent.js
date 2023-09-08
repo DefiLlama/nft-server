@@ -65,7 +65,7 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
       .sort((a, b) => a.block_time - b.block_time)
       .filter(
         (obj, index, self) =>
-          index === self.findIndex((el) => el.token_id === obj.token_id)
+          index === self.findIndex((el) => el.tokenId === obj.tokenId)
       );
   }
 

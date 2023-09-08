@@ -10,14 +10,18 @@ const argv = yargs.options({
     alias: 'm',
     type: 'string',
     demandOption: true,
-    describe: 'adapter name, eg zora-shared',
+    describe: 'adapter name, eg opensea-shared',
   },
-  block: {
-    alias: 'b',
+  start: {
+    type: 'number',
+    demandOption: false,
+    describe:
+      'first block to fill from. if not given, will `blockStart` defined in adapter config',
+  },
+  stop: {
     type: 'number',
     demandOption: true,
-    describe:
-      'min(block_number) - 1 from the chosen event table; we go backwards from that block',
+    describe: 'end block to stop the filling process',
   },
   blockRange: {
     alias: 'r',
@@ -25,29 +29,23 @@ const argv = yargs.options({
     demandOption: true,
     describe: 'block window size used for querying events from event_logs',
   },
-  blockStop: {
-    alias: 's',
-    type: 'number',
-    demandOption: true,
-    describe: 'block at which backfill will stop',
-  },
 }).argv;
 
 const marketplace = argv.marketplace;
-let endBlock = argv.block;
+const blockStop = argv.stop;
 const blockRange = argv.blockRange;
-const blockStop = argv.blockStop;
 
 (async () => {
   console.log(`==== Refill ${marketplace} ====`);
 
   const { abi, config, parse } = require(`./${marketplace}`);
+  let startBlock = argv.start ?? config.blockStart;
 
   const table = 'ethereum.nft_creator';
 
-  let startBlock = endBlock - blockRange;
+  let endBlock = startBlock + blockRange;
 
-  console.log(`starting refill from ${endBlock}...`);
+  console.log(`starting refill from ${startBlock}...`);
   while (true) {
     const pEvents = await indexa.task(async (t) => {
       return await parseEvent(t, startBlock, endBlock, abi, config, parse);
@@ -73,13 +71,13 @@ const blockStop = argv.blockStop;
       );
     }
 
-    // update blocks
-    endBlock = startBlock - 1; // query is inclusive
-    startBlock = endBlock - blockRange;
-
-    if (startBlock < blockStop) {
+    if (endBlock === blockStop) {
       console.log('reached blockStop, exiting!');
       process.exit();
     }
+
+    // update blocks
+    startBlock = endBlock + 1;
+    endBlock = Math.min(startBlock + blockRange, blockStop);
   }
 })();
