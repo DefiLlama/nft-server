@@ -58,6 +58,17 @@ const parseEvent = async (task, startBlock, endBlock, abi, config, parse) => {
     })
   );
 
+  // opensea-shared check
+  // if token_id occurs more than once within slice then filter to first one
+  if (config.exchangeName === 'opensea') {
+    return parsedEvents
+      .sort((a, b) => a.block_time - b.block_time)
+      .filter(
+        (obj, index, self) =>
+          index === self.findIndex((el) => el.token_id === obj.token_id)
+      );
+  }
+
   return parsedEvents;
 };
 

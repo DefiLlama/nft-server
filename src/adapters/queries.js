@@ -618,7 +618,13 @@ const buildInsertQ = (payload, table) => {
     }),
   });
 
-  const query = pgp.helpers.insert(payload, cs);
+  let query = pgp.helpers.insert(payload, cs);
+
+  // if conflict on collection, token_id -> then we don't insert
+  // that row into the table (required for opensea-shared adapter)
+  if (table === 'ethereum.nft_creator') {
+    query += ' ON CONFLICT (collection, token_id) DO NOTHING';
+  }
 
   return query;
 };

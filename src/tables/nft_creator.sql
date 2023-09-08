@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS ethereum.nft_creator (
     exchange_name bytea,
     collection bytea,
     token_id bytea,
-    creator bytea
+    creator bytea,
+    UNIQUE (collection, token_id)
 );
 
 CREATE INDEX IF NOT EXISTS ethereum_nft_creator_collection_idx ON ethereum.nft_creator (collection);
