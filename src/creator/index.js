@@ -18,7 +18,10 @@ fs.readdirSync(modulesDir)
     modules.push(require(path.join(modulesDir, mplace)));
   });
 
-const exe = async () => {
+// - reads max block from event_logs and nft_creator
+// - repeat until !stale -> fetch data, parse, insert (if length)
+// - return that last synced block = blockEvents = endBlock (in last round)
+const sync = async (blockLastSynced) => {
   // get max blocks for each table
   let [blockEvents, blockCreator] = await indexa.task(async (t) => {
     return await Promise.all(
@@ -30,17 +33,23 @@ const exe = async () => {
 
   console.log(
     `syncing nft_creator, ${
-      blockEvents - blockCreator
-    } blocks behind event_logs`
+      blockEvents - (blockLastSynced ?? blockCreator)
+    } block(s) behind event_logs`
   );
 
-  // check if stale
-  let stale = checkIfStale(blockEvents, blockCreator);
+  // check if stale:
+  // when starting the process for the first time we sync from blockheight in nft_creator
+  // (=blockCreator). after resuming sync(), we use blockLastSynced instead. reason: creator events
+  // are sparse, so frequent inserts are unlikely. that means if we'd keep on using blockCreator
+  // we'd uneccesarily read/process the same empty data again. using `blockLastSynced` prevents
+  // that. note: we wouldn't insert duplicates even if we'd use blockCreator instead,
+  // so this is just a thing to keep the read load to event_logs smol
+  let stale = checkIfStale(blockEvents, blockLastSynced ?? blockCreator);
 
   // forward fill
   while (stale) {
-    let startBlock = blockCreator + 1;
-    let endBlock = startBlock + blockRange;
+    let startBlock = (blockLastSynced ?? blockCreator) + 1;
+    let endBlock = Math.min(startBlock + blockRange, blockEvents);
 
     const parsedEvents = (
       await indexa.task(async (t) => {
@@ -69,11 +78,20 @@ const exe = async () => {
     );
   }
 
-  // once synced with event_logs, pausing for min 12 sec (1block) before next sync starts
-  const pause = 15 * 1e3;
-  console.log(`pausing exe for ${pause / 1e3}sec...\n`);
-  await new Promise((resolve) => setTimeout(resolve, pause));
-  await exe();
+  return blockEvents;
+};
+
+const exe = async () => {
+  let blockLastSynced = null;
+  // continous sync process which forward fills
+  while (true) {
+    // sync nft_creator with event_logs until it reaches same block height (= blockLastSynced)
+    blockLastSynced = await sync(blockLastSynced);
+    // pausing for N sec once synced and then resume sync()
+    const pause = 15 * 1e3;
+    console.log(`pausing exe for ${pause / 1e3}sec...\n`);
+    await new Promise((resolve) => setTimeout(resolve, pause));
+  }
 };
 
 exe();
