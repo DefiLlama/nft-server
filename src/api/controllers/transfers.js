@@ -53,56 +53,38 @@ const getTransfers = async (req, res) => {
 
 const getNfts = async (req, res) => {
   const query = minify(`
-WITH receiver AS (
+WITH owner AS(
     SELECT
-        *
+        collection,
+        token_id,
+        SUM(
+            CASE
+                WHEN to_address = $<address> THEN amount
+                ELSE 0
+            END
+        ) AS bought_sum,
+        SUM(
+            CASE
+                WHEN from_address = $<address> THEN amount
+                ELSE 0
+            END
+        ) AS sold_sum
     FROM
         ethereum.nft_transfers
     WHERE
         to_address = $<address>
         OR from_address = $<address>
-),
-max_date AS (
-    SELECT
-        collection,
-        token_id,
-        max(block_number) AS block_number
-    FROM
-        receiver
     GROUP BY
         collection,
         token_id
-),
-latest AS (
-    SELECT
-        *
-    FROM
-        receiver r
-    WHERE
-        EXISTS (
-            SELECT
-                1
-            FROM
-                max_date m
-            WHERE
-                r.collection = m.collection
-                AND r.token_id = m.token_id
-                AND r.block_number = m.block_number
-        )
 )
 SELECT
-    encode(transaction_hash, 'hex') AS transaction_hash,
     encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id,
-    encode(from_address, 'hex') AS from_address,
-    encode(to_address, 'hex') AS to_address,
-    log_index,
-    block_time,
-    block_number
+    encode(token_id, 'escape') AS token_id
 FROM
-    latest
+    owner
 WHERE
-    to_address = $<address>
+    (bought_sum - sold_sum) > 0
   `);
 
   const address = req.params.address;
