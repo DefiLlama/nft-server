@@ -5,6 +5,10 @@
     {
       "name": "NFTCollectionCreated",
       "signatureHash": "0x22bd5d982c942d99c12bfa4feda7e796b2b9d6a1b8097c890871b12de29963eb"
+    },
+    {
+      "name": "NFTDropCollectionCreated",
+      "signatureHash": "0x539650f67bdd91b68860520943769ed5924e62e8722a454d882e292191ad37c4"
     }
   ],
   "blockStart": 15540357
