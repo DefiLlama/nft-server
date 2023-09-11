@@ -57,6 +57,7 @@ WITH owner AS(
     SELECT
         collection,
         token_id,
+        max(block_time) AS block_time,
         SUM(
             CASE
                 WHEN to_address = $<address> THEN amount
@@ -80,7 +81,8 @@ WITH owner AS(
 )
 SELECT
     encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id
+    encode(token_id, 'escape') AS token_id,
+    block_time
 FROM
     owner
 WHERE
