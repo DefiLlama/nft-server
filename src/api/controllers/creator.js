@@ -44,6 +44,22 @@ sovereign_collections_expanded AS (
                 sovereign_collections
         )
 ),
+contract_creations AS (
+    SELECT
+        DISTINCT created_contract_address
+    FROM
+        ethereum.transactions
+    WHERE
+        from_address = $<creator>
+        AND created_contract_address IS NOT NULL
+),
+untracked_sovereign AS (
+SELECT
+    DISTINCT collection
+FROM
+    contract_creations c
+    INNER JOIN ethereum.nft_transfers t ON c.created_contract_address = t.collection
+),
 joined AS (
     SELECT
         collection, token_id
@@ -56,6 +72,11 @@ joined AS (
         creator_collections
     WHERE
         token_id IS NOT NULL
+    UNION
+    SELECT
+        collection, NULL AS token_id
+    FROM
+        untracked_sovereign
 )
 SELECT
     concat(
