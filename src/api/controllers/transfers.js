@@ -77,14 +77,45 @@ WITH owner AS(
     GROUP BY
         collection,
         token_id
+),
+filtered AS (
+    SELECT
+        collection,
+        token_id
+    FROM
+        owner
+    WHERE
+        (bought_sum - sold_sum) > 0
+),
+last_sale_per_nft AS (
+    SELECT
+        DISTINCT ON (collection, token_id) *
+    FROM
+        ethereum.nft_trades t
+    WHERE
+        EXISTS (
+            SELECT
+                1
+            FROM
+                filtered f
+            WHERE
+                f.collection = t.collection
+                AND f.token_id = t.token_id
+        )
+    ORDER BY
+        collection,
+        token_id,
+        block_number DESC,
+        log_index DESC
 )
 SELECT
-    encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id
+    encode(f.collection, 'hex') AS collection,
+    encode(f.token_id, 'escape') AS token_id,
+    n.eth_sale_price
 FROM
-    owner
-WHERE
-    (bought_sum - sold_sum) > 0
+    filtered f
+    LEFT JOIN last_sale_per_nft n ON f.collection = n.collection
+    AND f.token_id = n.token_id
   `);
 
   const address = req.params.address;
