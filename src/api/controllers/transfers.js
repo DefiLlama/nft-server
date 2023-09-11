@@ -57,6 +57,7 @@ WITH owner AS(
     SELECT
         collection,
         token_id,
+        max(block_time) AS block_time,
         SUM(
             CASE
                 WHEN to_address = $<address> THEN amount
@@ -81,7 +82,8 @@ WITH owner AS(
 filtered AS (
     SELECT
         collection,
-        token_id
+        token_id,
+        block_time
     FROM
         owner
     WHERE
@@ -111,6 +113,7 @@ last_sale_per_nft AS (
 SELECT
     encode(f.collection, 'hex') AS collection,
     encode(f.token_id, 'escape') AS token_id,
+    f.block_time,
     n.eth_sale_price
 FROM
     filtered f
