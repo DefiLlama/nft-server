@@ -9,6 +9,14 @@
     {
       "name": "NFTDropCollectionCreated",
       "signatureHash": "0x539650f67bdd91b68860520943769ed5924e62e8722a454d882e292191ad37c4"
+    },
+    {
+      "name": "NFTTimedEditionCollectionCreated",
+      "signatureHash": "0x48dba6c14f5297a31fc415d7db449661cb53823e5c9a7a7cb60be01ab7c3a5bc"
+    },
+    {
+      "name": "NFTLimitedEditionCollectionCreated",
+      "signatureHash": "0xa1138d861963b251c3ce1150fa04a71a5cacf60d9220183f8991d70f2ea747e0"
     }
   ],
   "blockStart": 15540357
