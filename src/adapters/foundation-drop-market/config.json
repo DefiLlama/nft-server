@@ -1,0 +1,29 @@
+{
+  "exchangeName": "foundation",
+  "contracts": ["0x53f451165ba6fdbe39a134673d13948261b2334a"],
+  "events": [
+    {
+      "name": "MintFromFixedPriceDrop",
+      "signatureHash": "0x05ebbb6b0ce7d564230ba625dd7a0e5108786b0852d6060de6099e1778203e34",
+      "saleEvent": true
+    },
+    {
+      "name": "MintFromDutchAuction",
+      "signatureHash": "0xd63692b8fbf23357add4e0ac130de567b601498f82505d23b329b450c7494505",
+      "saleEvent": true
+    },
+    {
+      "name": "MintFromDutchAuctionV2",
+      "signatureHash": "0xfacca8c0845db767bcbcc63c5f7e7e93df5690aea049d11be2fffafd4185d8ec",
+      "saleEvent": true
+    },
+    {
+      "name": "CreateFixedPriceSale",
+      "signatureHash": "0xa4e684574cd21d7eb4df36ec6d7f86d16aa900ceddae41e4e82f8f4170f293b9"
+    },
+    {
+      "name": "CreateLinearDutchAuction",
+      "signatureHash": "0x4be408b58dfcdd9eed5e094c36b581760de5ad0b07dc4fc948b61fba5001898e"
+    }
+  ]
+}
