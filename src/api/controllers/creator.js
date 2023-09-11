@@ -106,15 +106,51 @@ const getCreators = async (req, res) => {
     .join(', ');
 
   const query = minify(`
+WITH shared_or_factory AS (
+    SELECT
+        collection,
+        token_id,
+        creator
+    FROM
+        ethereum.nft_creator
+    WHERE
+        (collection, token_id) IN (
+            VALUES
+                ${values}
+        )
+        OR (
+            collection IN ($<collections:csv>)
+            AND token_id IS NULL
+        )
+),
+nfts(collection, token_id) AS (
+    VALUES
+        ${values}
+),
+remaining AS (
+    SELECT
+        *
+    FROM
+        ethereum.transactions t
+        LEFT JOIN nfts n ON t.created_contract_address = n.collection
+        LEFT JOIN shared_or_factory s ON t.created_contract_address = s.collection
+    WHERE
+        n.collection IS NOT NULL
+        AND s.collection IS NULL
+)
 SELECT
     encode(collection, 'hex') AS collection,
     encode(token_id, 'escape') AS token_id,
     encode(creator, 'hex') AS creator
 FROM
-    ethereum.nft_creator
-WHERE 
-    (collection, token_id) IN (VALUES ${values})
-    OR (collection IN ($<collections:csv>) AND token_id IS NULL)
+    shared_or_factory
+UNION
+SELECT
+    encode(created_contract_address, 'hex') AS collection,
+    NULL AS token_id,
+    encode(from_address, 'hex') AS creator
+FROM
+    remaining
     `);
 
   const response = await indexa.query(query, {
