@@ -53,9 +53,10 @@ contract_creations AS (
         from_address = $<creator>
         AND created_contract_address IS NOT NULL
 ),
+-- expand with token_id and remove any contract which is not in nft_transfers
 untracked_sovereign AS (
 SELECT
-    DISTINCT collection
+    DISTINCT t.collection, t.token_id
 FROM
     contract_creations c
     INNER JOIN ethereum.nft_transfers t ON c.created_contract_address = t.collection
@@ -74,7 +75,7 @@ joined AS (
         token_id IS NOT NULL
     UNION
     SELECT
-        collection, NULL AS token_id
+        collection, token_id
     FROM
         untracked_sovereign
 )
