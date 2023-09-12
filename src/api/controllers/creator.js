@@ -35,7 +35,7 @@ sovereign_collections_expanded AS (
         t.collection
     FROM
         ethereum.nft_transfers t
-    JOIN sovereign_collections c ON t.collection = c.collection
+        JOIN sovereign_collections c ON t.collection = c.collection
     WHERE
         t.collection IN (
             SELECT
@@ -54,29 +54,70 @@ contract_creations AS (
         AND created_contract_address IS NOT NULL
 ),
 untracked_sovereign AS (
-SELECT
-    DISTINCT collection
-FROM
-    contract_creations c
-    INNER JOIN ethereum.nft_transfers t ON c.created_contract_address = t.collection
+    SELECT
+        DISTINCT collection
+    FROM
+        contract_creations c
+        INNER JOIN ethereum.nft_transfers t ON c.created_contract_address = t.collection
 ),
 joined AS (
     SELECT
-        collection, token_id
+        collection,
+        token_id
     FROM
         sovereign_collections_expanded
     UNION
     SELECT
-        collection, token_id
+        collection,
+        token_id
     FROM
         creator_collections
     WHERE
         token_id IS NOT NULL
     UNION
     SELECT
-        collection, NULL AS token_id
+        collection,
+        NULL AS token_id
     FROM
         untracked_sovereign
+),
+joined_with_burn_info AS (
+    SELECT
+        t.collection,
+        t.token_id,
+        SUM(
+            CASE
+                WHEN to_address = '\\x0000000000000000000000000000000000000000' THEN amount
+                ELSE 0
+            END
+        ) AS burned_sum,
+        SUM(
+            CASE
+                WHEN from_address = '\\x0000000000000000000000000000000000000000' THEN amount
+                ELSE 0
+            END
+        ) AS mint_sum
+    FROM
+        ethereum.nft_transfers t
+        JOIN joined j ON t.collection = j.collection
+        AND t.token_id = j.token_id
+    WHERE
+        (
+            to_address = '\\x0000000000000000000000000000000000000000'
+            OR from_address = '\\x0000000000000000000000000000000000000000'
+        )
+    GROUP BY
+        t.collection,
+        t.token_id
+),
+nfts_excluding_burned AS (
+    SELECT
+        collection,
+        token_id
+    FROM
+        joined_with_burn_info
+    WHERE
+        mint_sum > burned_sum
 )
 SELECT
     concat(
@@ -85,7 +126,7 @@ SELECT
         encode(token_id, 'escape')
     ) AS nft
 FROM
-    joined
+    nfts_excluding_burned
 ORDER BY
     nft
 `);
