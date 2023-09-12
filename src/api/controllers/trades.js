@@ -1,6 +1,6 @@
 const minify = require('pg-minify');
 
-const { checkCollection } = require('../../utils/checkAddress');
+const { checkCollection, checkNft } = require('../../utils/checkAddress');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
 const {
   customHeader,
@@ -444,6 +444,43 @@ ORDER BY
     .json(response.map((c) => [c.day, c.usd]));
 };
 
+const getLastSalePrice = async (req, res) => {
+  const nft = req.params.nft?.split(',');
+  if (nft?.map((nft) => checkNft(nft)).includes(false))
+    return res.status(400).json('invalid query params!');
+
+  const query = minify(`
+SELECT
+    encode(collection, 'hex') AS collection,
+    encode(token_id, 'escape') AS token_id,
+    eth_sale_price
+FROM
+    ethereum.nft_trades
+WHERE
+    collection = $<collection>
+    AND token_id = $<tokenId>
+ORDER BY
+    collection,
+    token_id,
+    block_number DESC
+LIMIT
+    1
+  `);
+
+  const nft_ = nft[0].split(':');
+
+  const response = await indexa.query(query, {
+    collection: `\\${nft_[0].slice(1)}`,
+    tokenId: nft_[1],
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res.status(200).json(response);
+};
+
 module.exports = {
   getSales,
   getStats,
@@ -453,4 +490,5 @@ module.exports = {
   getRoyalties,
   getRoyaltyHistory,
   getRoyalty,
+  getLastSalePrice,
 };
