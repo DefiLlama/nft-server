@@ -35,19 +35,10 @@ factory_collections AS (
 -- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
 factory_collections_expanded AS (
     SELECT
-        DISTINCT t.token_id,
-        t.collection
+        DISTINCT t.collection, t.token_id
     FROM
         ethereum.nft_transfers t
     INNER JOIN factory_collections c ON t.collection = c.collection
-    -- this seems to be redundant
-    WHERE
-        t.collection IN (
-            SELECT
-                collection
-            FROM
-                factory_collections
-        )
 ),
 -- search for any potential remaining soveraign collections (direct contract creations)
 -- note: switch to traces once index creation is done (will give even higher coverage in case we are
@@ -72,20 +63,20 @@ FROM
 -- combine all
 joined AS (
     SELECT
-        collection, token_id
+        *
     FROM
         factory_collections_expanded
-    UNION
+    UNION ALL
     SELECT
-        collection, token_id
+        *
     FROM
         creator_collections
     WHERE
         -- this gives us shared collections, the other 2 contain the rest
         token_id IS NOT NULL
-    UNION
+    UNION ALL
     SELECT
-        collection, token_id
+        *
     FROM
         sovereign_collections_expanded
 )
