@@ -89,36 +89,25 @@ filtered AS (
     WHERE
         (bought_sum - sold_sum) > 0
 ),
-last_sale_per_nft AS (
+with_prices AS (
     SELECT
-        DISTINCT ON (collection, token_id) *
+        DISTINCT ON (f.collection, f.token_id) encode(f.collection, 'hex') AS collection,
+        encode(f.token_id, 'escape') AS token_id,
+        t.eth_sale_price,
+        f.block_time
     FROM
-        ethereum.nft_trades t
-    WHERE
-        EXISTS (
-            SELECT
-                1
-            FROM
-                filtered f
-            WHERE
-                f.collection = t.collection
-                AND f.token_id = t.token_id
-        )
+        filtered f
+        LEFT JOIN ethereum.nft_trades t ON t.collection = f.collection
+        AND t.token_id = f.token_id
     ORDER BY
-        collection,
-        token_id,
-        block_number DESC,
-        log_index DESC
+        f.collection,
+        f.token_id,
+        t.block_number DESC
 )
 SELECT
-    encode(f.collection, 'hex') AS collection,
-    encode(f.token_id, 'escape') AS token_id,
-    f.block_time,
-    n.eth_sale_price
+    *
 FROM
-    filtered f
-    LEFT JOIN last_sale_per_nft n ON f.collection = n.collection
-    AND f.token_id = n.token_id
+  with_prices
   `);
 
   const address = req.params.address;
