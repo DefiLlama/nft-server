@@ -107,7 +107,57 @@ WHERE
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getTokenStandard = async (req, res) => {
+  const nfts = req.params?.nfts?.split(',');
+  if (nfts?.map((id) => checkCollection(id)).includes(false))
+    return res.status(400).json('invalid query params!');
+
+  const collections = nfts.map((nft) => `\\${nft.split(':')[0].slice(1)}`);
+
+  // retrieving just any row per collection can be done in many ways (distinct on, group by, row_number etc)
+  // all of them are really slow though given the size of nft_transfers (even though we have indices)
+  // we could just read one collection in the query and hit the query N times. thats fast but makes
+  // N-separate db calls.
+  // via subqueries with limit 1 and a union all we can achieve similar but in a single db call
+  const subqueries = collections.map(
+    (value, i) => `
+SELECT
+    encode(collection, 'hex') AS collection,
+    token_standard
+FROM
+    (
+        SELECT
+            collection,
+            CASE
+                WHEN topic_0 = '\\xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef' THEN 'erc721'
+                ELSE 'erc1155'
+            END AS token_standard
+        FROM
+            ethereum.nft_transfers
+        WHERE
+            collection = '${value}'
+        LIMIT
+            1
+    ) AS c_${i}
+`
+  );
+
+  const query = subqueries.join(' UNION ALL ');
+
+  const response = await indexa.query(query);
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeaderFixedCache(300))
+    .status(200)
+    .json(response.map((c) => convertKeysToCamelCase(c)));
+};
+
 module.exports = {
   getTransfers,
   getNfts,
+  getTokenStandard,
 };
