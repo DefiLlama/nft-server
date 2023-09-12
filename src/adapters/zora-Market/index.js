@@ -8,6 +8,10 @@ const zoraMedia = '0xabEFBc9fD2F806065b4f3C237d4b59D9A97Bcac7';
 const parse = async (decodedData, event) => {
   const eventType = getEventType(config, event);
 
+  // note: BidFinalized sale event is excluded from this adapter, reason: zora-AuctionHouse
+  // (0xE468cE99444174Bd3bBBEd09209577d25D1ad673) emits `AuctionEnded` in the same tx which
+  // has more sale details
+
   if (['BidCreated', 'BidRemoved'].includes(eventType)) {
     const {
       tokenId,
