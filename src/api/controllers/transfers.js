@@ -88,26 +88,20 @@ filtered AS (
         owner
     WHERE
         (bought_sum - sold_sum) > 0
-),
-with_prices AS (
-    SELECT
-        DISTINCT ON (f.collection, f.token_id) encode(f.collection, 'hex') AS collection,
-        encode(f.token_id, 'escape') AS token_id,
-        t.eth_sale_price,
-        f.block_time
-    FROM
-        filtered f
-        LEFT JOIN ethereum.nft_trades t ON t.collection = f.collection
-        AND t.token_id = f.token_id
-    ORDER BY
-        f.collection,
-        f.token_id,
-        t.block_number DESC
 )
 SELECT
-    *
+    DISTINCT ON (f.collection, f.token_id) encode(f.collection, 'hex') AS collection,
+    encode(f.token_id, 'escape') AS token_id,
+    t.eth_sale_price,
+    f.block_time
 FROM
-  with_prices
+    filtered f
+    LEFT JOIN ethereum.nft_trades t ON t.collection = f.collection
+    AND t.token_id = f.token_id
+ORDER BY
+    f.collection,
+    f.token_id,
+    t.block_number DESC
   `);
 
   const address = req.params.address;
