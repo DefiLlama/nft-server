@@ -12,6 +12,7 @@ const getCreatedNfts = async (req, res) => {
     return res.status(400).json('invalid address!');
 
   const query = minify(`
+-- first filter nft_creator to given creator address
 WITH creator_collections AS (
     SELECT
         collection,
@@ -21,7 +22,9 @@ WITH creator_collections AS (
     WHERE
         creator = $<creator>
 ),
-sovereign_collections AS (
+-- filter further to factory collections
+-- (identified by token_id = null; adapters don't have that info at creation)
+factory_collections AS (
     SELECT
         *
     FROM
@@ -29,55 +32,62 @@ sovereign_collections AS (
     WHERE
         token_id IS NULL
 ),
-sovereign_collections_expanded AS (
+-- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
+factory_collections_expanded AS (
     SELECT
         DISTINCT t.token_id,
         t.collection
     FROM
         ethereum.nft_transfers t
-    JOIN sovereign_collections c ON t.collection = c.collection
+    INNER JOIN factory_collections c ON t.collection = c.collection
+    -- this seems to be redundant
     WHERE
         t.collection IN (
             SELECT
                 collection
             FROM
-                sovereign_collections
+                factory_collections
         )
 ),
-contract_creations AS (
+-- search for any potential remaining soveraign collections (direct contract creations)
+-- note: switch to traces once index creation is done (will give even higher coverage in case we are
+-- missing a factory)
+sovereign_collections AS (
     SELECT
-        DISTINCT created_contract_address
+        DISTINCT created_contract_address AS collection
     FROM
         ethereum.transactions
     WHERE
         from_address = $<creator>
         AND created_contract_address IS NOT NULL
 ),
--- expand with token_id and remove any contract which is not in nft_transfers
-untracked_sovereign AS (
+-- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
+sovereign_collections_expanded AS (
 SELECT
     DISTINCT t.collection, t.token_id
 FROM
-    contract_creations c
-    INNER JOIN ethereum.nft_transfers t ON c.created_contract_address = t.collection
+    sovereign_collections s
+    INNER JOIN ethereum.nft_transfers t ON s.collection = t.collection
 ),
+-- combine all
 joined AS (
     SELECT
         collection, token_id
     FROM
-        sovereign_collections_expanded
+        factory_collections_expanded
     UNION
     SELECT
         collection, token_id
     FROM
         creator_collections
     WHERE
+        -- this gives us shared collections, the other 2 contain the rest
         token_id IS NOT NULL
     UNION
     SELECT
         collection, token_id
     FROM
-        untracked_sovereign
+        sovereign_collections_expanded
 )
 SELECT
     concat(
