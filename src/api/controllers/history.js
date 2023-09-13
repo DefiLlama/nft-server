@@ -313,8 +313,7 @@ available_only AS (
   'AuctionReservePriceUpdated',
   'CreateListing',
   'CreateListingTokenDetails',
-  'ModifyListing',
-  'SaleCreatedEvent'
+  'ModifyListing'
     )
         AND NOT EXISTS (
             SELECT
