@@ -373,7 +373,19 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
-  res.set(customHeaderFixedCache(3600)).status(200).json(response);
+  res
+    .set(customHeaderFixedCache(3600))
+    .status(200)
+    .json(
+      response.map((e) => [
+        e.collection,
+        e.token_id,
+        e.event_type,
+        e.user_address,
+        e.eth_price,
+        e.block_number,
+      ])
+    );
 };
 
 module.exports = {
