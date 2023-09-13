@@ -83,6 +83,31 @@ ORDER BY
     );
 };
 
+// if the last event is of event_type from this list then we remove it
+// ->  delisted
+const excludeEventType = {
+  foundation: ['ReserveAuctionCanceled'],
+  'knownorigin-KODAV3PrimaryMarketplace': ['BuyNowDeListed'],
+  'knownorigin-KODAV3SecondaryMarketplace': ['TokenDeListed'],
+  'knownorigin-TokenMarketplaceV2': ['TokenDeListed'],
+  'manifold-v1': ['CancelListing'],
+  'manifold-v2': ['CancelListing'],
+  'opensea-SaleClockAuction': ['AuctionCancelled'],
+  'superrare-Multi': ['CancelAuction'],
+  'superrare-SuperRareBazaar': ['CancelAuction'],
+  'zora-AuctionHouse': ['AuctionCanceled'],
+};
+
+const oneOfoneExchanges = [
+  'foundation',
+  'superrare',
+  'zora',
+  'knownorigin',
+  'makersplace',
+  'manifold',
+  'rarible',
+];
+
 const getAvailable = async (req, res) => {
   const query = minify(`
 -- get most recent row per contract_address, event_id where collection is not null (this is what we use
@@ -177,31 +202,6 @@ WHERE
     )
     AND event_type NOT IN ($<exclude:csv>)
 `);
-
-  // if the last event is of event_type from this list then we remove it
-  // ->  delisted
-  const excludeEventType = {
-    foundation: ['ReserveAuctionCanceled'],
-    'knownorigin-KODAV3PrimaryMarketplace': ['BuyNowDeListed'],
-    'knownorigin-KODAV3SecondaryMarketplace': ['TokenDeListed'],
-    'knownorigin-TokenMarketplaceV2': ['TokenDeListed'],
-    'manifold-v1': ['CancelListing'],
-    'manifold-v2': ['CancelListing'],
-    'opensea-SaleClockAuction': ['AuctionCancelled'],
-    'superrare-Multi': ['CancelAuction'],
-    'superrare-SuperRareBazaar': ['CancelAuction'],
-    'zora-AuctionHouse': ['AuctionCanceled'],
-  };
-
-  const oneOfoneExchanges = [
-    'foundation',
-    'superrare',
-    'zora',
-    'knownorigin',
-    'makersplace',
-    'manifold',
-    'rarible',
-  ];
 
   let response = await indexa.query(query, {
     exclude: [...new Set(Object.values(excludeEventType).flat())],
@@ -338,31 +338,6 @@ SELECT
 FROM
     available_only
 `);
-
-  // if the last event is of event_type from this list then we remove it
-  // ->  delisted
-  const excludeEventType = {
-    foundation: ['ReserveAuctionCanceled'],
-    'knownorigin-KODAV3PrimaryMarketplace': ['BuyNowDeListed'],
-    'knownorigin-KODAV3SecondaryMarketplace': ['TokenDeListed'],
-    'knownorigin-TokenMarketplaceV2': ['TokenDeListed'],
-    'manifold-v1': ['CancelListing'],
-    'manifold-v2': ['CancelListing'],
-    'opensea-SaleClockAuction': ['AuctionCancelled'],
-    'superrare-Multi': ['CancelAuction'],
-    'superrare-SuperRareBazaar': ['CancelAuction'],
-    'zora-AuctionHouse': ['AuctionCanceled'],
-  };
-
-  const oneOfoneExchanges = [
-    'foundation',
-    'superrare',
-    'zora',
-    'knownorigin',
-    'makersplace',
-    'manifold',
-    'rarible',
-  ];
 
   let response = await indexa.query(query, {
     exclude: [...new Set(Object.values(excludeEventType).flat())],
