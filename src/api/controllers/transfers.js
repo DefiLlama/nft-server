@@ -52,6 +52,10 @@ const getTransfers = async (req, res) => {
 };
 
 const getNfts = async (req, res) => {
+  const address = req.params.address;
+  if (!checkCollection(address))
+    return res.status(400).json('invalid address!');
+
   const query = minify(`
 WITH owner AS(
     SELECT
@@ -73,8 +77,9 @@ WITH owner AS(
     FROM
         ethereum.nft_transfers
     WHERE
-        to_address = $<address>
-        OR from_address = $<address>
+        (to_address = $<address>
+        OR from_address = $<address>)
+        AND to_address NOT IN ($<marketplaces:csv>)
     GROUP BY
         collection,
         token_id
@@ -89,12 +94,12 @@ WHERE
     (bought_sum - sold_sum) > 0
   `);
 
-  const address = req.params.address;
-  if (!checkCollection(address))
-    return res.status(400).json('invalid address!');
-
   const response = await indexa.query(query, {
     address: `\\${address.slice(1)}`,
+    // remove rows with to_address in marketplace (eg foundation)
+    marketplaces: ['0xcDA72070E455bb31C7690a170224Ce43623d0B6f'].map(
+      (m) => `\\${m.slice(1)}`
+    ),
   });
 
   if (!response) {
