@@ -1,6 +1,6 @@
 const minify = require('pg-minify');
 
-const { checkCollection } = require('../../utils/checkAddress');
+const { checkCollection, checkNft } = require('../../utils/checkAddress');
 const { convertKeysToCamelCase } = require('../../utils/keyConversion');
 const { customHeaderFixedCache } = require('../../utils/customHeader');
 const { indexa } = require('../../utils/dbConnection');
@@ -156,8 +156,82 @@ FROM
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getERC1155Owners = async (req, res) => {
+  const nft = req.params.nft?.split(',');
+  if (nft?.map((nft) => checkNft(nft)).includes(false))
+    return res.status(400).json('invalid query params!');
+
+  const query = minify(`
+-- filter to the requested nft
+WITH token_transfers AS (
+    SELECT
+        from_address,
+        to_address,
+        amount
+    FROM
+        ethereum.nft_transfers
+    WHERE
+        collection = $<collection>
+        AND token_id = $<tokenId>
+),
+-- get the bought amount per user
+bought AS (
+    SELECT
+        to_address AS address,
+        sum(amount) AS bought_sum
+    FROM
+        token_transfers
+    GROUP BY
+        to_address
+),
+-- get the sell amount per user
+sold AS (
+    SELECT
+        from_address AS address,
+        sum(amount) AS sold_sum
+    FROM
+        token_transfers
+    GROUP BY
+        from_address
+),
+-- calculate net
+net AS (
+    SELECT
+        COALESCE(b.address, s.address) AS address,
+        COALESCE(bought_sum, 0) - COALESCE(sold_sum, 0) AS net_quantity
+    FROM
+        bought b
+        LEFT JOIN sold s ON b.address = s.address
+)
+SELECT
+    encode(address, 'hex') AS owner
+FROM
+    net
+WHERE
+    net_quantity >= 1
+    AND address != '\\x0000000000000000000000000000000000000000'
+  `);
+
+  const nft_ = nft[0].split(':');
+
+  const response = await indexa.query(query, {
+    collection: `\\${nft_[0].slice(1)}`,
+    tokenId: nft_[1],
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeaderFixedCache(300))
+    .status(200)
+    .json(response.map((i) => i.owner));
+};
+
 module.exports = {
   getTransfers,
   getNfts,
   getTokenStandard,
+  getERC1155Owners,
 };
