@@ -36,7 +36,7 @@ const parse = (decodedData, event, events) => {
 
       if (!transferEventNFT) return {};
 
-      collection = stripZerosLeft(`0x${transferEventNFT.contract_address}`);
+      collection = transferEventNFT.contract_address;
 
       if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
         tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
