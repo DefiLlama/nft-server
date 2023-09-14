@@ -11,9 +11,14 @@ const parse = (decodedData, event, events) => {
   if (eventType === 'acceptBidPH') {
     const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
     const collection = event.data.slice(64, 128).substring(24);
-    const price = BigInt(`0x${event.data.slice(192, 256)}`);
     const buyer = event.data.slice(256, 320).substring(24);
     const seller = event.data.slice(320, 384).substring(24);
+    const price = BigInt(`0x${event.data.slice(384, 448)}`);
+
+    // note, there are events (with the same topic_0) which dont' seem to be sales
+    // https://etherscan.io/tx/0x3d31ecfd6e9fe71a6922b1e80113f5132351392346526b7495b33c29d7b2766e
+    // defined by empty seller and empty price
+    if (seller === nullAddress.replace('0x', '')) return {};
 
     const salePrice = price.toString() / 1e18;
 
