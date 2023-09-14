@@ -21,6 +21,11 @@ const parse = (event) => {
   let toAddress;
   let amount;
   if (event.topic_0 === nftTransferEvents['erc721_Transfer']) {
+    // we encoded topic values from 32bytea into hex string in sql query.
+    // the topics have hex string character length of 64.
+    // the last 40characters (start 24) is the address
+    // note: topic3 is either the tokenId or the toAddress, depending if
+    // its an erc721 or erc1155
     fromAddress = event.topic_1.substring(24);
     toAddress = event.topic_2.substring(24);
     tokenId = BigInt(`0x${event.topic_3}`);
