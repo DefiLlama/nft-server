@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { getPrice } = require('../../utils/price');
@@ -22,7 +20,7 @@ const parse = async (decodedData, event) => {
     const prices = await getPrice(event, _currencyAddress, _amount);
 
     return {
-      collection: _originContract ?? stripZerosLeft(`0x${event.topic_1}`),
+      collection: _originContract ?? event.topic_1.substring(24),
       tokenId: _tokenId,
       amount: 1,
       salePrice: prices.price,

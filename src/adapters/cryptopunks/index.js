@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nullAddress } = require('../../utils/params');
@@ -14,7 +12,7 @@ const parse = (decodedData, event, events, interface) => {
 
   if (!transferEvent) return {};
 
-  const buyer = stripZerosLeft(`0x${transferEvent.topic_2}`);
+  const buyer = transferEvent.topic_2.substring(24);
 
   // tx input data contains sale price
   const txData = `0x${event.tx_data}`;

@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const getEventType = require('../../utils/eventType');
@@ -17,7 +15,7 @@ const parse = (decodedData, event, events) => {
   let royaltyFeeEth;
   let royaltyFeeUsd;
   if (royaltyEvent) {
-    royaltyRecipient = stripZerosLeft(`0x${royaltyEvent.topic_3}`);
+    royaltyRecipient = royaltyEvent.topic_3.substring(24);
     royaltyRaw = BigInt(`0x${royaltyEvent.data.slice(64)}`);
     royaltyFeeEth = royaltyRaw.toString() / 1e18;
     royaltyFeeUsd = royaltyFeeEth * event.price;
