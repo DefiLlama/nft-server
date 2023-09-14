@@ -13,5 +13,6 @@
       "saleEvent": true
     }
   ],
-  "version": "looksrare-v1"
+  "version": "looksrare-v1",
+  "blockStart": 13885625
 }

@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
@@ -120,14 +118,8 @@ const parse = (decodedData, event, events) => {
       orderType,
     } = decodedData;
 
-    seller =
-      orderType === 0n
-        ? trader
-        : stripZerosLeft(`0x${transferEventNFT.topic_1}`);
-    buyer =
-      orderType === 0n
-        ? stripZerosLeft(`0x${transferEventNFT.topic_2}`)
-        : trader;
+    seller = orderType === 0n ? trader : transferEventNFT.topic_1.substring(24);
+    buyer = orderType === 0n ? transferEventNFT.topic_2.substring(24) : trader;
 
     tokenId = id;
     salePrice = price.toString() / 1e18;
@@ -161,14 +153,8 @@ const parse = (decodedData, event, events) => {
     salePrice = ethSalePrice = price.toString() / 1e18;
     usdSalePrice = ethSalePrice * event.price;
     amount = 1;
-    seller =
-      orderType === 0n
-        ? trader
-        : stripZerosLeft(`0x${transferEventNFT.topic_1}`);
-    buyer =
-      orderType === 0n
-        ? stripZerosLeft(`0x${transferEventNFT.topic_2}`)
-        : trader;
+    seller = orderType === 0n ? trader : transferEventNFT.topic_1.substring(24);
+    buyer = orderType === 0n ? transferEventNFT.topic_2.substring(24) : trader;
 
     if (takerFeeRecipientRate || makerFeeRecipientRate) {
       const [rate, recipient] =

@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
@@ -48,15 +46,15 @@ const parse = (decodedData, event, events, interface, trace) => {
     if (salePrice === 1e-18) return {};
 
     if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
-      seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
-      buyer = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
+      seller = transferEventNFT.topic_1.substring(24);
+      buyer = transferEventNFT.topic_2.substring(24);
       tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
     } else if (
       transferEventNFT.topic_0 === nftTransferEvents['erc1155_TransferSingle']
     ) {
       tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
-      seller = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
-      buyer = stripZerosLeft(`0x${transferEventNFT.topic_3}`);
+      seller = transferEventNFT.topic_2.substring(24);
+      buyer = transferEventNFT.topic_3.substring(24);
     }
     if (seller === '0x') return {};
 
