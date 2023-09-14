@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nftTransferEvents, nullAddress } = require('../../utils/params');
@@ -12,10 +10,10 @@ const parse = (decodedData, event, events) => {
 
   if (eventType === 'acceptBidPH') {
     const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
-    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const collection = event.data.slice(64, 128).substring(24);
     const price = BigInt(`0x${event.data.slice(192, 256)}`);
-    const buyer = stripZerosLeft(`0x${event.data.slice(256, 320)}`);
-    const seller = stripZerosLeft(`0x${event.data.slice(320, 384)}`);
+    const buyer = event.data.slice(256, 320).substring(24);
+    const seller = event.data.slice(320, 384).substring(24);
 
     const salePrice = price.toString() / 1e18;
 
@@ -32,10 +30,10 @@ const parse = (decodedData, event, events) => {
     };
   } else if (eventType === 'purchasePH') {
     const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
-    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const collection = event.data.slice(64, 128).substring(24);
     const price = BigInt(`0x${event.data.slice(128, 192)}`);
-    const buyer = stripZerosLeft(`0x${event.data.slice(192, 256)}`);
-    const seller = stripZerosLeft(`0x${event.data.slice(256, 320)}`);
+    const buyer = event.data.slice(192, 256).substring(24);
+    const seller = event.data.slice(256, 320).substring(24);
 
     const salePrice = price.toString() / 1e18;
 
@@ -89,15 +87,15 @@ const parse = (decodedData, event, events) => {
     let buyer;
     let seller;
     if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
-      seller = stripZerosLeft(`0x${transferEventNFT.topic_1}`);
-      buyer = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
+      seller = transferEventNFT.topic_1.substring(24);
+      buyer = transferEventNFT.topic_2.substring(24);
       tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
     } else if (
       transferEventNFT.topic_0 === nftTransferEvents['erc1155_TransferSingle']
     ) {
       tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
-      seller = stripZerosLeft(`0x${transferEventNFT.topic_2}`);
-      buyer = stripZerosLeft(`0x${transferEventNFT.topic_3}`);
+      seller = transferEventNFT.topic_2.substring(24);
+      buyer = transferEventNFT.topic_3.substring(24);
     }
     const { priceInWei, payoutAmount } = decodedData;
 
@@ -176,7 +174,7 @@ const parse = (decodedData, event, events) => {
     };
   } else if (eventType === 'BidPH') {
     const tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
-    const collection = stripZerosLeft(`0x${event.data.slice(64, 128)}`);
+    const collection = event.data.slice(64, 128).substring(24);
     const amount = BigInt(`0x${event.data.slice(128, 192)}`);
 
     const price = amount.toString() / 1e18;
