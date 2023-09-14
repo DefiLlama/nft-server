@@ -1,7 +1,5 @@
-const { stripZerosLeft } = require('ethers');
-
 const { getEvents } = require('./queriesTransfers');
-const { nftTransferEvents, nullAddress } = require('../utils/params');
+const { nftTransferEvents } = require('../utils/params');
 
 const parseEvent = async (task, startBlock, endBlock) => {
   const events = await getEvents(task, startBlock, endBlock);
@@ -23,14 +21,14 @@ const parse = (event) => {
   let toAddress;
   let amount;
   if (event.topic_0 === nftTransferEvents['erc721_Transfer']) {
-    fromAddress = stripZerosLeft(`0x${event.topic_1}`);
-    toAddress = stripZerosLeft(`0x${event.topic_2}`);
+    fromAddress = event.topic_1.substring(24);
+    toAddress = event.topic_2.substring(24);
     tokenId = BigInt(`0x${event.topic_3}`);
     amount = 1;
   } else if (event.topic_0 === nftTransferEvents['erc1155_TransferSingle']) {
     tokenId = BigInt(`0x${event.data.slice(0, 64)}`);
-    fromAddress = stripZerosLeft(`0x${event.topic_2}`);
-    toAddress = stripZerosLeft(`0x${event.topic_3}`);
+    fromAddress = event.topic_2.substring(24);
+    toAddress = event.topic_3.substring(24);
     amount = BigInt(`0x${event.data.slice(64)}`);
   }
 
@@ -40,8 +38,8 @@ const parse = (event) => {
     ...rest,
     collection,
     tokenId,
-    fromAddress: fromAddress === '0x' ? nullAddress : fromAddress,
-    toAddress: toAddress === '0x' ? nullAddress : toAddress,
+    fromAddress,
+    toAddress,
     amount,
   };
 };
