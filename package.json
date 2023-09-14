@@ -12,7 +12,7 @@
     "start:monitor": "node src/jobs/indexMonitor",
     "start:sync_nft_transfers": "node src/adapters/indexTransfers",
     "start:sync_nft_creator": "node src/creator/index",
-    "start:backfill_transfers": "node src/adapters/backfill.js -e=transfers -m -b=17913155 -r=100 -s=937821"
+    "start:backfill_transfers": "node src/adapters/backfill.js -e=transfers -m -b=16919922 -r=100 -s=937821"
   },
   "author": "",
   "license": "ISC",

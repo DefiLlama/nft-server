@@ -154,11 +154,12 @@ remaining AS (
     SELECT
         *
     FROM
-        ethereum.transactions t
-        LEFT JOIN nfts n ON t.created_contract_address = n.collection
-        LEFT JOIN shared_or_factory s ON t.created_contract_address = s.collection
+        ethereum.traces t
+        LEFT JOIN nfts n ON t.address = n.collection
+        LEFT JOIN shared_or_factory s ON t.address = s.collection
     WHERE
-        n.collection IS NOT NULL
+        t.type = 'create'
+        AND n.collection IS NOT NULL
         AND s.collection IS NULL
 )
 SELECT
@@ -169,9 +170,9 @@ FROM
     shared_or_factory
 UNION
 SELECT
-    encode(created_contract_address, 'hex') AS collection,
+    encode(address, 'hex') AS collection,
     NULL AS token_id,
-    encode(from_address, 'hex') AS creator
+    encode(transaction_from_address, 'hex') AS creator
 FROM
     remaining
     `);
