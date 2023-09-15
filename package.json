@@ -11,8 +11,7 @@
     "start:jobs": "node src/jobs/index",
     "start:monitor": "node src/jobs/indexMonitor",
     "start:sync_nft_transfers": "node src/adapters/indexTransfers",
-    "start:sync_nft_creator": "node src/creator/index",
-    "start:backfill": "node src/adapters/backfill.js -e=trades -m=manifold-v1 -b=14476407 -s=13379640 -r=1000"
+    "start:sync_nft_creator": "node src/creator/index"
   },
   "author": "",
   "license": "ISC",

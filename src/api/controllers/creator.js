@@ -11,9 +11,12 @@ const getCreatedNfts = async (req, res) => {
   if (!checkCollection(creator))
     return res.status(400).json('invalid address!');
 
+  // note: rn we do not read factory info from nft_creator but directly
+  // from traces, meaning: in theory we could delete factory only based creator adapters
+
   const query = minify(`
--- first filter nft_creator to given creator address
-WITH creator_collections AS (
+-- shared contract collections
+WITH shared_collections AS (
     SELECT
         collection,
         token_id
@@ -21,60 +24,44 @@ WITH creator_collections AS (
         ethereum.nft_creator
     WHERE
         creator = $<creator>
+        AND token_id IS NOT NULL
 ),
--- filter further to factory collections
--- (identified by token_id = null; adapters don't have that info at creation)
-factory_collections AS (
-    SELECT
-        *
-    FROM
-        creator_collections
-    WHERE
-        token_id IS NULL
-),
--- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
-factory_collections_expanded AS (
-    SELECT
-        DISTINCT t.collection, t.token_id
-    FROM
-        ethereum.nft_transfers t
-    INNER JOIN factory_collections c ON t.collection = c.collection
-),
--- search for any potential remaining soveraign collections (direct contract creations)
--- note: switch to traces once index creation is done (will give even higher coverage in case we are
--- missing a factory)
+-- sovereign collections (direct and factory)
 sovereign_collections AS (
     SELECT
-        DISTINCT created_contract_address AS collection
+        address AS collection
     FROM
-        ethereum.transactions
+        ethereum.traces
     WHERE
-        from_address = $<creator>
-        AND created_contract_address IS NOT NULL
+        -- keep that order (order of the composite index)
+        TYPE = 'create'
+        AND transaction_from_address = $<creator>
 ),
 -- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
 sovereign_collections_expanded AS (
-SELECT
-    DISTINCT t.collection, t.token_id
-FROM
-    sovereign_collections s
-    INNER JOIN ethereum.nft_transfers t ON s.collection = t.collection
+    SELECT
+        DISTINCT s.collection,
+        t.token_id
+    FROM
+        ethereum.nft_transfers t
+        INNER JOIN sovereign_collections s ON t.collection = s.collection
+-- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
+    WHERE
+        s.collection IN (
+            SELECT
+                collection
+            FROM
+                ethereum.nft_transfers
+        )
 ),
--- combine all
+-- combine
 joined AS (
     SELECT
         *
     FROM
-        factory_collections_expanded
-    UNION ALL
-    SELECT
-        *
-    FROM
-        creator_collections
-    WHERE
-        -- this gives us shared collections, the other 2 contain the rest
-        token_id IS NOT NULL
-    UNION ALL
+        shared_collections
+    UNION
+    ALL
     SELECT
         *
     FROM
