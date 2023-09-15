@@ -108,6 +108,105 @@ const oneOfoneExchanges = [
   'rarible',
 ];
 
+const excludePriorLastEvent = {
+  foundation: {
+    prior: [
+      // OfferMade
+      '0x00ce0a712e4e277ac7b34942865f0de7a5629dffe0539b70423ad5ff1ed6ab42',
+    ],
+    end: [
+      // ReserveAuctionCanceled
+      '0x14b9c40404d5b41deb481f9a40b8aeb2bf4b47679b38cf757075a66ed510f7f1',
+      // BuyPriceCanceled
+      '0x70c7877531c04c7d9caa8a7eca127384f04e8a6ee58b63f778ce5401d8bcae41',
+    ],
+  },
+  superrare: {
+    prior: [
+      // OfferPlaced
+      '0xacbe96367816f728b84abf006ca777225b704072592132845e9a3dbd7b023691',
+      // CancelOffer
+      '0xb9a071fe7d38dc86fbc448d440311b6bd67e5e09de8b1b62c72f5fe344100453',
+      // Bid
+      '0x19421268847f42dd61705778018ddfc43bcdce8517e7a630acb12f122c709481',
+      // CancelBid
+      '0x09dcebe16a733e22cc47e4959c50d4f21624d9f1815db32c2e439fbbd7b3eda0',
+      // Bid
+      '0xd21fbaad97462831ad0c216f300fefb33a10b03bb18bb70ed668562e88d15d53',
+      // CancelBid
+      '0x99a3761c98d7a0c3980cbeb3d8009b315a463f8020b43ca1e6901611b06547f9',
+    ],
+    end: [
+      // CancelAuction
+      '0x26d4510b556e779d6507640413e013206e44c8f5d018c7c74ed8926f3f024a9c',
+    ],
+  },
+  makersplace: {
+    // prior: TokenBidCreatedEvent, TokenBidRemovedEvent (these are offers made/offers removed) unsure if to keep
+    prior: [],
+    // same for bidPH
+    end: [
+      // SaleCanceledEvent
+      '0xa50b2d6faf84e88de164f615bc8daa8477ab67f677d72aef3a3122d26c6eae28',
+    ],
+  },
+  zora: {
+    prior: [
+      // BidCreated
+      '0x327bc9021bfbee403a11b13dd6c819999006aff090cc129f07e9f2840af38dd5',
+      // BidRemoved
+      '0xcbebd567b8a5c57f63ec61dc46746aab28daff6bdd1f4a6a0a305c17fa5465c9',
+    ],
+    end: [
+      // AskCanceled
+      '0x871956abf85befb7c955eacd40fcabe7e01b1702d75764bf7f54bf481933fd35',
+      // AskRemoved
+      '0xbf58f6d6c7d7c6efc69e7444efa93ed26d7cdc0e82e12a37df96f36a367561df',
+      // AuctionCancelled
+      '0x6091afcbe8514686c43b167ca4f1b03e24446d29d8490d496e438f8a2c763439',
+    ],
+  },
+  knownorigin: {
+    prior: [
+      // unsure about: ConvertFromBuyNowToOffers, ReserveAuctionConvertedToOffers
+
+      // note: on knoworigin bids can be below the reserve price
+      // offers:
+      // TokenBidPlaced
+      '0xefb62db28a02134884fb028815b1bafb7dd0f1251e8a595ea94c3b4180f954de',
+      // TokenBidWithdrawn
+      '0xc8ba6fa570e0742f98985499c36c47fe428ca4547a07e7e2e6991cc11e4817cc',
+      // BidPlaced
+      '0x3d87e1d02e187b9fe1095bc12567b7485b6cf54c47eea3dc9b5fd64d03cb6750',
+      // BidWithdrawn
+      '0x5e9c7ae3229b2cda5065d7058fcc05765c695c29ce05313fbe96cb2ca639231a',
+      // BidRejected
+      '0x6d699e170cc72516120ba19fe48e744504798d1afc2ffb65ff1154a6f4fa4d15',
+    ],
+    end: [
+      // BuyNowDeListed
+      '0x782c030e02c4ea624a3fb427d8dd4f1023dd5f0d944aa3d14a715628e1e41c7b',
+      // TokenDeListed
+      '0x6caa49919a8c0059b871ec5c8b81a13a285b53cd92216d310fcdcf9c893e5a45',
+    ],
+  },
+  manifold: {
+    prior: [
+      // BidEvent (unsure)
+
+      // RescindOfferEvent
+      '0x3d13f7b5271fd88ba34bfa097c4b522a61f0cfeb1621d43bfae01034fa421e4f',
+      // OfferEvent
+      '0x73535bde202cd31a2fe12c1b9e7903a1b273e46e0dbc7d55dc586af898543701',
+    ],
+    end: [
+      // CancelListing
+      '0xe94376722784941abde69f1253384e4c041ea529a112b8378ad63f829124ad11',
+      '0x19ef8c897f0ad4be12bac96be8f4a3984059ae9566f02163b0e48cf00f9aa338',
+    ],
+  },
+};
+
 const getAvailable = async (req, res) => {
   const query = minify(`
 -- get most recent row per contract_address, event_id where collection is not null (this is what we use
@@ -226,14 +325,24 @@ WHERE
 
 const getAvailable2 = async (req, res) => {
   const query = minify(`
-  WITH most_recent_non_null AS (
+WITH history AS (
+    SELECT
+        *
+    FROM
+        ethereum.nft_history
+    WHERE
+        exchange_name != 'opensea'
+),
+-- fill collection, token_id based on event_id where necessary
+-- (eg some events such as auction bids on foundation do not include collection, token_id but an auction id)
+most_recent_non_null AS (
     SELECT
         DISTINCT ON (contract_address, event_id) contract_address,
         event_id,
         collection,
         token_id
     FROM
-        ethereum.nft_history
+        history
     WHERE
         collection IS NOT NULL
         AND token_id IS NOT NULL
@@ -248,12 +357,12 @@ collection_is_null AS (
     SELECT
         *
     FROM
-        ethereum.nft_history
+        history
     WHERE
         collection IS NULL
         AND token_id IS NULL
 ),
-nft_history_filled AS (
+history_filled AS (
     SELECT
         t.contract_address,
         t.event_id,
@@ -265,7 +374,8 @@ nft_history_filled AS (
         t.eth_price,
         t.user_address,
         t.transaction_hash,
-        t.exchange_name
+        t.exchange_name,
+        t.topic_0
     FROM
         collection_is_null t
         LEFT JOIN most_recent_non_null m ON t.contract_address = m.contract_address
@@ -283,63 +393,67 @@ nft_history_filled AS (
         eth_price,
         user_address,
         transaction_hash,
-        exchange_name
+        exchange_name,
+        topic_0
     FROM
-        ethereum.nft_history
+        history
     WHERE
         collection IS NOT NULL
         AND token_id IS NOT NULL
 ),
-available_only AS (
+-- get the last event (excludes anything in where NOT IN prior to distinct on)
+-- this is important cause rn we don't want the last eg offer,
+-- but the last reserve_price/buy_now_price/bid_price
+last_event AS (
     SELECT
-        encode(collection, 'hex') AS collection,
-        encode(token_id, 'escape') AS token_id,
-        encode(event_type, 'escape') AS event_type,
-        encode(user_address, 'hex') AS user_address,
-        eth_price,
-        block_number
+        DISTINCT ON (collection, token_id) *
     FROM
-        nft_history_filled h
+        history_filled
     WHERE
--- limiting output to auctions for now
-    event_type IN (
-  'ReserveAuctionCreated',
-  'ReserveAuctionUpdated',
-  'CreateLinearDutchAuction',
-  'NewAuction',
-  'ListedForReserveAuction',
-  'ReservePriceUpdated',
-  'AuctionCreated',
-  'AuctionReservePriceUpdated',
-  'CreateListing',
-  'CreateListingTokenDetails',
-  'ModifyListing'
-    )
-        AND NOT EXISTS (
-            SELECT
-                1
-            FROM
-                ethereum.nft_trades t
-            WHERE
-                exchange_name IN ($<oneOfoneExchanges:csv>)
-                AND t.collection = h.collection
-                AND t.token_id = h.token_id
-                AND t.block_number >= h.block_number
-        )
-        AND h.event_type NOT IN ($<exclude:csv>)
+        topic_0 NOT IN ($<excludePrior:csv>)
     ORDER BY
-        h.collection,
-        h.token_id,
-        h.block_number DESC
+        collection,
+        token_id,
+        block_number DESC,
+        log_index DESC
 )
 SELECT
-    *
+    encode(collection, 'hex') AS collection,
+    encode(token_id, 'escape') AS token_id,
+    encode(event_type, 'escape') AS event_type,
+    encode(user_address, 'hex') AS user_address,
+    eth_price,
+    block_number
 FROM
-    available_only
+    last_event l
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            ethereum.nft_trades t
+        WHERE
+            exchange_name IN ($<oneOfoneExchanges:csv>)
+            AND t.collection = l.collection
+            AND t.token_id = l.token_id
+            AND t.block_number >= l.block_number
+    )
+    -- finally, remove specific events (eg auction cancelled etc)
+    -- which are indicative that the nft is no longer available
+    -- note: important to apply this filter at the end. if we'd filter prior to
+    -- 'last_event' per nft we might wrongly assume that this nft is still available on the market
+    AND topic_0 NOT IN ($<excludeEnd:csv>)
 `);
 
-  let response = await indexa.query(query, {
-    exclude: [...new Set(Object.values(excludeEventType).flat())],
+  const response = await indexa.query(query, {
+    excludePrior: Object.values(excludePriorLastEvent)
+      .map((i) => i.prior)
+      .flat()
+      .map((c) => `\\${c.slice(1)}`),
+    excludeEnd: Object.values(excludePriorLastEvent)
+      .map((i) => i.end)
+      .flat()
+      .map((c) => `\\${c.slice(1)}`),
     oneOfoneExchanges,
   });
 
