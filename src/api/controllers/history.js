@@ -108,6 +108,10 @@ const oneOfoneExchanges = [
   'rarible',
 ];
 
+// generally:
+// - we wont track auction listings for makersplace (auctions are off chain and from bids we can't establish if auction has started or not)
+// - we wont track started auctions for known origin (bids can be under reserve price)
+// - opensea buy now/auctions are ignored
 const excludePriorLastEvent = {
   foundation: {
     prior: [
@@ -142,8 +146,13 @@ const excludePriorLastEvent = {
     ],
   },
   makersplace: {
-    // prior: TokenBidCreatedEvent, TokenBidRemovedEvent (these are offers made/offers removed) unsure if to keep
-    prior: [],
+    // note: makersplace auctions are off-chain, hence ignoring TokenBid related events.
+    prior: [
+      // TokenBidCreatedEvent
+      '0x9525a453a215f02f1c5afee7ab8628c140dfa606cd034605e34b8850f2f6ef20',
+      // TokenBidRemovedEvent
+      '0xf6b89ca1bccc679695ae3b928ee8c9335ecdfd739853cfe9e209a13e40cfacc0',
+    ],
     // same for bidPH
     end: [
       // SaleCanceledEvent
@@ -168,10 +177,14 @@ const excludePriorLastEvent = {
   },
   knownorigin: {
     prior: [
-      // unsure about: ConvertFromBuyNowToOffers, ReserveAuctionConvertedToOffers
-
-      // note: on knoworigin bids can be below the reserve price
-      // offers:
+      // --- auction related:
+      // on knoworigin bids can be below the reserve price (we won't track
+      // started auctions)
+      // BidPlacedOnReserveAuction
+      '0x0dacabc07ffe733bf314aba914422a6efa538ba8f6885bbd1ee3275c3b3f389d',
+      // BidWithdrawnFromReserveAuction
+      '0xd1d72c9a0832cf3726713b61a67a8f1656cc01385640d04f1155b000d1b7b751',
+      // --- offers:
       // TokenBidPlaced
       '0xefb62db28a02134884fb028815b1bafb7dd0f1251e8a595ea94c3b4180f954de',
       // TokenBidWithdrawn
@@ -188,12 +201,14 @@ const excludePriorLastEvent = {
       '0x782c030e02c4ea624a3fb427d8dd4f1023dd5f0d944aa3d14a715628e1e41c7b',
       // TokenDeListed
       '0x6caa49919a8c0059b871ec5c8b81a13a285b53cd92216d310fcdcf9c893e5a45',
+      // ConvertFromBuyNowToOffers
+      '0xc5cede647bcf791d83ff0ee63bb8ae1434f9795878081f8ad4b36ee1cb582aad',
+      //  ReserveAuctionConvertedToOffers
+      '0x5ad253cc2bfa6797b2f1b2a45aa1b0e961d3c6ff8090cc72122c1745d3e84101',
     ],
   },
   manifold: {
     prior: [
-      // BidEvent (unsure)
-
       // RescindOfferEvent
       '0x3d13f7b5271fd88ba34bfa097c4b522a61f0cfeb1621d43bfae01034fa421e4f',
       // OfferEvent
