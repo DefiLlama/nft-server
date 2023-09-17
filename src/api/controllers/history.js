@@ -213,6 +213,12 @@ const excludePriorLastEvent = {
       '0x3d13f7b5271fd88ba34bfa097c4b522a61f0cfeb1621d43bfae01034fa421e4f',
       // OfferEvent
       '0x73535bde202cd31a2fe12c1b9e7903a1b273e46e0dbc7d55dc586af898543701',
+      // CreateListingTokenDetails (manifold has both CreateListing and CreateListingTokenDetails;
+      // on listing creation both events are emitted, first CreateListing with all details except
+      // collection, token_id). we omit this event cause we fill CreateListing with missing info from
+      // CreateListingTokenDetails
+      '0xf560c51209e077c5824d9fa05788bec442ed7b4033815e855d0906c6a713a7f5',
+      '0xc43fa59bf811b406292f853c5888b214b0e868c12884ca93b4956648caa6938a',
     ],
     end: [
       // CancelListing
