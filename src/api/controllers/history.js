@@ -123,6 +123,14 @@ const excludePriorLastEvent = {
       '0x14b9c40404d5b41deb481f9a40b8aeb2bf4b47679b38cf757075a66ed510f7f1',
       // BuyPriceCanceled
       '0x70c7877531c04c7d9caa8a7eca127384f04e8a6ee58b63f778ce5401d8bcae41',
+      // BuyPriceInvalidated (eg for auction with buy now listing: when
+      // a bid comes in it starts the auction and emits a BuyPriceInvalidated)
+      // and the order is -> BuyPriceInvalidated -> ReserveAuctionBidPlaced, so
+      // the last event in history won't ever be BuyPriceInvalidated. However,
+      // in foundations case we want to read both reserve price and buy now price
+      // if available. hence we need to add BuyPriceInvalidated and remove any such events
+      // at the end
+      '0xaa6271d89a385571e237d3e7254ccc7c09f68055e6e9b410ed08233a8b9a05cf',
     ],
   },
   superrare: {
@@ -437,6 +445,37 @@ last_event AS (
         token_id,
         block_number DESC,
         log_index DESC
+),
+last_event_foundation_buy_now AS (
+  SELECT
+      DISTINCT ON (collection, token_id) *
+  FROM
+      history_filled
+  WHERE
+      exchange_name = 'foundation'
+      -- filter to 'buy now' related events only
+      AND event_type IN (
+          'BuyPriceSet',
+          'BuyPriceCanceled',
+          'BuyPriceInvalidated'
+      )
+  ORDER BY
+      collection,
+      token_id,
+      block_number DESC,
+      log_index DESC
+),
+-- union (remove dupes, if any)
+last_event_combined AS (
+  SELECT
+      *
+  FROM
+      last_event
+  UNION
+  SELECT
+      *
+  FROM
+      last_event_foundation_buy_now
 )
 SELECT
     encode(collection, 'hex') AS collection,
@@ -446,7 +485,7 @@ SELECT
     eth_price,
     block_number
 FROM
-    last_event l
+    last_event_combined l
 WHERE
     NOT EXISTS (
         SELECT
