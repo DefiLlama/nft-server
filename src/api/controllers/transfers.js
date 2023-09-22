@@ -87,6 +87,8 @@ FROM
     owner
 WHERE
     (bought_sum - sold_sum) > 0
+ORDER BY
+    block_time desc
   `);
 
   const address = req.params.address;
