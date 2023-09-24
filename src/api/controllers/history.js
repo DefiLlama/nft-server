@@ -221,100 +221,105 @@ const excludePriorLastEvent = {
   },
 };
 
-const getAvailable = async (req, res) => {
-  const query = minify(`
+const availableBase = `
 WITH history AS (
-    SELECT
-        *
-    FROM
-        ethereum.nft_history
-    WHERE
-        exchange_name != 'opensea'
+  SELECT
+      *
+  FROM
+      ethereum.nft_history
+  WHERE
+      exchange_name != 'opensea'
 ),
 -- fill collection, token_id based on event_id where necessary
 -- (eg some events such as auction bids on foundation do not include collection, token_id but an auction id)
 most_recent_non_null AS (
-    SELECT
-        DISTINCT ON (contract_address, event_id) contract_address,
-        event_id,
-        collection,
-        token_id
-    FROM
-        history
-    WHERE
-        collection IS NOT NULL
-        AND token_id IS NOT NULL
-        AND event_id IS NOT NULL
-    ORDER BY
-        contract_address,
-        event_id,
-        block_number DESC,
-        log_index DESC
+  SELECT
+      DISTINCT ON (contract_address, event_id) contract_address,
+      event_id,
+      collection,
+      token_id
+  FROM
+      history
+  WHERE
+      collection IS NOT NULL
+      AND token_id IS NOT NULL
+      AND event_id IS NOT NULL
+  ORDER BY
+      contract_address,
+      event_id,
+      block_number DESC,
+      log_index DESC
 ),
 collection_is_null AS (
-    SELECT
-        *
-    FROM
-        history
-    WHERE
-        collection IS NULL
-        AND token_id IS NULL
+  SELECT
+      *
+  FROM
+      history
+  WHERE
+      collection IS NULL
+      AND token_id IS NULL
 ),
 history_filled AS (
-    SELECT
-        t.contract_address,
-        t.event_id,
-        t.event_type,
-        t.block_number,
-        t.log_index,
-        COALESCE(t.collection, m.collection) AS collection,
-        COALESCE(t.token_id, m.token_id) AS token_id,
-        t.eth_price,
-        t.user_address,
-        t.transaction_hash,
-        t.exchange_name,
-        t.topic_0
-    FROM
-        collection_is_null t
-        LEFT JOIN most_recent_non_null m ON t.contract_address = m.contract_address
-        AND t.event_id = m.event_id
-    UNION
-    ALL
-    SELECT
-        contract_address,
-        event_id,
-        event_type,
-        block_number,
-        log_index,
-        collection,
-        token_id,
-        eth_price,
-        user_address,
-        transaction_hash,
-        exchange_name,
-        topic_0
-    FROM
-        history
-    WHERE
-        collection IS NOT NULL
-        AND token_id IS NOT NULL
+  SELECT
+      t.contract_address,
+      t.event_id,
+      t.event_type,
+      t.block_number,
+      t.log_index,
+      COALESCE(t.collection, m.collection) AS collection,
+      COALESCE(t.token_id, m.token_id) AS token_id,
+      t.eth_price,
+      t.user_address,
+      t.transaction_hash,
+      t.exchange_name,
+      t.topic_0
+  FROM
+      collection_is_null t
+      LEFT JOIN most_recent_non_null m ON t.contract_address = m.contract_address
+      AND t.event_id = m.event_id
+  UNION
+  ALL
+  SELECT
+      contract_address,
+      event_id,
+      event_type,
+      block_number,
+      log_index,
+      collection,
+      token_id,
+      eth_price,
+      user_address,
+      transaction_hash,
+      exchange_name,
+      topic_0
+  FROM
+      history
+  WHERE
+      collection IS NOT NULL
+      AND token_id IS NOT NULL
 ),
--- get the last event (excludes anything in where NOT IN prior to distinct on)
+-- get the last event (excludes anything in 'WHERE topic_0 NOT IN' prior to DISTINCT ON operation)
 -- this is important cause rn we don't want the last eg offer,
 -- but the last reserve_price/buy_now_price/bid_price
 last_event AS (
-    SELECT
-        DISTINCT ON (collection, token_id) *
-    FROM
-        history_filled
-    WHERE
-        topic_0 NOT IN ($<excludePrior:csv>)
-    ORDER BY
-        collection,
-        token_id,
-        block_number DESC,
-        log_index DESC
-),
+  SELECT
+      DISTINCT ON (collection, token_id) *
+  FROM
+      history_filled
+  WHERE
+      topic_0 NOT IN ($<excludePrior:csv>)
+  ORDER BY
+      collection,
+      token_id,
+      block_number DESC,
+      log_index DESC
+)
+`;
+
+const getAvailable = async (req, res) => {
+  const query =
+    availableBase +
+    `,
 last_event_foundation_buy_now AS (
   SELECT
       DISTINCT ON (collection, token_id) *
@@ -372,7 +377,7 @@ WHERE
     -- note: important to apply this filter at the end. if we'd filter prior to
     -- 'last_event' per nft we might wrongly assume that this nft is still available on the market
     AND topic_0 NOT IN ($<excludeEnd:csv>)
-`);
+`;
 
   const response = await indexa.query(query, {
     excludePrior: Object.values(excludePriorLastEvent)
@@ -405,7 +410,54 @@ WHERE
     );
 };
 
+const getAvailableSmol = async (req, res) => {
+  const query =
+    availableBase +
+    `
+-- almost the same as above, but we limit return to collection and token_id (which massivly reduces
+-- data transfer)
+SELECT
+    DISTINCT
+    encode(collection, 'hex') AS collection,
+    encode(token_id, 'escape') AS token_id
+FROM
+    last_event l
+WHERE
+    NOT EXISTS (
+        SELECT
+            1
+        FROM
+            ethereum.nft_trades t
+        WHERE
+            exchange_name IN ($<oneOfoneExchanges:csv>)
+            AND t.collection = l.collection
+            AND t.token_id = l.token_id
+            AND t.block_number >= l.block_number
+    )
+    AND topic_0 NOT IN ($<excludeEnd:csv>)
+`;
+
+  const response = await indexa.query(query, {
+    excludePrior: Object.values(excludePriorLastEvent)
+      .map((i) => i.prior)
+      .flat()
+      .map((c) => `\\${c.slice(1)}`),
+    excludeEnd: Object.values(excludePriorLastEvent)
+      .map((i) => i.end)
+      .flat()
+      .map((c) => `\\${c.slice(1)}`),
+    oneOfoneExchanges,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res.status(200).json(response.map((e) => [e.collection, e.token_id]));
+};
+
 module.exports = {
   getHistory,
   getAvailable,
+  getAvailableSmol,
 };
