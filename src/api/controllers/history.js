@@ -59,7 +59,8 @@ SELECT
 FROM
     combined
 ORDER BY
-    block_number DESC;
+    block_number DESC,
+    log_index DESC;
     `);
 
   const response = await indexa.query(query, {

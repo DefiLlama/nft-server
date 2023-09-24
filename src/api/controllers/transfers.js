@@ -34,6 +34,9 @@ const getTransfers = async (req, res) => {
         ? 'AND NOT EXISTS (SELECT 1 FROM ethereum.nft_trades AS trades WHERE trades.collection = $<collectionId> AND trades.token_id = $<tokenId> AND trades.transaction_hash = t.transaction_hash)'
         : ''
     }
+  ORDER BY
+    block_time DESC,
+    log_index DESC
     `);
 
   const response = await indexa.query(query, {

@@ -462,7 +462,8 @@ WHERE
 ORDER BY
     collection,
     token_id,
-    block_number DESC
+    block_number DESC,
+    log_index DESC
 LIMIT
     1
   `);
