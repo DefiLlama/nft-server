@@ -7,8 +7,13 @@ const parse = (decodedData, event) => {
     maker,
     taker,
     item,
+    intent,
     detail: { fees },
   } = decodedData;
+
+  // INTENT_SELL = 1;
+  // INTENT_AUCTION = 2;
+  // INTENT_BUY = 3;
 
   const salePrice = item[0].toString() / 1e18;
 
@@ -32,6 +37,9 @@ const parse = (decodedData, event) => {
     royaltyFeeUsd = royaltyFeeEth * event.price;
   }
 
+  const seller = intent === 3n ? taker : maker;
+  const buyer = intent === 3n ? maker : taker;
+
   return {
     collection,
     tokenId,
@@ -40,8 +48,8 @@ const parse = (decodedData, event) => {
     ethSalePrice: salePrice,
     usdSalePrice: salePrice * event.price,
     paymentToken: nullAddress,
-    seller: maker,
-    buyer: taker,
+    seller,
+    buyer,
     royaltyRecipient,
     royaltyFeeEth,
     royaltyFeeUsd,
