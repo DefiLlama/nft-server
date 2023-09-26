@@ -1,5 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
+const morgan = require('morgan');
 
 const trades = require('./routes/trades');
 const floor = require('./routes/floor');
@@ -9,9 +10,7 @@ const history = require('./routes/history');
 const creator = require('./routes/creator');
 
 const app = express();
-if (process.env.NODE_ENV === 'development') {
-  app.use(require('morgan')('dev'));
-}
+app.use(morgan('dev'));
 app.use(helmet());
 
 app.use('/', [trades, floor, orderbook, transfers, history, creator]);

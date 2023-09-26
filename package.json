@@ -24,10 +24,10 @@
     "express": "^4.18.2",
     "helmet": "^6.1.5",
     "lodash": "^4.17.21",
+    "morgan": "^1.10.0",
     "pg-promise": "^11.3.0"
   },
   "devDependencies": {
-    "morgan": "^1.10.0",
     "node-pg-migrate": "^6.2.2",
     "nodemon": "^2.0.22",
     "yargs": "^17.7.1"
