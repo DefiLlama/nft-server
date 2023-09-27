@@ -9,7 +9,7 @@ pgp.pg.types.setTypeParser(1700, parseFloat);
 
 const indexa = pgp({
   connectionString: process.env.DATABASE_URL_INDEXA,
-  max: 50,
+  max: 30,
   idleTimeoutMillis: 30000,
 });
 
