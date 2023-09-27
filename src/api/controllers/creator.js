@@ -116,7 +116,7 @@ const getCreators = async (req, res) => {
     .join(', ');
 
   const query = minify(`
-WITH shared_or_factory AS (
+WITH shared AS (
     SELECT
         collection,
         token_id,
@@ -128,34 +128,33 @@ WITH shared_or_factory AS (
             VALUES
                 ${values}
         )
-        OR (
-            collection IN ($<collections:csv>)
-            AND token_id IS NULL
-        )
 ),
 nfts(collection, token_id) AS (
     VALUES
         ${values}
 ),
--- any collections we do not directly track via adapters (eg missing factories as well as sovereign)
+-- for factory and sovereign collections we read creator from traces
+-- note: we could read most factory collection from nft_creator, but traces more complete + more accurate
+-- and most importantly, the query is significantly faster this way
 remaining AS (
     SELECT
         *
     FROM
         ethereum.traces t
         LEFT JOIN nfts n ON t.address = n.collection
-        LEFT JOIN shared_or_factory s ON t.address = s.collection
+        LEFT JOIN shared s ON t.address = s.collection
     WHERE
         t.type = 'create'
         AND n.collection IS NOT NULL
         AND s.collection IS NULL
+        AND t.address NOT IN ($<sharedCollections:csv>)
 )
 SELECT
     encode(collection, 'hex') AS collection,
     encode(token_id, 'escape') AS token_id,
     encode(creator, 'hex') AS creator
 FROM
-    shared_or_factory
+    shared
 UNION
 SELECT
     encode(address, 'hex') AS collection,
@@ -163,13 +162,10 @@ SELECT
     encode(transaction_from_address, 'hex') AS creator
 FROM
     remaining
-WHERE
-    address NOT IN ($<sharedCollections:csv>)
-    `);
+`);
 
   const response = await indexa.query(query, {
     values,
-    collections: nfts.map((nft) => `\\${nft.split(':')[0].slice(1)}`),
     sharedCollections: [
       '0x2963ba471e265e5f51cafafca78310fe87f8e6d1',
       '0x2a46f2ffd99e19a89476e2f62270e0a35bbf0756',
