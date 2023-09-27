@@ -479,7 +479,7 @@ LIMIT
     return new Error(`Couldn't get data`, 404);
   }
 
-  res.status(200).json(response);
+  res.set(customHeaderFixedCache(300)).status(200).json(response);
 };
 
 module.exports = {
