@@ -19,7 +19,8 @@ const getCreatedNfts = async (req, res) => {
 WITH shared_collections AS (
     SELECT
         collection,
-        token_id
+        token_id,
+        block_number
     FROM
         ethereum.nft_creator
     WHERE
@@ -40,8 +41,9 @@ sovereign_collections AS (
 -- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
 sovereign_collections_expanded AS (
     SELECT
-        DISTINCT s.collection,
-        t.token_id
+        s.collection,
+        t.token_id,
+        t.block_number
     FROM
         ethereum.nft_transfers t
         INNER JOIN sovereign_collections s ON t.collection = s.collection
@@ -66,6 +68,15 @@ joined AS (
         *
     FROM
         sovereign_collections_expanded
+),
+ranked AS (
+    SELECT
+        collection,
+        token_id,
+        block_number,
+        ROW_NUMBER() OVER(PARTITION BY collection, token_id ORDER BY block_number ASC) AS rn
+    FROM
+        joined
 )
 SELECT
     concat(
@@ -74,9 +85,11 @@ SELECT
         encode(token_id, 'escape')
     ) AS nft
 FROM
-    joined
+    ranked
+WHERE
+    rn = 1
 ORDER BY
-    nft
+    block_number DESC
 `);
 
   const response = await indexa.query(query, {
