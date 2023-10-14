@@ -161,6 +161,7 @@ const parse = (decodedData, event) => {
     return {
       collection,
       tokenId: _tokenId,
+      userAddress: event.from_address,
       eventType,
     };
   }
