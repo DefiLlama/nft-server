@@ -216,6 +216,7 @@ const parse = (decodedData, event, events) => {
     return {
       collection,
       tokenId: _editionId,
+      userAddress: event.from_address,
       eventType,
     };
   } else if (eventType === 'ReservePriceUpdated') {
