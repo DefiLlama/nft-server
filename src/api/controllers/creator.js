@@ -205,7 +205,7 @@ FROM
   }
 
   res
-    .set(customHeaderFixedCache(300))
+    .set(customHeaderFixedCache(86400))
     .status(200)
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
