@@ -13,5 +13,6 @@
       "saleEvent": true
     }
   ],
-  "version": "sudoswap-v2"
+  "version": "sudoswap-v2",
+  "blockStart": 17309203
 }
