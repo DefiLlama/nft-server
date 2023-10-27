@@ -1,5 +1,3 @@
-const { stripZerosLeft } = require('ethers');
-
 const abi = require('./abi.json');
 const config = require('./config.json');
 const { nullAddress } = require('../../utils/params');
@@ -28,8 +26,8 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
 
   const sudoTransfers = transfers.filter(
     (t) =>
-      uniqueFrom.includes(stripZerosLeft(`0x${t.topic_1}`).replace('0x', '')) ||
-      uniqueFrom.includes(stripZerosLeft(`0x${t.topic_2}`).replace('0x', ''))
+      uniqueFrom.includes(t.topic_1.substring(24)) ||
+      uniqueFrom.includes(t.topic_2.substring(24))
   );
 
   const nbPairFactoryIn = traces.filter(
@@ -75,8 +73,8 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
 
   // ignoring case of aggregators rn
   return sudoTransfers.map((e) => {
-    const seller = stripZerosLeft(`0x${e.topic_1}`);
-    const buyer = stripZerosLeft(`0x${e.topic_2}`);
+    const seller = e.topic_1.substring(24);
+    const buyer = e.topic_2.substring(24);
     const collection = e.contract_address;
     const tokenId = BigInt(`0x${e.topic_3}`);
 
@@ -87,8 +85,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     if (nbPairFactoryIn === 1) {
       salePrice = ethSalePrice = traceEthSumScaled / sudoTransfers.length;
     } else {
-      salePrice = ethSalePrice =
-        mapping[buyer.replace('0x', '')] ?? mapping[seller.replace('0x', '')];
+      salePrice = ethSalePrice = mapping[buyer] ?? mapping[seller];
     }
 
     usdSalePrice = ethSalePrice * event.price;

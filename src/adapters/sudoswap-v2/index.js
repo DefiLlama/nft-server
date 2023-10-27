@@ -30,9 +30,9 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
   // erc1155: topic_2 (from), topic_3 (to)
   const sudoTransfers = transfers.filter(
     (t) =>
-      uniqueFrom.includes(stripZerosLeft(`0x${t.topic_1}`).replace('0x', '')) ||
-      uniqueFrom.includes(stripZerosLeft(`0x${t.topic_2}`).replace('0x', '')) ||
-      uniqueFrom.includes(stripZerosLeft(`0x${t.topic_3}`).replace('0x', ''))
+      uniqueFrom.includes(t.topic_1.substring(24)) ||
+      uniqueFrom.includes(t.topic_2.substring(24)) ||
+      uniqueFrom.includes(t.topic_3.substring(24))
   );
 
   const nbPairFactoryIn = traces.filter(
@@ -86,12 +86,12 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     let seller;
     let buyer;
     if (e.topic_0 === nftTransferEvents['erc721_Transfer']) {
-      seller = stripZerosLeft(`0x${e.topic_1}`);
-      buyer = stripZerosLeft(`0x${e.topic_2}`);
+      seller = e.topic_1.substring(24);
+      buyer = e.topic_2.substring(24);
       tokenId = BigInt(`0x${e.topic_3}`);
     } else if (e.topic_0 === nftTransferEvents['erc1155_TransferSingle']) {
-      seller = stripZerosLeft(`0x${e.topic_2}`);
-      buyer = stripZerosLeft(`0x${e.topic_3}`);
+      seller = e.topic_2.substring(24);
+      buyer = e.topic_3.substring(24);
       tokenId = BigInt(`0x${e.data.slice(0, 64)}`);
     }
 
@@ -104,8 +104,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     if (nbPairFactoryIn === 1) {
       salePrice = ethSalePrice = traceEthSumScaled / sudoTransfers.length;
     } else {
-      salePrice = ethSalePrice =
-        mapping[buyer.replace('0x', '')] ?? mapping[seller.replace('0x', '')];
+      salePrice = ethSalePrice = mapping[buyer] ?? mapping[seller];
     }
 
     usdSalePrice = ethSalePrice * event.price;
