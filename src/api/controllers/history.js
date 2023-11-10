@@ -104,6 +104,7 @@ const excludePriorLastEvent = {
     prior: [
       // OfferMade
       '0x00ce0a712e4e277ac7b34942865f0de7a5629dffe0539b70423ad5ff1ed6ab42',
+      '0x70c7877531c04c7d9caa8a7eca127384f04e8a6ee58b63f778ce5401d8bcae41',
     ],
     end: [
       // ReserveAuctionCanceled
