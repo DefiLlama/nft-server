@@ -69,7 +69,7 @@ const parse = (decodedData, event, events, interface) => {
 
     return {
       eventType,
-      nftContract,
+      collection: nftContract,
       tokenId: nftId,
       amount: 1,
       ethPrice: price,
