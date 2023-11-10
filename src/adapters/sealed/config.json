@@ -1,0 +1,25 @@
+{
+  "exchangeName": "sealed",
+  "contracts": ["0x2cBe14b7F60Fbe6A323cBA7Db56f2D916C137F3C"],
+  "events": [
+    {
+      "name": "AuctionCancelled",
+      "signatureHash": "0xd88fab4b08bf76f15cf2d6e03e382acf1edd6790ab82967e406abac37db20288"
+    },
+    {
+      "name": "AuctionCreated",
+      "signatureHash": "0x8d23a5dfd11a91f2265cffdb358ef2106e197d9f5168852ec99ba53fb9052640"
+    },
+    {
+      "name": "AuctionSettled",
+      "signatureHash": "0x9adaa52fec28b7d59b397f9b44bed38628a3d39e2c03278b14e9be3f14c799ba",
+      "saleEvent": true
+    },
+    {
+      "name": "OrdersMatched",
+      "signatureHash": "0xd39db9ec1f20b9c7d4edf4d5702674c36fac678aee167775904bd363e5246b18",
+      "saleEvent": true
+    }
+  ],
+  "blockStart": 17902853
+}
