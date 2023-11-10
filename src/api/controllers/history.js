@@ -92,6 +92,7 @@ const oneOfoneExchanges = [
   'makersplace',
   'manifold',
   'rarible',
+  'sealed',
 ];
 
 // generally:
@@ -218,6 +219,13 @@ const excludePriorLastEvent = {
       // CancelListing
       '0xe94376722784941abde69f1253384e4c041ea529a112b8378ad63f829124ad11',
       '0x19ef8c897f0ad4be12bac96be8f4a3984059ae9566f02163b0e48cf00f9aa338',
+    ],
+  },
+  sealed: {
+    prior: [],
+    end: [
+      // AuctionCancelled
+      '0xd88fab4b08bf76f15cf2d6e03e382acf1edd6790ab82967e406abac37db20288',
     ],
   },
 };
