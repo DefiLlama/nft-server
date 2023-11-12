@@ -277,7 +277,7 @@ history_filled AS (
       t.contract_address,
       t.event_id,
       t.event_type,
-      t.block_number,
+      t.block_time,
       t.log_index,
       COALESCE(t.collection, m.collection) AS collection,
       COALESCE(t.token_id, m.token_id) AS token_id,
@@ -296,7 +296,7 @@ history_filled AS (
       contract_address,
       event_id,
       event_type,
-      block_number,
+      block_time,
       log_index,
       collection,
       token_id,
@@ -324,7 +324,7 @@ last_event AS (
   ORDER BY
       collection,
       token_id,
-      block_number DESC,
+      block_time DESC,
       log_index DESC
 )
 `;
@@ -349,7 +349,7 @@ last_event_foundation_buy_now AS (
   ORDER BY
       collection,
       token_id,
-      block_number DESC,
+      block_time DESC,
       log_index DESC
 ),
 -- union (remove dupes, if any)
@@ -370,7 +370,7 @@ SELECT
     encode(event_type, 'escape') AS event_type,
     encode(user_address, 'hex') AS user_address,
     eth_price,
-    block_number
+    block_time
 FROM
     last_event_combined l
 WHERE
@@ -383,7 +383,7 @@ WHERE
             exchange_name IN ($<oneOfoneExchanges:csv>)
             AND t.collection = l.collection
             AND t.token_id = l.token_id
-            AND t.block_number >= l.block_number
+            AND t.block_time >= l.block_time
     )
     -- finally, remove specific events (eg auction cancelled etc)
     -- which are indicative that the nft is no longer available
@@ -418,7 +418,7 @@ WHERE
         e.event_type,
         e.user_address,
         e.eth_price,
-        e.block_number,
+        e.block_time,
       ])
     );
 };
@@ -445,7 +445,7 @@ WHERE
             exchange_name IN ($<oneOfoneExchanges:csv>)
             AND t.collection = l.collection
             AND t.token_id = l.token_id
-            AND t.block_number >= l.block_number
+            AND t.block_time >= l.block_time
     )
     AND topic_0 NOT IN ($<excludeEnd:csv>)
 `;
