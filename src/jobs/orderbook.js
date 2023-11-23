@@ -2,7 +2,6 @@ const _ = require('lodash');
 const axios = require('axios');
 
 const sleep = require('../utils/sleep');
-const { getCollectionsQuery } = require('../api/controllers/floor');
 const { convertKeysToSnakeCase } = require('../utils/keyConversion');
 const { pgp, nft } = require('../utils/dbConnection');
 
@@ -78,7 +77,9 @@ const orders = async (collections, side, timestamp) => {
 };
 
 const job = async () => {
-  const collections = await nft.query(getCollectionsQuery);
+  const collections = await nft.query(
+    'SELECT * FROM mv_collections_floor_price'
+  );
 
   const exArtblocks = collections.filter(
     (c) => !artblocks.includes(c.collection_id.split(':')[0])
