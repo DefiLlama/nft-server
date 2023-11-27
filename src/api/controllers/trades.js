@@ -379,7 +379,7 @@ LIMIT
   res.set(customHeaderFixedCache(300)).status(200).json(response);
 };
 
-const getUserSaleHistory = async (req, res) => {
+const getUserSales = async (req, res) => {
   const user = req.params.user;
   if (!checkCollection(user)) return res.status(400).json('invalid address!');
 
@@ -418,5 +418,5 @@ module.exports = {
   getRoyaltyHistory,
   getRoyalty,
   getLastSalePrice,
-  getUserSaleHistory,
+  getUserSales,
 };

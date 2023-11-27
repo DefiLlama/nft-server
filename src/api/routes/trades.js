@@ -12,6 +12,6 @@ router.route('/royalties').get(trades.getRoyalties);
 router.route('/royalty/:collectionId').get(trades.getRoyalty);
 router.route('/royaltyHistory/:collectionId').get(trades.getRoyaltyHistory);
 router.route('/lastSalePrice/:nft').get(trades.getLastSalePrice);
-router.route('/sales/:user').get(trades.getUserSaleHistory);
+router.route('/userSales/:user').get(trades.getUserSales);
 
 module.exports = router;
