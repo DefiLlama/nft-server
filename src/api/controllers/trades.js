@@ -385,6 +385,7 @@ const getUserSales = async (req, res) => {
 
   const query = `
 SELECT
+  encode(transaction_hash, 'hex') AS transaction_hash,
   block_time,
   encode(collection, 'hex') AS collection,
   encode(token_id, 'escape') AS token_id,
