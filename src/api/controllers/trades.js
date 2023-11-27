@@ -379,6 +379,35 @@ LIMIT
   res.set(customHeaderFixedCache(300)).status(200).json(response);
 };
 
+const getUserSaleHistory = async (req, res) => {
+  const user = req.params.user;
+  if (!checkCollection(user)) return res.status(400).json('invalid address!');
+
+  const query = `
+SELECT
+  block_time,
+  encode(collection, 'hex') AS collection,
+  encode(token_id, 'escape') AS token_id,
+  eth_sale_price
+FROM
+  ethereum.nft_trades
+WHERE
+  seller = $<user>
+ORDER BY
+  block_number DESC,
+  log_index DESC`;
+
+  const response = await indexa.query(query, {
+    user: `\\${user.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res.set(customHeaderFixedCache(300)).status(200).json(response);
+};
+
 module.exports = {
   getSales,
   getStats,
@@ -389,4 +418,5 @@ module.exports = {
   getRoyaltyHistory,
   getRoyalty,
   getLastSalePrice,
+  getUserSaleHistory,
 };
