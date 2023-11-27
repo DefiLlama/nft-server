@@ -1,6 +1,27 @@
 const minify = require('pg-minify');
 
 const { pgp, indexa } = require('../utils/dbConnection');
+const { getMaxBlock } = require('../adapters/queries');
+const checkIfStale = require('../utils/stale');
+
+const BLOCK_RANGE = 1000;
+
+const getMinBlock = async () => {
+  const query = `
+SELECT
+  MIN(block_number)
+FROM
+  ethereum.nft_history
+  `;
+
+  const response = await indexa.query(query);
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  return response[0].min;
+};
 
 // get the last sale price of 1/1 nfts
 const getLastSalePrice = async (start, stop) => {
@@ -36,6 +57,7 @@ const getLastSalePrice = async (start, stop) => {
       block_number DESC,
       log_index DESC
       `);
+
   const response = await indexa.query(query, { start, stop });
 
   if (!response) {
@@ -264,37 +286,78 @@ const upsertDeleteTx = async (lastSale, burned) => {
     });
 };
 
-(async () => {
-  // test
-  const start = 18660062;
-  const stop = 18662462;
-
-  const [lastSalePrice, burned] = await Promise.all([
-    getLastSalePrice(start, stop),
-    getBurned(start, stop),
-  ]);
-
-  const nfts = lastSalePrice.map((i) => `0x${i.collection}:${i.token_id}`);
-  const creators = await getCreator(nfts);
-
-  // format
-  const lastSale = lastSalePrice.map((i) => {
-    const creator =
-      // shared
-      creators[`${i.collection}:${i.token_id}`.toLowerCase()] ??
-      // factories/sovereign (will have token_id == null)
-      creators[`${i.collection}:null`.toLowerCase()];
-
-    return {
-      ...i,
-      creator_address: creator,
-    };
+const sync = async () => {
+  let [blockTrades, blockAggregation] = await indexa.task(async (t) => {
+    return await Promise.all(
+      ['nft_trades', 'nft_aggregation'].map((table) =>
+        getMaxBlock(t, `ethereum.${table}`)
+      )
+    );
   });
 
-  const payloadSale = lastSale.map((i) => castTypesSalePrice(i));
-  const payloadBurned = burned.map((i) => castTypesBurned(i));
+  let blockLastSynced = blockAggregation ?? (await getMinBlock()) - 1;
 
-  await upsertDeleteTx(payloadSale, payloadBurned);
+  console.log(
+    `syncing nft_aggregation, ${
+      blockTrades - blockLastSynced
+    } block(s) behind nft_trades\n`
+  );
 
-  process.exit();
-})();
+  let stale = checkIfStale(blockTrades, blockLastSynced);
+
+  while (stale) {
+    let startBlock = blockLastSynced + 1;
+    let endBlock = Math.min(startBlock + BLOCK_RANGE, blockTrades);
+
+    console.log(
+      `syncing blocks: ${startBlock}-${stale ? endBlock : blockTrades}`
+    );
+
+    const [lastSalePrice, burned] = await Promise.all([
+      getLastSalePrice(startBlock, endBlock),
+      getBurned(startBlock, endBlock),
+    ]);
+
+    let response;
+    if (lastSalePrice.length) {
+      const nfts = lastSalePrice.map((i) => `0x${i.collection}:${i.token_id}`);
+      const creators = await getCreator(nfts);
+
+      // format
+      const lastSale = lastSalePrice.map((i) => {
+        const creator =
+          // shared
+          creators[`${i.collection}:${i.token_id}`.toLowerCase()] ??
+          // factories/sovereign (will have token_id == null)
+          creators[`${i.collection}:null`.toLowerCase()];
+
+        return {
+          ...i,
+          creator_address: creator,
+        };
+      });
+
+      const payloadSale = lastSale.map((i) => castTypesSalePrice(i));
+      const payloadBurned = burned.map((i) => castTypesBurned(i));
+
+      response = await upsertDeleteTx(payloadSale, payloadBurned);
+      countSales = response.data[0].rowCount;
+      countBurned = response.data[1].rowCount;
+
+      console.log(`upserted: ${countSales}, deleted: ${countBurned}`);
+    }
+
+    blockLastSynced = endBlock;
+    stale = checkIfStale(blockTrades, endBlock);
+  }
+};
+
+const exe = async () => {
+  while (true) {
+    await sync();
+    console.log('pausing exe');
+    await new Promise((resolve) => setTimeout(resolve, 15 * 1e3));
+  }
+};
+
+exe();
