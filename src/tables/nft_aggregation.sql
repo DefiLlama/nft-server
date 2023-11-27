@@ -1,15 +1,14 @@
 CREATE TABLE IF NOT EXISTS ethereum.nft_aggregation (
     collection bytea,
     token_id bytea,
+    transaction_hash bytea,
     block_time timestamp,
     block_number numeric,
-    event_type bytea,
+    log_index numeric,
     exchange_name bytea,
-    last_sale_price numeric,
-    last_bid_price numeric,
-    buy_now_price numeric,
-    creator_address bytea,
+    eth_sale_price numeric,
     owner_address bytea,
+    creator_address bytea,
     PRIMARY KEY (collection, token_id)
 );
 
