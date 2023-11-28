@@ -4,7 +4,7 @@ const { pgp, indexa } = require('../utils/dbConnection');
 const { getMaxBlock } = require('../adapters/queries');
 const checkIfStale = require('../utils/stale');
 
-const BLOCK_RANGE = 1000;
+const BLOCK_RANGE = 7200;
 
 const getMinBlock = async () => {
   const query = `
@@ -42,14 +42,17 @@ const getLastSalePrice = async (start, stop) => {
       block_number >= $<start>
       AND block_number <= $<stop>
       -- filter to 1/1 nfts only
-      AND EXISTS (
-          SELECT
-              1
-          FROM
-              ethereum.nft_history h
-          WHERE
-              h.collection = t.collection
-              AND h.token_id = t.token_id
+      AND (
+          EXISTS (
+              SELECT
+                  1
+              FROM
+                  ethereum.nft_history h
+              WHERE
+                  h.collection = t.collection
+                  AND h.token_id = t.token_id
+          )
+          OR t.exchange_name IN ($<oneOfoneExchanges:csv>)
       )
   ORDER BY
       collection,
@@ -58,7 +61,22 @@ const getLastSalePrice = async (start, stop) => {
       log_index DESC
       `);
 
-  const response = await indexa.query(query, { start, stop });
+  const oneOfoneExchanges = [
+    'foundation',
+    'superrare',
+    'zora',
+    'knownorigin',
+    'makersplace',
+    'manifold',
+    'rarible',
+    'sealed',
+  ];
+
+  const response = await indexa.query(query, {
+    start,
+    stop,
+    oneOfoneExchanges,
+  });
 
   if (!response) {
     return new Error(`Couldn't get data`, 404);
@@ -325,7 +343,6 @@ const sync = async () => {
       getBurned(startBlock, endBlock),
     ]);
 
-    let response;
     if (lastSalePrice.length) {
       const nfts = lastSalePrice.map((i) => `0x${i.collection}:${i.token_id}`);
       const creators = await getCreator(nfts);
