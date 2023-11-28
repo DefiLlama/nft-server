@@ -56,7 +56,7 @@ const parse = async (decodedData, event, events) => {
     seller = transferEventNFT.topic_1.substring(24);
     buyer = transferEventNFT.topic_2.substring(24);
     tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
-    _price = (sellValue * amount) / sellValue;
+    _price = sellValue > buyValue ? sellValue : buyValue;
     _amount = 1;
   } else if (
     transferEventNFT.topic_0 === nftTransferEvents['erc1155_TransferSingle']
