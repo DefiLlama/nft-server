@@ -81,17 +81,28 @@ WITH owner AS(
     GROUP BY
         collection,
         token_id
+),
+final AS (
+    SELECT
+        collection,
+        token_id,
+        block_time
+    FROM
+        owner
+    WHERE
+        (bought_sum - sold_sum) > 0
+    ORDER BY
+        block_time DESC
 )
 SELECT
-    encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id,
-    block_time
+    encode(f.collection, 'hex') AS collection,
+    encode(f.token_id, 'escape') AS token_id,
+    f.block_time,
+    a.eth_sale_price
 FROM
-    owner
-WHERE
-    (bought_sum - sold_sum) > 0
-ORDER BY
-    block_time desc
+    final f
+    LEFT JOIN ethereum.nft_aggregation a ON f.collection = a.collection
+    AND f.token_id = a.token_id
   `);
 
   const address = req.params.address;

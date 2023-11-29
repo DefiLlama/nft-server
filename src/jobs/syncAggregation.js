@@ -4,7 +4,7 @@ const { pgp, indexa } = require('../utils/dbConnection');
 const { getMaxBlock } = require('../adapters/queries');
 const checkIfStale = require('../utils/stale');
 
-const BLOCK_RANGE = 7200;
+const BLOCK_RANGE = 1000;
 
 const getMinBlock = async () => {
   const query = `
@@ -96,15 +96,6 @@ FROM
 WHERE
     block_number >= $<start>
     AND block_number <= $<stop>
-    AND EXISTS (
-        SELECT
-            1
-        FROM
-            ethereum.nft_history h
-        WHERE
-            h.collection = t.collection
-            AND h.token_id = t.token_id
-    )
     AND to_address = '\\x0000000000000000000000000000000000000000'
     `);
 
@@ -338,9 +329,13 @@ const sync = async () => {
     let startBlock = blockLastSynced + 1;
     let endBlock = Math.min(startBlock + BLOCK_RANGE, blockTrades);
 
-    const [lastSalePrice, burned] = await Promise.all([
+    // const [lastSalePrice, burned] = await Promise.all([
+    //   getLastSalePrice(startBlock, endBlock),
+    //   getBurned(startBlock, endBlock),
+    // ]);
+
+    const [lastSalePrice] = await Promise.all([
       getLastSalePrice(startBlock, endBlock),
-      getBurned(startBlock, endBlock),
     ]);
 
     if (lastSalePrice.length) {
@@ -362,7 +357,9 @@ const sync = async () => {
       });
 
       const payloadSale = lastSale.map((i) => castTypesSalePrice(i));
-      const payloadBurned = burned.map((i) => castTypesBurned(i));
+
+      // const payloadBurned = burned.map((i) => castTypesBurned(i));
+      const payloadBurned = [];
 
       let countSales = 0;
       let countBurned = 0;
