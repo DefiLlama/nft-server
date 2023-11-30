@@ -216,8 +216,153 @@ const getCreators = async (req, res) => {
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getCreatedNftsTest = async (req, res) => {
+  const creator = req.params.creator;
+  if (!checkCollection(creator))
+    return res.status(400).json('invalid address!');
+
+  const query = minify(`
+    WITH shared_collections AS (
+        SELECT
+            collection,
+            token_id,
+            block_number
+        FROM
+            ethereum.nft_creator
+        WHERE
+            creator = $<creator>
+            AND token_id IS NOT NULL
+    ),
+    shared_collections_expanded AS (
+        SELECT
+            s.collection,
+            t.token_id,
+            t.block_number,
+            t.to_address
+        FROM
+            ethereum.nft_transfers t
+            INNER JOIN shared_collections s ON t.collection = s.collection
+            AND t.token_id = s.token_id -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
+        WHERE
+            s.collection IN (
+                SELECT
+                    collection
+                FROM
+                    ethereum.nft_transfers
+            )
+    ),
+    -- sovereign collections (direct and factory)
+    sovereign_collections AS (
+        SELECT
+            address AS collection
+        FROM
+            ethereum.traces
+        WHERE
+            -- keep that order (order of the composite index)
+            TYPE = 'create'
+            AND transaction_from_address = $<creator>
+    ),
+    -- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
+    sovereign_collections_expanded AS (
+        SELECT
+            s.collection,
+            t.token_id,
+            t.block_number,
+            t.to_address
+        FROM
+            ethereum.nft_transfers t
+            INNER JOIN sovereign_collections s ON t.collection = s.collection -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
+        WHERE
+            s.collection IN (
+                SELECT
+                    collection
+                FROM
+                    ethereum.nft_transfers
+            )
+    ),
+    -- combine
+    joined AS (
+        SELECT
+            *
+        FROM
+            shared_collections_expanded
+        UNION
+        ALL
+        SELECT
+            *
+        FROM
+            sovereign_collections_expanded
+    ),
+    burned_nfts AS (
+        SELECT
+            DISTINCT collection,
+            token_id
+        FROM
+            joined
+        WHERE
+            to_address = '\\x0000000000000000000000000000000000000000'
+    ),
+    excluding_burned AS (
+        SELECT
+            *
+        FROM
+            joined j
+        WHERE
+            NOT EXISTS (
+                SELECT
+                    1
+                FROM
+                    burned_nfts b
+                WHERE
+                    j.collection = b.collection
+                    AND j.token_id = b.token_id
+            )
+    ),
+    ranked AS (
+        SELECT
+            collection,
+            token_id,
+            block_number,
+            ROW_NUMBER() OVER(
+                PARTITION BY collection,
+                token_id
+                ORDER BY
+                    block_number ASC
+            ) AS rn
+        FROM
+            excluding_burned
+    )
+    SELECT
+        concat(
+            encode(r.collection, 'hex'),
+            ':',
+            encode(r.token_id, 'escape')
+        ) AS nft,
+        a.eth_sale_price
+    FROM
+        ranked r
+        LEFT JOIN ethereum.nft_aggregation a ON r.collection = a.collection
+        AND r.token_id = a.token_id
+    WHERE
+        rn = 1
+    ORDER BY
+        r.block_number DESC
+    `);
+
+  const response = await indexa.query(query, {
+    creator: `\\${creator.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res.set(customHeaderFixedCache(300)).status(200).json(response);
+};
+
 module.exports = {
   getCreatedNfts,
   getCreators,
   getCreatorsQuery,
+  getCreatedNftsTest,
 };
