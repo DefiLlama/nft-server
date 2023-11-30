@@ -106,12 +106,7 @@ ORDER BY
     .json(response.map((i) => i.nft));
 };
 
-// get creators of a set of nfts
-const getCreators = async (req, res) => {
-  const nfts = req.params.nfts?.split(',');
-  if (nfts.map((nft) => checkNft(nft)).includes(false))
-    return res.status(400).json('invalid query params!');
-
+const getCreatorsQuery = async (nfts) => {
   // note:
   // using collection IN and token_id IN separately would return all possible combinations
   // instead of the request specific ones only. for that we use IN (VALUES ((c1, t1), (c2, t2)...,(cN, tN)))
@@ -129,53 +124,53 @@ const getCreators = async (req, res) => {
     .join(', ');
 
   const query = minify(`
-WITH shared AS (
-    SELECT
-        collection,
-        token_id,
-        creator
-    FROM
-        ethereum.nft_creator
-    WHERE
-        (collection, token_id) IN (
-            VALUES
-                ${values}
-        )
-),
-nfts(collection, token_id) AS (
-    VALUES
-        ${values}
-),
--- for factory and sovereign collections we read creator from traces
--- note: we could read most factory collection from nft_creator, but traces more complete + more accurate
--- and most importantly, the query is significantly faster this way
-remaining AS (
-    SELECT
-        *
-    FROM
-        ethereum.traces t
-        LEFT JOIN nfts n ON t.address = n.collection
-        LEFT JOIN shared s ON t.address = s.collection
-    WHERE
-        t.type = 'create'
-        AND n.collection IS NOT NULL
-        AND s.collection IS NULL
-        AND t.address NOT IN ($<sharedCollections:csv>)
-)
-SELECT
-    encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id,
-    encode(creator, 'hex') AS creator
-FROM
-    shared
-UNION
-SELECT
-    encode(address, 'hex') AS collection,
-    NULL AS token_id,
-    encode(transaction_from_address, 'hex') AS creator
-FROM
-    remaining
-`);
+  WITH shared AS (
+      SELECT
+          collection,
+          token_id,
+          creator
+      FROM
+          ethereum.nft_creator
+      WHERE
+          (collection, token_id) IN (
+              VALUES
+                  ${values}
+          )
+  ),
+  nfts(collection, token_id) AS (
+      VALUES
+          ${values}
+  ),
+  -- for factory and sovereign collections we read creator from traces
+  -- note: we could read most factory collection from nft_creator, but traces more complete + more accurate
+  -- and most importantly, the query is significantly faster this way
+  remaining AS (
+      SELECT
+          *
+      FROM
+          ethereum.traces t
+          LEFT JOIN nfts n ON t.address = n.collection
+          LEFT JOIN shared s ON t.address = s.collection
+      WHERE
+          t.type = 'create'
+          AND n.collection IS NOT NULL
+          AND s.collection IS NULL
+          AND t.address NOT IN ($<sharedCollections:csv>)
+  )
+  SELECT
+      encode(collection, 'hex') AS collection,
+      encode(token_id, 'escape') AS token_id,
+      encode(creator, 'hex') AS creator
+  FROM
+      shared
+  UNION
+  SELECT
+      encode(address, 'hex') AS collection,
+      NULL AS token_id,
+      encode(transaction_from_address, 'hex') AS creator
+  FROM
+      remaining
+  `);
 
   const response = await indexa.query(query, {
     values,
@@ -204,6 +199,17 @@ FROM
     return new Error(`Couldn't get data`, 404);
   }
 
+  return response;
+};
+
+// get creators of a set of nfts
+const getCreators = async (req, res) => {
+  const nfts = req.params.nfts?.split(',');
+  if (nfts.map((nft) => checkNft(nft)).includes(false))
+    return res.status(400).json('invalid query params!');
+
+  const response = await getCreatorsQuery(nfts);
+
   res
     .set(customHeaderFixedCache(86400))
     .status(200)
@@ -213,4 +219,5 @@ FROM
 module.exports = {
   getCreatedNfts,
   getCreators,
+  getCreatorsQuery,
 };
