@@ -233,24 +233,6 @@ const getCreatedNftsTest = async (req, res) => {
             creator = $<creator>
             AND token_id IS NOT NULL
     ),
-    shared_collections_expanded AS (
-        SELECT
-            s.collection,
-            t.token_id,
-            t.block_number,
-            t.to_address
-        FROM
-            ethereum.nft_transfers t
-            INNER JOIN shared_collections s ON t.collection = s.collection
-            AND t.token_id = s.token_id -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
-        WHERE
-            s.collection IN (
-                SELECT
-                    collection
-                FROM
-                    ethereum.nft_transfers
-            )
-    ),
     -- sovereign collections (direct and factory)
     sovereign_collections AS (
         SELECT
@@ -267,11 +249,11 @@ const getCreatedNftsTest = async (req, res) => {
         SELECT
             s.collection,
             t.token_id,
-            t.block_number,
-            t.to_address
+            t.block_number
         FROM
             ethereum.nft_transfers t
-            INNER JOIN sovereign_collections s ON t.collection = s.collection -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
+            INNER JOIN sovereign_collections s ON t.collection = s.collection 
+            -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
         WHERE
             s.collection IN (
                 SELECT
@@ -285,38 +267,13 @@ const getCreatedNftsTest = async (req, res) => {
         SELECT
             *
         FROM
-            shared_collections_expanded
+            shared_collections
         UNION
         ALL
         SELECT
             *
         FROM
             sovereign_collections_expanded
-    ),
-    burned_nfts AS (
-        SELECT
-            DISTINCT collection,
-            token_id
-        FROM
-            joined
-        WHERE
-            to_address = '\\x0000000000000000000000000000000000000000'
-    ),
-    excluding_burned AS (
-        SELECT
-            *
-        FROM
-            joined j
-        WHERE
-            NOT EXISTS (
-                SELECT
-                    1
-                FROM
-                    burned_nfts b
-                WHERE
-                    j.collection = b.collection
-                    AND j.token_id = b.token_id
-            )
     ),
     ranked AS (
         SELECT
@@ -330,7 +287,7 @@ const getCreatedNftsTest = async (req, res) => {
                     block_number ASC
             ) AS rn
         FROM
-            excluding_burned
+            joined
     )
     SELECT
         concat(
