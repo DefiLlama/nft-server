@@ -275,6 +275,23 @@ const getCreatedNftsTest = async (req, res) => {
         FROM
             sovereign_collections_expanded
     ),
+    -- excluding burned
+    ex_burned AS (
+        SELECT
+            *
+        FROM
+            joined j
+        WHERE
+            NOT EXISTS (
+                SELECT
+                    1
+                FROM
+                    ethereum.nft_burned b
+                WHERE
+                    j.collection = b.collection
+                    AND j.token_id = b.token_id
+            )
+    ),
     ranked AS (
         SELECT
             collection,
@@ -287,7 +304,7 @@ const getCreatedNftsTest = async (req, res) => {
                     block_number ASC
             ) AS rn
         FROM
-            joined
+            ex_burned
     )
     SELECT
         concat(
