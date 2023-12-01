@@ -87,29 +87,6 @@ const getLastSalePrice = async (start, stop) => {
   return response;
 };
 
-// get burned 1/1 nfts
-const getBurned = async (start, stop) => {
-  const query = minify(`
-SELECT
-    encode(collection, 'hex') as collection,
-    encode(token_id, 'escape') as token_id
-FROM
-    ethereum.nft_transfers t
-WHERE
-    block_number >= $<start>
-    AND block_number <= $<stop>
-    AND to_address = '\\x0000000000000000000000000000000000000000'
-    `);
-
-  const response = await indexa.query(query, { start, stop });
-
-  if (!response) {
-    return new Error(`Couldn't get data`, 404);
-  }
-
-  return response;
-};
-
 const getCreator = async (nfts) => {
   const response = await getCreatorsQuery(nfts);
 
@@ -142,14 +119,7 @@ const castTypesSalePrice = (e) => {
   };
 };
 
-const castTypesBurned = (e) => {
-  return {
-    collection: Buffer.from(e.collection.replace('0x', ''), 'hex'),
-    token_id: Buffer.from(e.token_id.toString()),
-  };
-};
-
-const buildUpsertQuery = (lastSale) => {
+const upsert = async (lastSale) => {
   const columns = [
     'collection',
     'token_id',
@@ -169,7 +139,7 @@ const buildUpsertQuery = (lastSale) => {
       table: 'nft_aggregation',
     }),
   });
-  const upsertQuery =
+  const query =
     pgp.helpers.insert(lastSale, cs) +
     ' ON CONFLICT (collection, token_id) DO UPDATE SET ' +
     cs.assignColumns({
@@ -177,45 +147,9 @@ const buildUpsertQuery = (lastSale) => {
       skip: ['collection', 'token_id', 'creator_address'], // these stay constant
     });
 
-  return upsertQuery;
-};
+  const response = await indexa.result(query);
 
-const buildDeleteQuery = (burned) => {
-  const deleteQuery = pgp.as.format(
-    'DELETE FROM ethereum.nft_aggregation WHERE (collection, token_id) IN ($<burnedNfts:raw>)',
-    { burnedNfts: pgp.helpers.values(burned, ['collection', 'token_id']) }
-  );
-
-  return deleteQuery;
-};
-
-const upsertDeleteTx = async (payloadSale, payloadBurned) => {
-  const upsertQuery = buildUpsertQuery(payloadSale);
-  const deleteQuery = buildDeleteQuery(payloadBurned);
-
-  return indexa
-    .tx(async (t) => {
-      // sequence of queries:
-      // 1. upsert last sale price
-      const q1 = await t.result(upsertQuery);
-
-      // 2. delete burned nfts
-      const q2 = await t.result(deleteQuery);
-
-      return [q1, q2];
-    })
-    .then((response) => {
-      // success, COMMIT was executed
-      return {
-        status: 'success',
-        data: response,
-      };
-    })
-    .catch((err) => {
-      // failure, ROLLBACK was executed
-      console.log(err);
-      return new Error('Transaction failed, rolling back', 404);
-    });
+  return response;
 };
 
 const sync = async () => {
@@ -241,14 +175,7 @@ const sync = async () => {
     let startBlock = blockLastSynced + 1;
     let endBlock = Math.min(startBlock + BLOCK_RANGE, blockTrades);
 
-    // const [lastSalePrice, burned] = await Promise.all([
-    //   getLastSalePrice(startBlock, endBlock),
-    //   getBurned(startBlock, endBlock),
-    // ]);
-
-    const [lastSalePrice] = await Promise.all([
-      getLastSalePrice(startBlock, endBlock),
-    ]);
+    const lastSalePrice = await getLastSalePrice(startBlock, endBlock);
 
     if (lastSalePrice.length) {
       const nfts = lastSalePrice.map((i) => `0x${i.collection}:${i.token_id}`);
@@ -268,38 +195,17 @@ const sync = async () => {
         };
       });
 
-      const payloadSale = lastSale.map((i) => castTypesSalePrice(i));
+      if (lastSale.length) {
+        const payloadSale = lastSale.map((i) => castTypesSalePrice(i));
+        const response = await upsert(payloadSale);
+        const count = response?.rowCount ?? 0;
 
-      // const payloadBurned = burned.map((i) => castTypesBurned(i));
-
-      let countSales = 0;
-      let countBurned = 0;
-      let response;
-      // if (payloadSale.length && payloadBurned.length) {
-      //   response = await upsertDeleteTx(payloadSale, payloadBurned);
-      //   countSales = response.data[0].rowCount;
-      //   countBurned = response.data[1].rowCount;
-      // } else if (payloadSale.length) {
-      //   const upsertQuery = buildUpsertQuery(payloadSale);
-      //   response = await indexa.result(upsertQuery);
-      //   countSales = response?.rowCount ?? 0;
-      // } else if (payloadBurned.length) {
-      //   const deleteQuery = buildDeleteQuery(payloadBurned);
-      //   response = await indexa.result(deleteQuery);
-      //   countBurned = response?.rowCount ?? 0;
-      // }
-
-      if (payloadSale.length) {
-        const upsertQuery = buildUpsertQuery(payloadSale);
-        response = await indexa.result(upsertQuery);
-        countSales = response?.rowCount ?? 0;
+        console.log(
+          `synced blocks: ${startBlock}-${
+            stale ? endBlock : blockTrades
+          } [upserted: ${count}]`
+        );
       }
-
-      console.log(
-        `synced blocks: ${startBlock}-${
-          stale ? endBlock : blockTrades
-        } [upserted: ${countSales}, deleted: ${countBurned}]`
-      );
     } else {
       console.log(
         `synced blocks: ${startBlock}-${stale ? endBlock : blockTrades}`
