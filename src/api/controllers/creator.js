@@ -11,11 +11,7 @@ const getCreatedNfts = async (req, res) => {
   if (!checkCollection(creator))
     return res.status(400).json('invalid address!');
 
-  // note: rn we do not read factory info from nft_creator but directly
-  // from traces, meaning: in theory we could delete factory only based creator adapters
-
   const query = minify(`
--- shared contract collections
 WITH shared_collections AS (
     SELECT
         collection,
@@ -47,7 +43,7 @@ sovereign_collections_expanded AS (
     FROM
         ethereum.nft_transfers t
         INNER JOIN sovereign_collections s ON t.collection = s.collection
--- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
+        -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
     WHERE
         s.collection IN (
             SELECT
@@ -69,28 +65,53 @@ joined AS (
     FROM
         sovereign_collections_expanded
 ),
+-- excluding burned
+ex_burned AS (
+    SELECT
+        *
+    FROM
+        joined j
+    WHERE
+        NOT EXISTS (
+            SELECT
+                1
+            FROM
+                ethereum.nft_burned b
+            WHERE
+                j.collection = b.collection
+                AND j.token_id = b.token_id
+        )
+),
 ranked AS (
     SELECT
         collection,
         token_id,
         block_number,
-        ROW_NUMBER() OVER(PARTITION BY collection, token_id ORDER BY block_number ASC) AS rn
+        ROW_NUMBER() OVER(
+            PARTITION BY collection,
+            token_id
+            ORDER BY
+                block_number ASC
+        ) AS rn
     FROM
-        joined
+        ex_burned
 )
 SELECT
     concat(
-        encode(collection, 'hex'),
+        encode(r.collection, 'hex'),
         ':',
-        encode(token_id, 'escape')
-    ) AS nft
+        encode(r.token_id, 'escape')
+    ) AS nft,
+    a.eth_sale_price AS "ethSalePrice"
 FROM
-    ranked
+    ranked r
+    LEFT JOIN ethereum.nft_aggregation a ON r.collection = a.collection
+    AND r.token_id = a.token_id
 WHERE
     rn = 1
 ORDER BY
-    block_number DESC
-`);
+    r.block_number DESC
+      `);
 
   const response = await indexa.query(query, {
     creator: `\\${creator.slice(1)}`,
@@ -100,10 +121,7 @@ ORDER BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeaderFixedCache(300))
-    .status(200)
-    .json(response.map((i) => i.nft));
+  res.set(customHeaderFixedCache(300)).status(200).json(response);
 };
 
 const getCreatorsQuery = async (nfts) => {
@@ -216,127 +234,8 @@ const getCreators = async (req, res) => {
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
-const getCreatedNftsTest = async (req, res) => {
-  const creator = req.params.creator;
-  if (!checkCollection(creator))
-    return res.status(400).json('invalid address!');
-
-  const query = minify(`
-    WITH shared_collections AS (
-        SELECT
-            collection,
-            token_id,
-            block_number
-        FROM
-            ethereum.nft_creator
-        WHERE
-            creator = $<creator>
-            AND token_id IS NOT NULL
-    ),
-    -- sovereign collections (direct and factory)
-    sovereign_collections AS (
-        SELECT
-            address AS collection
-        FROM
-            ethereum.traces
-        WHERE
-            -- keep that order (order of the composite index)
-            TYPE = 'create'
-            AND transaction_from_address = $<creator>
-    ),
-    -- expand with token_id and remove any contract which is not in nft_transfers (INNER JOIN)
-    sovereign_collections_expanded AS (
-        SELECT
-            s.collection,
-            t.token_id,
-            t.block_number
-        FROM
-            ethereum.nft_transfers t
-            INNER JOIN sovereign_collections s ON t.collection = s.collection 
-            -- WHERE clause seems redundant but for whatever reason the query becomes unusable without it
-        WHERE
-            s.collection IN (
-                SELECT
-                    collection
-                FROM
-                    ethereum.nft_transfers
-            )
-    ),
-    -- combine
-    joined AS (
-        SELECT
-            *
-        FROM
-            shared_collections
-        UNION
-        ALL
-        SELECT
-            *
-        FROM
-            sovereign_collections_expanded
-    ),
-    -- excluding burned
-    ex_burned AS (
-        SELECT
-            *
-        FROM
-            joined j
-        WHERE
-            NOT EXISTS (
-                SELECT
-                    1
-                FROM
-                    ethereum.nft_burned b
-                WHERE
-                    j.collection = b.collection
-                    AND j.token_id = b.token_id
-            )
-    ),
-    ranked AS (
-        SELECT
-            collection,
-            token_id,
-            block_number,
-            ROW_NUMBER() OVER(
-                PARTITION BY collection,
-                token_id
-                ORDER BY
-                    block_number ASC
-            ) AS rn
-        FROM
-            ex_burned
-    )
-    SELECT
-        concat(
-            encode(r.collection, 'hex'),
-            ':',
-            encode(r.token_id, 'escape')
-        ) AS nft,
-        a.eth_sale_price
-    FROM
-        ranked r
-        LEFT JOIN ethereum.nft_aggregation a ON r.collection = a.collection
-        AND r.token_id = a.token_id
-    WHERE
-        rn = 1
-    ORDER BY
-        r.block_number DESC
-    `);
-
-  const response = await indexa.query(query, {
-    creator: `\\${creator.slice(1)}`,
-  });
-
-  if (!response) {
-    return new Error(`Couldn't get data`, 404);
-  }
-
-  res.set(customHeaderFixedCache(300)).status(200).json(response);
-};
-
 module.exports = {
   getCreatedNfts,
   getCreators,
   getCreatorsQuery,
-  getCreatedNftsTest,
 };
