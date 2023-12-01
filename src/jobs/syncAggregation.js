@@ -71,6 +71,7 @@ const getLastSalePrice = async (start, stop) => {
     'manifold',
     'rarible',
     'sealed',
+    'opensea',
   ];
 
   const response = await indexa.query(query, {
