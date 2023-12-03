@@ -11,5 +11,6 @@
       "saleEvent": true
     }
   ],
-  "version": "wyvern"
+  "version": "wyvern",
+  "blockStart": 5992161
 }

@@ -12,7 +12,7 @@
     "start:monitor": "node src/jobs/indexMonitor",
     "start:sync_nft_transfers": "node src/adapters/indexTransfers",
     "start:sync_nft_creator": "node src/creator/index",
-    "start:sync_nft_history_backfill": "node src/adapters/backfill.js -e=history -m=knownorigin-KODAV3SecondaryMarketplace -b=18346564 -r=100 -s=13080962",
+    "start:sync_nft_wyvern_backfill": "node src/adapters/backfill.js -e=trades -m=opensea-Wyvern -b=15257106 -r=100 -s=5992161",
     "start:sync_nft_aggregation": "node src/jobs/syncAggregation",
     "start:sync_nft_burned": "node src/jobs/syncBurned"
   },
