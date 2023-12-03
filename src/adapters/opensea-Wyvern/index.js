@@ -54,7 +54,13 @@ const parse = async (decodedData, event, events, interface, trace) => {
     tokenId = BigInt(`0x${transferEventNFT.data.slice(0, 64)}`);
   }
 
-  const { maker, taker, price } = decodedData;
+  const { maker, taker, price, sellHash } = decodedData;
+
+  // set buyer/seller based on sellHash value
+  const x =
+    '0x0000000000000000000000000000000000000000000000000000000000000000';
+  const seller = sellHash === x ? taker : maker;
+  const buyer = sellHash === x ? maker : taker;
 
   // --- sale info
   let paymentToken;
@@ -209,8 +215,8 @@ const parse = async (decodedData, event, events, interface, trace) => {
         ethSalePrice: ethSalePrice / numberOfNftsSold,
         usdSalePrice: usdSalePrice / numberOfNftsSold,
         paymentToken,
-        seller: maker,
-        buyer: taker,
+        seller,
+        buyer,
         royaltyRecipient,
         royaltyFeeEth: royaltyFeeEth / numberOfNftsSold,
         royaltyFeeUsd: royaltyFeeUsd / numberOfNftsSold,
@@ -226,8 +232,8 @@ const parse = async (decodedData, event, events, interface, trace) => {
     ethSalePrice,
     usdSalePrice,
     paymentToken,
-    seller: maker,
-    buyer: taker,
+    seller,
+    buyer,
     royaltyRecipient,
     royaltyFeeEth,
     royaltyFeeUsd,
