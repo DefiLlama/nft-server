@@ -389,7 +389,8 @@ SELECT
   block_time,
   encode(collection, 'hex') AS collection,
   encode(token_id, 'escape') AS token_id,
-  eth_sale_price
+  eth_sale_price,
+  encode(buyer, 'hex') AS to_address
 FROM
   ethereum.nft_trades
 WHERE
