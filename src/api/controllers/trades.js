@@ -385,19 +385,23 @@ const getUserSales = async (req, res) => {
 
   const query = `
 SELECT
-  encode(transaction_hash, 'hex') AS transaction_hash,
-  block_time,
-  encode(collection, 'hex') AS collection,
-  encode(token_id, 'escape') AS token_id,
-  eth_sale_price,
-  encode(buyer, 'hex') AS to_address
+  encode(t.transaction_hash, 'hex') AS transaction_hash,
+  t.block_time,
+  encode(t.collection, 'hex') AS collection,
+  encode(t.token_id, 'escape') AS token_id,
+  t.eth_sale_price,
+  encode(t.buyer, 'hex') AS to_address
 FROM
-  ethereum.nft_trades
+  ethereum.nft_trades t
+  LEFT JOIN ethereum.nft_aggregation a ON t.collection = a.collection
+  AND t.token_id = a.token_id
 WHERE
   seller = $<user>
+  AND creator_address = $<user>
 ORDER BY
-  block_number DESC,
-  log_index DESC`;
+  t.block_number DESC,
+  t.log_index DESC
+  `;
 
   const response = await indexa.query(query, {
     user: `\\${user.slice(1)}`,
