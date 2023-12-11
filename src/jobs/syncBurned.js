@@ -32,22 +32,23 @@ WHERE
 const getBurned = async (start, stop) => {
   const query = minify(`
 SELECT
-    encode(collection, 'hex') AS collection,
-    encode(token_id, 'escape') AS token_id,
-    encode(transaction_hash, 'hex') AS transaction_hash,
-    block_time,
-    block_number,
-    log_index,
-    encode(from_address, 'hex') AS from_address
+  encode(collection, 'hex') AS collection,
+  encode(token_id, 'escape') AS token_id,
+  encode(transaction_hash, 'hex') AS transaction_hash,
+  block_time,
+  block_number,
+  log_index,
+  encode(from_address, 'hex') AS from_address
 FROM
-    ethereum.nft_transfers t
+  ethereum.nft_transfers t
 WHERE
-    block_number >= $<start>
-    AND block_number <= $<stop>
-    AND (
-        to_address = '\\x0000000000000000000000000000000000000000'
-        OR to_address = '\\xdead000000000000000000000000000000000000'
-    )
+  block_number >= $<start>
+  AND block_number <= $<stop>
+  AND to_address IN (
+      '\\x0000000000000000000000000000000000000000',
+      '\\xdead000000000000000000000000000000000000',
+      '\\x000000000000000000000000000000000000dead'
+  )
 `);
 
   const response = await indexa.query(query, { start, stop });
