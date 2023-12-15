@@ -49,7 +49,7 @@ const parse = (decodedData, event, events, interface, trace, traces) => {
     let salePrice;
 
     if (transferEventNFT.topic_0 === nftTransferEvents['erc721_Transfer']) {
-      seller = transferEventNFT.topic_1.substring(24);
+      seller = trace.to_address;
       buyer = transferEventNFT.topic_2.substring(24);
       tokenId = BigInt(`0x${transferEventNFT.topic_3}`);
     } else if (
