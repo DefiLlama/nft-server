@@ -234,8 +234,40 @@ const getCreators = async (req, res) => {
     .json(response.map((c) => convertKeysToCamelCase(c)));
 };
 
+const getOwnershipTransferred = async (req, res) => {
+  const creator = req.params.creator;
+  if (!checkCollection(creator))
+    return res.status(400).json('invalid address!');
+
+  const query = `
+SELECT
+    encode(collection, 'hex') AS collection
+FROM
+    ethereum.nft_ownership_transferred
+WHERE
+    new_owner = $<creator>
+ORDER BY
+    block_time DESC,
+    log_index DESC
+  `;
+
+  const response = await indexa.query(query, {
+    creator: `\\${creator.slice(1)}`,
+  });
+
+  if (!response) {
+    return new Error(`Couldn't get data`, 404);
+  }
+
+  res
+    .set(customHeaderFixedCache(300))
+    .status(200)
+    .json(response.map((i) => i.collection));
+};
+
 module.exports = {
   getCreatedNfts,
   getCreators,
   getCreatorsQuery,
+  getOwnershipTransferred,
 };
