@@ -241,7 +241,8 @@ const getOwnershipTransferred = async (req, res) => {
 
   const query = `
 SELECT
-    encode(collection, 'hex') AS collection
+    encode(collection, 'hex') AS collection,
+    block_time
 FROM
     ethereum.nft_ownership_transferred
 WHERE
@@ -259,10 +260,7 @@ ORDER BY
     return new Error(`Couldn't get data`, 404);
   }
 
-  res
-    .set(customHeaderFixedCache(300))
-    .status(200)
-    .json(response.map((i) => i.collection));
+  res.set(customHeaderFixedCache(300)).status(200).json(response);
 };
 
 module.exports = {
