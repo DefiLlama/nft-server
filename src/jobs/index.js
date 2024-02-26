@@ -8,6 +8,7 @@ const exchangeVolume = require('./exchangeVolume');
 const collectionsFloorPrice = require('./collectionsFloorPrice');
 const collectionsVolume = require('./collectionsVolume');
 const exchangeStats = require('./exchangeStats');
+const royalties = require('./royalties');
 
 const startJobs = () => {
   setInterval(async () => {
@@ -58,6 +59,11 @@ const startJobs = () => {
   setInterval(async () => {
     console.log(`running exchangeStats job ${new Date()}...`);
     await exchangeStats();
+  }, 60 * 60 * 1000);
+
+  setInterval(async () => {
+    console.log(`running royalties job ${new Date()}...`);
+    await royalties();
   }, 60 * 60 * 1000);
 };
 
