@@ -100,7 +100,7 @@ SELECT
     g."7day_nb_trades",
     (g."1day_volume" / tdv.total_1day_volume) * 100 AS pct_of_total,
     g."7day_volume_prior",
-    (g."7day_volume" - g."7day_volume_prior") / g."7day_volume_prior" * 100 AS weekly_change
+    (g."7day_volume" - g."7day_volume_prior") / NULLIF(g."7day_volume_prior", 0) * 100 AS weekly_change
 FROM
     grouped g,
     total_daily_volume tdv;
