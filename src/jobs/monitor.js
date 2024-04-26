@@ -1,3 +1,4 @@
+const sdk = require('@defillama/sdk');
 const { getMaxBlock } = require('../adapters/queries');
 const sendMessage = require('../utils/discordWebhook');
 const { blockRangeMonitor } = require('../utils/params');
@@ -12,14 +13,18 @@ const job = async () => {
       )
     );
   });
+  const lastEthereumBlock = (await sdk.blocks.getCurrentBlocks()).ethereumBlock;
 
   // if more than 50 blocks old (10mins) then we want to trigger a discord msg
   // likely that app failed
-  const outdated = blockEvents - blockTrades > blockRangeMonitor;
-
-  if (outdated) {
+  if (blockEvents - blockTrades > blockRangeMonitor) {
     const message = `nft_trades outdated by ${
       blockEvents - blockTrades
+    } blocks!`;
+    await sendMessage(message, process.env.NFT_TRADES_WEBHOOK);
+  } else if (lastEthereumBlock - blockEvents > blockRangeMonitor) {
+    const message = `event_logs outdated by ${
+      lastEthereumBlock - blockEvents
     } blocks!`;
     await sendMessage(message, process.env.NFT_TRADES_WEBHOOK);
   }
