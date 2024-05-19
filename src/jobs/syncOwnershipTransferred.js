@@ -41,7 +41,6 @@ WHERE
   block_number >= $<start>
   AND block_number <= $<stop>
   AND topic_0 = '\\x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0'
-  AND topic_1 = '\\x0000000000000000000000000000000000000000000000000000000000000000'
   AND topic_2 IS NOT NULL
 `);
 
