@@ -1,0 +1,16 @@
+{
+  "exchangeName": "bitmagic",
+  "chainId": "200901",
+  "contracts": [
+    "0xD4B6264F10BA804E51251BcEDF1f4300cE9fD8C5"
+  ],
+  "events": [
+    {
+      "name": "orderItem",
+      "signatureHash": "0x8fcb421114739ac6dd3d4ace8077599bb692457467335d391f44eaf9fe417a28",
+      "saleEvent": true
+    }
+  ],
+  "version": "bitmagic-bitlayer",
+  "blockStart": 613933
+}
