@@ -51,17 +51,19 @@ const parse = (decodedData, event) => {
   const salePrice = price?.toString() / 1e18;
   const usdSalePrice = salePrice * 70000;
   const ethSalePrice = usdSalePrice / 4000;
-  return {
-    collection: nftContract,
-    tokenId: tokenId,
-    amount: 1,
-    salePrice: salePrice,
-    ethSalePrice: ethSalePrice,
-    usdSalePrice: usdSalePrice,
-    paymentToken: nullAddress,
-    seller: sellerAddress,
-    buyer: _user
-  };
+  if (_type == "doOrder") {
+    return {
+      collection: nftContract,
+      tokenId: tokenId,
+      amount: 1,
+      salePrice: salePrice,
+      ethSalePrice: ethSalePrice,
+      usdSalePrice: usdSalePrice,
+      paymentToken: nullAddress,
+      seller: sellerAddress,
+      buyer: _user
+    };
+  }
 
 };
 
