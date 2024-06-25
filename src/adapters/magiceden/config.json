@@ -1,0 +1,27 @@
+{
+  "exchangeName": "magiceden",
+  "contracts": ["0x9A1D00bEd7CD04BCDA516d721A596eb22Aac6834"],
+  "events": [
+    {
+      "name": "AcceptOfferERC1155",
+      "signatureHash": "0x6f4c56c4b9a9d2479f963d802b19d17b02293ce1225461ac0cb846c482ee3c3e",
+      "saleEvent": true
+    },
+    {
+      "name": "AcceptOfferERC721",
+      "signatureHash": "0x8b87c0b049fe52718fe6ff466b514c5a93c405fb0de8fbd761a23483f9f9e198",
+      "saleEvent": true
+    },
+    {
+      "name": "BuyListingERC1155",
+      "signatureHash": "0x1217006325a98bdcc6afc9c44965bb66ac7460a44dc57c2ac47622561d25c45a",
+      "saleEvent": true
+    },
+    {
+      "name": "BuyListingERC721",
+      "signatureHash": "0xffb29e9cf48456d56b6d414855b66a7ec060ce2054dcb124a1876310e1b7355c",
+      "saleEvent": true
+    }
+  ],
+  "blockStart": 19142797
+}
