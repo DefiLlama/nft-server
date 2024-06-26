@@ -163,6 +163,7 @@ const mapping = {
   x2y2: 'X2Y2',
   okx: 'OKX',
   'tiny astro': 'Tiny Astro',
+  magiceden: 'Magic Eden',
 };
 
 const formatName = (exchange_name) => {
