@@ -1,0 +1,19 @@
+{
+  "exchangeName": "element",
+  "contracts": [
+    "0x20F780A973856B93f63670377900C1d2a50a77c4"
+  ],
+  "events": [
+    {
+      "name": "ERC721SellOrderFilled",
+      "signatureHash": "0x9c248aa1a265aa616f707b979d57f4529bb63a4fc34dc7fc61fdddc18410f74e",
+      "saleEvent": true
+    },
+    {
+      "name": "ERC721BuyOrderFilled",
+      "signatureHash": "0xd90a5c60975c6ff8eafcf02088e7b50ae5d9e156a79206ba553df1c4fb4594c2",
+      "saleEvent": true
+    }
+  ],
+  "blockStart": 14589163
+}
