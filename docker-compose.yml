@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: nft
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U user -d nft']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # One-shot: runs nft migrations, the local indexa dev-schema migrations,
+  # then seeds a sample event per adapter we support. Retries the whole
+  # sequence a few times in case Postgres reports healthy slightly before
+  # it's actually ready to accept connections for the second database.
+  dev-setup:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - config.env
+    environment:
+      DATABASE_URL_NFT: postgres://user:password@postgres:5432/nft
+      DATABASE_URL_INDEXA: postgres://user:password@postgres:5432/ethereum
+    command: >
+      sh -c "
+        n=0;
+        until npm run dev:setup; do
+          n=$$((n+1));
+          if [ $$n -ge 5 ]; then echo 'dev-setup failed after 5 attempts'; exit 1; fi;
+          echo 'retrying dev-setup ('$$n'/5)...';
+          sleep 3;
+        done
+      "
+
+volumes:
+  pgdata:
