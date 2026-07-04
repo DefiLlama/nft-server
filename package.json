@@ -6,6 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "node-pg-migrate",
+    "migrate:nft": "node-pg-migrate -m migrations -d DATABASE_URL_NFT --envPath ./config.env up",
+    "migrate:indexa": "node-pg-migrate -m migrations-indexa -d DATABASE_URL_INDEXA --envPath ./config.env up",
+    "seed:indexa": "node scripts/seedIndexaDevData.js",
+    "dev:setup": "npm run migrate:nft && npm run migrate:indexa && npm run seed:indexa",
     "start:sync_nft_trades": "node src/adapters/index",
     "start:api": "node src/api/server",
     "start:jobs": "node src/jobs/index",
